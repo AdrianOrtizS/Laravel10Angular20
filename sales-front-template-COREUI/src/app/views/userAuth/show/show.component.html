@@ -1,0 +1,87 @@
+<div class="container mt-4">
+  <c-card>
+    <c-card-header class="d-flex justify-content-between align-items-center">
+      <h5>Perfil de usuario</h5>
+      <button cButton color="primary" (click)="openEdit()">
+        <svg [cIcon]="icons.cilPencil" size="lg"></svg> Editar
+      </button>
+    </c-card-header>
+
+    <c-card-body>
+      <div class="text-center mb-3">
+        <img [src]="user().imagen" class="rounded-circle shadow" width="100" height="100" alt="Avatar">
+        <h5 class="mt-2">{{ user().name }}</h5>
+        <p class="text-muted mb-1">{{ user().email }}</p>
+        <span class="badge bg-info me-1">{{ user().role }}</span>
+      </div>
+
+      <hr>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <strong>Sucursal:</strong> {{ user().branch.name || 'No asignada' }}
+        </div>
+        <div class="col-md-6">
+          <strong>Punto de venta:</strong> {{ user().point_of_sale || 'No asignado' }}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <h6>Cambiar contraseña</h6>
+          <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+            <!-- <div class="mb-2">
+              <input type="password" class="form-control" placeholder="Contraseña actual" formControlName="current_password">
+            </div> -->
+            <div class="mb-2">
+              <input type="password" class="form-control" placeholder="Nueva contraseña" formControlName="new_password">
+            </div>
+            <div class="mb-2">
+              <input type="password" class="form-control" placeholder="Confirmar contraseña" formControlName="confirm_password">
+            </div>
+            <button cButton color="success" type="submit" [disabled]="passwordForm.invalid">
+              <svg [cIcon]="icons.cilLockLocked" size="lg"></svg> Actualizar
+            </button>
+          </form>
+        </div>
+      </div>
+    </c-card-body>
+  </c-card>
+</div>
+
+<!-- Modal editar perfil -->
+<c-modal [(visible)]="showEditModal">
+  <c-modal-header>
+    <h5>Editar perfil</h5>
+  </c-modal-header>
+  <c-modal-body>
+    <form [formGroup]="profileForm">
+      <div class="mb-3">
+        <label cLabel>Nombre</label>
+        <input cFormControl type="text" formControlName="name">
+      </div>
+
+      <div class="mb-3">
+        <label cLabel for="imagen">Imagen: </label>
+        <div>
+            <input cFormControl type="file" style="display: none;" id="categorieImage" accept=".jpeg, .bmp, .jpg, .png, .gif, .webp" (change)="processFile($event)">
+        </div>
+        <div>
+            <img [src]="imagen_previsualiza" (click)="clickInputFileHide()"  
+                style="cursor:grab; margin-left: 20px; border: black 1px solid; 
+                width: 100px; height: 100px;" >
+        </div>
+      </div>
+
+
+      <!-- <div class="mb-3">
+        <label cLabel>Email</label>
+        <input cFormControl type="email" formControlName="email">
+      </div> -->
+    </form>
+  </c-modal-body>
+  <c-modal-footer>
+    <button cButton color="primary" (click)="saveProfile()" [disabled]="profileForm.invalid">Guardar</button>
+    <button cButton color="secondary" (click)="closeEdit()">Cancelar</button>
+  </c-modal-footer>
+</c-modal>

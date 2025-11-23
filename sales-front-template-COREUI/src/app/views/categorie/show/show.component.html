@@ -1,0 +1,32 @@
+@if(CATEGORIE){
+  <c-card class="mb-3" [ngStyle]="{'max-width.px': 540}">
+    <c-row class="g-0">
+      <c-col [md]="4" class="overflow-hidden position-relative">
+        <img cCardImg="start" [src]="imagen_previsualiza" class="d-none d-md-inline object-fit-cover" style="min-height: 100%; object-position: left">
+        <!-- <img cCardImg="top" src="./assets/img/angular.jpg" alt="CoreUI Angular Logo" class="d-md-none d-sm-inline"> -->
+      </c-col>
+      <c-card-body cCol [md]="8">
+        <h5 cCardTitle>{{name}}</h5>
+        <p cCardText>
+          {{description}}.
+        </p>
+        <p cCardText>
+          <small class="text-medium-emphasis">Creado {{tiempo_creacion}} </small>
+        </p>
+
+        <button cButton color="warning" title="Editar" (click)="goUpdateCategorie()">
+          <svg cIcon name="cil-pen" size="xl" ></svg>
+        </button>
+
+        <button cButton color="primary" title="Regresar" (click)="goBack()">
+          <svg [cIcon]="icons.cilActionUndo"  size="xl" ></svg>
+        </button>
+        
+      </c-card-body>
+    </c-row>
+  </c-card>
+}@else{
+  <div class="loading-overlay text-center p-5">
+      <div class="spinner-border" role="status" aria-hidden="true"></div>
+  </div>
+}

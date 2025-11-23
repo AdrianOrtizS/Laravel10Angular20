@@ -1,0 +1,223 @@
+@if(buys().length > 0){
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 p-3 bg-light rounded shadow-sm">
+
+  <div class="d-flex align-items-center gap-2 flex-grow-1">
+    <div class="position-relative w-100" *ngIf="!seeFilter">
+      <input  cFormControl type="text" [(ngModel)]="search" (keyup.enter)="searchTo()" 
+        placeholder="Buscar proveedor o comprobante..." class="w-100">
+
+      <span class="position-absolute end-0 top-50 translate-middle-y text-secondary me-3 d-flex align-items-center gap-1 small">
+        <svg [cIcon]="icons.cilSearch" size="sm"></svg>
+        <span>Enter</span>
+      </span>
+    </div>
+
+    <button *ngIf="!seeFilter" cButton color="info" shape="rounded-pill" title="Mostrar filtros" (click)="mostrarFiltros()">
+      <svg [cIcon]="icons.cilFilter" size="xl"></svg>
+    </button>
+    
+    <button *ngIf="!seeFilter" cButton color="secondary" shape="rounded-pill" title="Actualizar" (click)="refresh()">
+      <svg [cIcon]="icons.cilReload" size="xl"></svg>
+    </button>
+    <button *ngIf="!seeFilter" cButton color="primary" shape="rounded-pill" title="Nueva compra" (click)="createBuy()">
+      <svg [cIcon]="icons.cilPlus" size="xl"></svg>
+    </button>
+  </div>
+
+  <div *ngIf="seeFilter" class=" align-items-center  bg-white p-3 rounded border w-100 mt-2">
+    <div class="row">
+      <div class="col-md-10">
+        <div class="d-flex align-items-center gap-2">
+          <label class="fw-semibold text-secondary">Inicio:</label>
+          <input cFormControl type="date" [(ngModel)]="filterFrom" class="form-control-sm"/>
+          <label class="fw-semibold text-secondary">Fin:</label>
+          <input cFormControl type="date" [(ngModel)]="filterTo" class="form-control-sm"/>
+        </div>
+        <!-- <div class="d-flex align-items-center gap-2"></div> -->
+        <div class="d-flex m-3 ">
+          <label class="fw-semibold text-secondary">Tipo pago:</label>
+          <div class="d-flex gap-2 " style="margin-inline-start: 10px;">
+            <c-form-check inline>
+              <input cFormCheckInput [(ngModel)]="selectedTypePay" (change)="onTypePayChange()" value=1 id="radioContado" name="typePay" type="radio"/>
+              <label cFormCheckLabel for="radioContado">Contado</label>
+            </c-form-check>
+
+            <c-form-check inline>
+              <input cFormCheckInput [(ngModel)]="selectedTypePay" (change)="onTypePayChange()" value=2 id="radioCredito" name="typePay" type="radio"/>
+              <label cFormCheckLabel for="radioCredito">Crédito</label>
+            </c-form-check>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <button cButton color="info" shape="rounded-pill" title="Buscar" (click)="searchTo()">
+          <svg [cIcon]="icons.cilSearch" size="lg"></svg>
+        </button>
+        <button cButton color="danger" shape="rounded-pill" title="Quitar filtro" (click)="ocultarFiltros()">
+          <svg [cIcon]="icons.cilX" size="xl"></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <table bordered  cTable>
+    <thead cTableColor="light">
+      <tr>
+        <th scope="col">Compra #</th>
+        <th scope="col">Proveedor</th>
+        <th scope="col">Fecha</th>
+        <th scope="col">Total</th>
+        <th scope="col">Accion</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of buys(); track item.id) {
+        <tr>
+          <td style="width: 150px;">{{item.numero_factura}}</td>
+          <td style="width: 150px;">{{item.supplier.name}}</td>
+          <td style="width: 100px;">{{item.created_at|date: 'dd/MM/yyyy'}}</td>
+          <td style="width: 80px;">{{item.total}}</td>
+
+          <td style="width: 60px;"> 
+            <c-button-group aria-label="Basic mixed styles example" role="group">
+              <button cButton color="info" title="Ver" (click)="verBuy(item.id)">
+                <svg [cIcon]="icons.cilLowVision" size="xl" ></svg>
+              </button>
+              @if(item.saldo > 0){
+                <button cButton color="warning" *ngIf="item.type_pay == '2'" title="Abonar a compra" (click)="abrirModal(item.id)" >
+                  <svg [cIcon]="icons.cilMoney" size="xl"></svg>
+                </button>
+              }
+              @if(item.type_pay == 1 || item.saldo == 0){
+                <button cButton color="ligth"  title="Cancelada" >
+                  <svg [cIcon]="icons.cilMoney" size="xl"></svg>
+                </button>
+              }
+
+              <c-modal [visible]="modalId() === item.id" title="Abonar documento # {{item.numero_factura}}" (close)="cerrarModal()">
+                <c-modal-header>
+                  <h5 cModalTitle>Abono a factura #{{item.numero_factura}}</h5>
+                  <button (click)="cerrarModal()" cButtonClose></button>
+                </c-modal-header>
+                <c-modal-body>
+                  <c-card class="mb-4">
+                    <c-card-body>
+                      
+                      <div class="row">
+                          <div class="col-md-12 mb-3 text-center">
+                              <label class="h5"> Saldo: {{item.saldo}}</label>
+                          </div>
+                          <div class="col-md-12 mb-3">
+                              <label>Comprobante #</label>
+                              <input cInput type="text" class="form-control" required placeholder="0001230345" [(ngModel)]="num_comprobante_abono">
+                          </div>
+                          <div class="col-md-12 mb-3">
+                              <label>Monto </label>
+                              <input cInput type="number" class="form-control" required placeholder="9,87" [(ngModel)]="valor_abono" >
+                          </div>
+                          <div class="col-md-12 mb-3">
+                              <label cLabel for="imagen">Imagen: </label>
+                              <div>
+                                  <input cFormControl type="file" style="display: none;" id="categorieImage" accept=".jpeg, .bmp, .jpg, .png, .gif, .webp" (change)="processFile($event)">
+                              </div>
+                              <div>
+                                  <img [src]="imagen_previsualiza" (click)="clickInputFileHide()" 
+                                      style="cursor:grab; margin-left: 20px; border: black 1px solid; 
+                                        width: 100px; height: 100px;">
+                              </div>
+                          </div>
+                      </div>
+                    </c-card-body>
+                  </c-card>
+                </c-modal-body>
+                <c-modal-footer>
+                  <button cButton color="success" [disabled]="disabledPay(item)" (click)="savePay(item.id, item)">Guardar abono</button>
+                  <button cButton color="secondary" (click)="cerrarModal()">Cancelar</button>
+                </c-modal-footer>
+              </c-modal>
+
+              <button cButton color="danger" title="Eliminar" (click)="abrirModalDelete(item.id)" >
+                <svg [cIcon]="icons.cilTrash" size="xl" ></svg>
+              </button>
+
+              <c-modal [visible]="modalIdDelete() === item.id"  (close)="cerrarModalDelete()">
+                <c-modal-header>
+                  <h5 cModalTitle>Eliminar compra <strong>#{{item.numero_factura}}</strong></h5>
+                  <button (click)="cerrarModalDelete()" cButtonClose></button>
+                </c-modal-header>
+                <c-modal-body>
+                  Al eliminar la compra se modificará el inventario actual<br>
+                  ¿Desea eliminar compra?
+                </c-modal-body>
+                <c-modal-footer>
+                  <button cButton color="danger"  (click)="removeBuy(item.id)">Eliminar compra</button>
+                  <button cButton color="secondary" (click)="cerrarModalDelete()">Cancelar</button>
+                </c-modal-footer>
+              </c-modal>
+
+            </c-button-group>
+          </td>
+        </tr>
+      } 
+    </tbody>
+  </table>
+  
+  <div class="div-fijo-abajo" style="display: flex;">
+    
+    <ngb-pagination
+        [collectionSize]="totalPages"
+        [ellipses]="true"
+        [maxSize]="5"
+        [(page)]="currentPage"
+        [pageSize]="pageSize"
+        [rotate]="true"
+        [boundaryLinks]="true"
+        (pageChange)="loadPage($event)">
+    </ngb-pagination>
+    <select [(ngModel)]="pageSize" (change)="listarBuys()">
+      @for (item of itemForPage; track item.id) {
+        <option  value="{{item.val}}">{{item.val}}</option>
+      }
+    </select>
+  </div>
+}@else if(verifData == 0){
+          <div class="loading-overlay text-center p-5">
+              <div class="spinner-border" role="status" aria-hidden="true"></div>
+          </div>
+        }
+        @else{
+            <div class="d-flex justify-content-end align-items-center gap-3 p-2">
+              <button cButton color="secondary" shape="rounded-pill" title="Actualizar" (click)="refresh()">
+                <svg [cIcon]="icons.cilReload" size="lg"></svg>
+              </button>
+
+              <button cButton color="primary" shape="rounded-pill" title="Nuevo" (click)="createBuy()">
+                <svg [cIcon]="icons.cilPlus" size="lg"></svg>
+              </button>
+            </div>
+
+
+            <table bordered  cTable>
+              <thead cTableColor="light">
+                <tr>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                      <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M7 9h10M7 13h10M7 17h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12.5a1.5 1.5 0 0 1-2.33 1.24L12 16l-5.67 3.74A1.5 1.5 0 0 1 4 18.5V6Z" stroke="currentColor" stroke-width="1.5" />
+                      </svg>
+                      <h1>No hay datos para mostrar</h1>
+                      <p>
+                        Aún no se encontraron registros. Intenta ajustar los filtros, crear un nuevo elemento
+                        o recargar la página.
+                      </p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+        }

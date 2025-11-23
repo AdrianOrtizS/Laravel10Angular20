@@ -1,0 +1,43 @@
+@if(isFull){
+  <c-card class="mb-3" [ngStyle]="{'max-width.px': 540}">
+    <c-row class="g-0">
+      <!-- <c-col [md]="4" class="overflow-hidden position-relative">
+        <img cCardImg="start" [src]="imagen_previsualiza" class="d-none d-md-inline object-fit-cover" style="min-height: 100%; object-position: left">
+      </c-col> -->
+      <c-card-body cCol [md]="8" style="margin: 40px;">
+        <!-- <h6 cCardTitle>Nombre: {{SUPPLIER().name}}</h6> -->
+        <p cCardText>
+          <strong>Nombre: </strong>  {{SUPPLIER().name}}.
+        </p>
+        <p cCardText>
+          <strong>N° Identificador:</strong>  {{SUPPLIER().num_identificador}}.
+        </p>
+        <p cCardText>
+          <strong>Email:</strong>  {{SUPPLIER().email}}.
+        </p>
+        <p cCardText>
+          <strong>Telefono:</strong>  {{SUPPLIER().phone}}.
+        </p>
+        <p cCardText>
+          <strong>Direccion:</strong>  {{SUPPLIER().address}}.
+        </p>
+        <p cCardText>
+          <small class="text-medium-emphasis">Creado {{tiempo_creacion}} </small>
+        </p>
+
+        <button cButton color="warning" title="Editar" (click)="goUpdateSupplier()">
+          <svg cIcon name="cil-pen" size="xl" ></svg>
+        </button>
+
+        <button cButton color="primary" title="Regresar" (click)="goBack()">
+          <svg [cIcon]="icons.cilActionUndo"  size="xl" ></svg>
+        </button>
+        
+      </c-card-body>
+    </c-row>
+  </c-card>
+}@else{
+  <div class="loading-overlay text-center p-5">
+      <div class="spinner-border" role="status" aria-hidden="true"></div>
+  </div>
+}

@@ -1,0 +1,159 @@
+@if(customers().length != 0){
+  <div class="d-flex align-items-center gap-2 m-2">
+      <input cFormControl id="buscarInput" [(ngModel)]="search"  placeholder="Buscar..." type="text"/>
+      <button cButton color="info" shape="rounded-pill" title="Buscar" (click)="searchTo()">
+        <svg [cIcon]="icons.cilMagnifyingGlass" size="xl"></svg>
+      </button>
+      <button cButton color="secondary" shape="rounded-pill" title="Actualizar" (click)="refresh()">
+        <svg [cIcon]="icons.cilReload" size="xl"></svg>
+      </button>
+      <button cButton color="primary" shape="rounded-pill" title="Nuevo" (click)="createCustomer()">
+        <svg [cIcon]="icons.cilPlus" size="xl"></svg>
+      </button>
+  </div>
+  <table bordered  cTable>
+    <thead cTableColor="light">
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Nombre</th>
+        <th scope="col">N° Identificador</th>
+        <th scope="col">Email</th>
+        <th scope="col">Telefono</th>
+        <th scope="col">Estado</th>
+        <th scope="col">Accion</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of customers(); track item.id) {
+        <tr>
+          <th scope="row" style="width: 40px;">{{item.id}}</th>
+          <td style="width: 200px;">{{item.name}}</td>
+          <td style="width: 90px; text-align: center;">{{item.num_identificador}}</td>
+          <td style="width: 90px; text-align: center;">{{item.email}}</td>
+          <td style="width: 60px; text-align: center;">{{item.phone}}</td>
+          <td style="width: 60px;">
+            @if(item.state == 1){
+              <button cButton color="success" variant="outline" shape="rounded-pill" (click)="abrirModal(item.id)" title="Activo">
+                <svg [cIcon]="icons.cilToggleOn" size="xl"></svg>
+              </button>
+
+              <!-- Modal controlado por [visible] -->
+              <c-modal [visible]="modalId() === item.id" title="Desactivar {{item.name}}" (close)="cerrarModal()">
+                <c-modal-header>
+                  <h5 cModalTitle>Desactivar cliente</h5>
+                  <button (click)="cerrarModal()" cButtonClose></button>
+                </c-modal-header>
+                <c-modal-body>
+                  ¿Deseas desactivar cliente: <strong> {{item.name}} </strong>?
+                </c-modal-body>
+                <c-modal-footer>
+                  <button cButton color="secondary" (click)="cerrarModal()">Cerrar</button>
+                  <button cButton color="danger" (click)="changeState(item.id)">Desactivar</button>
+                </c-modal-footer>
+              </c-modal>
+            }
+            @if(item.state == 0){
+              
+              <!-- Botón abre el modal -->
+              <button cButton color="danger" variant="outline" shape="rounded-pill" (click)="abrirModal(item.id)" title="Inactivo">
+                <svg [cIcon]="icons.cilToggleOff" size="xl"></svg>
+              </button>
+
+              <!-- Modal controlado por [visible] -->
+              <c-modal [visible]="modalId() === item.id" title="Desactivar {{item.name}}" (close)="cerrarModal()">
+                <c-modal-header>
+                  <h5 cModalTitle>Activar cliente</h5>
+                  <button (click)="cerrarModal()" cButtonClose></button>
+                </c-modal-header>
+                <c-modal-body>
+                  ¿Deseas activar cliente: <strong> {{item.name}} </strong>?
+                </c-modal-body>
+                <c-modal-footer>
+                  <button cButton color="secondary" (click)="cerrarModal()">Cerrar</button>
+                  <button cButton color="success" (click)="changeState(item.id)">Activar</button>
+                </c-modal-footer>
+              </c-modal>
+            }
+          </td>
+          <td style="width: 60px;"> 
+            <c-button-group aria-label="Basic mixed styles example" role="group">
+              <button cButton color="info" title="Ver" (click)="verCustomer(item)">
+                <svg [cIcon]="icons.cilLowVision" size="xl" ></svg>
+              </button>
+              <button cButton color="warning" title="Editar" (click)="editCustomer(item)">
+                <svg cIcon name="cil-pen" size="xl" ></svg>
+              </button>
+            </c-button-group>
+          </td>
+        </tr>
+      } 
+    </tbody>
+  </table>
+  
+    
+  
+  <div class="div-fijo-abajo" style="display: flex;">
+    
+    <ngb-pagination
+        [collectionSize]="totalPages"
+        [ellipses]="true"
+        [maxSize]="5"
+        [(page)]="currentPage"
+        [pageSize]="pageSize"
+        [rotate]="true"
+        [boundaryLinks]="true"
+        (pageChange)="loadPage($event)">
+    </ngb-pagination>
+    <select [(ngModel)]="pageSize" (change)="listarCustomers()">
+      @for (item of itemForPage; track item.id) {
+        <option  value="{{item.val}}">{{item.val}}</option>
+      }
+    </select>
+  </div>
+<!-- }@else{
+  <div class="loading-overlay text-center p-5">
+      <div class="spinner-border" role="status" aria-hidden="true"></div>
+   
+  </div>
+} -->
+
+}@else if(verifData == 0){
+          <div class="loading-overlay text-center p-5">
+              <div class="spinner-border" role="status" aria-hidden="true"></div>
+          </div>
+        }
+        @else{
+            <div class="d-flex align-items-center gap-2 m-2">
+              <input cFormControl id="buscarInput" [(ngModel)]="search"  placeholder="Buscar..." type="text"/>
+              <button cButton color="info" shape="rounded-pill" title="Buscar" (click)="searchTo()">
+                <svg [cIcon]="icons.cilMagnifyingGlass" size="xl"></svg>
+              </button>
+              <button cButton color="secondary" shape="rounded-pill" title="Actualizar" (click)="refresh()">
+                <svg [cIcon]="icons.cilReload" size="xl"></svg>
+              </button>
+              <button cButton color="primary" shape="rounded-pill" title="Nuevo" (click)="createCustomer()">
+                <svg [cIcon]="icons.cilPlus" size="xl"></svg>
+              </button>
+            </div>
+            <table bordered  cTable>
+              <thead cTableColor="light">
+                <tr>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                      <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M7 9h10M7 13h10M7 17h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12.5a1.5 1.5 0 0 1-2.33 1.24L12 16l-5.67 3.74A1.5 1.5 0 0 1 4 18.5V6Z" stroke="currentColor" stroke-width="1.5" />
+                      </svg>
+                      <h1>No hay datos para mostrar</h1>
+                      <p>
+                        Aún no se encontraron registros. Intenta ajustar los filtros, crear un nuevo elemento
+                        o recargar la página.
+                      </p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+        }

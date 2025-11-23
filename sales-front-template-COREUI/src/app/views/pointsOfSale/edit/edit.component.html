@@ -1,0 +1,77 @@
+@if(!isEmpty){
+    <c-row ngPreserveWhitespaces>
+    <c-col xs="8">
+        <c-card class="mb-4" *ngIf="POINTSOFSALE()">
+        <c-card-header >
+            Punto de venta: <strong> {{POINTSOFSALE().codigo_punto_emision}}</strong>
+        </c-card-header>
+        <c-card-body>
+            <div class="tab-content rounded-bottom">
+                <div class="tab-pane active show p-3 preview fade">
+                    <div>
+                        <div class="mb-3">
+                            <select aria-label="Default select example" name="id_branch" cSelect  
+                                    [ngModelOptions]="{ standalone: true }" 
+                                    [(ngModel)]="POINTSOFSALE().id_branch" 
+                                    (ngModelChange)="updateId_branch($event)">
+                                <option value="0">- Seleccione sucursal(*) -</option>
+                                @for(item of Branches; track item.id){
+                                    <option [value]="item.id">{{item.name}}</option>
+                                }    
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label cLabel for="codigo_punto_emision">Codigo punto emision (*)</label>
+                            <input cFormControl id="codigo_punto_emision" placeholder="Ej: 001..." type="text" [value]="POINTSOFSALE().codigo_punto_emision" (input)="updateCodigoPuntoEmision($event)" required/>    
+                            <div *ngIf="!POINTSOFSALE().codigo_punto_emision.trim() && POINTSOFSALE().codigo_punto_emision !== ''" class="text-danger mt-1">
+                                Código es obligatorio
+                            </div> 
+                        </div>                    
+                        <div class="mb-3">
+                            <label cLabel for="secuencial_actual">Secuencial (*)</label>
+                            <input cFormControl id="secuencial_actual" placeholder="Ej: 16..." type="number" [value]="POINTSOFSALE().secuencial_actual" (input)="updateSecuencialActual($event)" required/>    
+                            <div *ngIf="POINTSOFSALE().secuencial_actual < 0" class="text-danger mt-1">
+                                Secuencial es obligatorio
+                            </div> 
+                        </div>    
+                        
+                        <div class="mb-3">
+                            <label cLabel for="descripcion">Descripcion (*)</label>
+                            <input cFormControl id="descripcion" placeholder="Ej: Punto de venta esta ..." type="text" [value]="POINTSOFSALE().descripcion" (input)="updateDescripcion($event)" required/>    
+                            <div *ngIf="!POINTSOFSALE().descripcion.trim() && POINTSOFSALE().descripcion !== ''" class="text-danger mt-1">
+                                Descripcion es obligatorio
+                            </div>
+                        </div>
+                    </div>
+                
+                <div class="d-grid gap-2">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button cButton color="primary" title="Guardar" (click)="save()" [disabled]="!isFormValid()" class="w-100">
+                                <svg [cIcon]="icons.cilSave" size="xl" ></svg>
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button cButton color="danger" title="Cancelar" (click)="goList()" class="w-100">
+                                <svg [cIcon]="icons.cilBan" size="xl" ></svg>
+                            </button>                                                                
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content rounded-bottom">
+            <div class="tab-pane active show p-3 preview fade">
+                <ng-content />
+            </div>
+        </div>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+}@else{
+  <div class="loading-overlay text-center p-5">
+      <div class="spinner-border" role="status" aria-hidden="true"></div>
+  </div>
+}
+

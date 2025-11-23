@@ -1,0 +1,39 @@
+<c-row ngPreserveWhitespaces>
+  <c-col xs="8">
+    <c-card class="mb-4" >
+      <c-card-header >
+        <strong> Nueva configuracion</strong> 
+      </c-card-header>
+      <c-card-body>
+        <div class="tab-content rounded-bottom">
+            <div class="tab-pane active show p-3 preview fade">
+                <div>
+                    <div class="mb-3">
+                        <label cLabel for="name">Nombre configuracion (*)</label>
+                        <input cFormControl id="name" [ngModelOptions]="{standalone: true}" [(ngModel)]="name" placeholder="Ej: version xml..." type="text" />
+                    </div>
+                    <div class="mb-3">
+                        <label cLabel for="value">Valor (*)</label>
+                        <input cFormControl id="value" [ngModelOptions]="{standalone: true}" [(ngModel)]="value" placeholder="Ej: 2.1.0 ..." type="text" />
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button cButton color="primary" title="Guardar" (click)="save()">
+                        <svg [cIcon]="icons.cilSave" size="xl" ></svg>
+                    </button>
+                    <button cButton color="danger" title="Cancelar" (click)="goList()">
+                        <svg [cIcon]="icons.cilBan" size="xl" ></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content rounded-bottom">
+            <div class="tab-pane active show p-3 preview fade">
+                <ng-content />
+            </div>
+        </div>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>

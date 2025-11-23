@@ -1,0 +1,83 @@
+<c-row ngPreserveWhitespaces>
+  <c-col xs="10">
+    <c-card class="mb-4" >
+      <c-card-header >
+        <strong> Nuevo proveedor</strong> 
+      </c-card-header>
+      <c-card-body>
+        <div class="tab-content rounded-bottom">
+            <div class="tab-pane active show p-3 preview fade">
+                <div>
+                    <div class="mb-3">
+                        <label cLabel for="name">Nombre (*)</label>
+                        <input cFormControl id="name" placeholder="Ej: Simón Bolívar" type="text" [value]="SUPPLIER().name" (input)="updateName($event)" required/>    
+                        <!-- <input cFormControl id="name" [ngModelOptions]="{standalone: true}" [(ngModel)]="SUPPLIER().name" placeholder="Ej: Simon Bolivar ..." type="text"/> -->
+                        <div *ngIf="!SUPPLIER().name.trim() && SUPPLIER().name !== ''" class="text-danger mt-1">
+                            El nombre es obligatorio
+                        </div> 
+                    </div>
+                    <div class="mb-3">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label cLabel for="num_identificador">#Identificadpr (*)</label>
+                                <input cFormControl id="num_identificador" placeholder="Ej: 1718192021" type="text" [value]="SUPPLIER().num_identificador" (input)="updateNumIdentificador($event)" required />
+                                <!-- <input cFormControl id="num_identificador" [ngModelOptions]="{standalone: true}" [(ngModel)]="SUPPLIER().num_identificador" placeholder="Ej: 1712338765" type="text" /> -->
+                                <div *ngIf="!SUPPLIER().num_identificador.trim() && SUPPLIER().num_identificador !== ''" class="text-danger mt-1">
+                                    El #Identificador es obligatorio
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label cLabel for="email">Email (*)</label>
+                                <input cFormControl id="email" placeholder="Ej: ejemplo@email.com" type="email" [value]="SUPPLIER().email" (input)="updateEmail($event)" required />
+                                <div *ngIf="SUPPLIER().email && !isEmailValid()" class="text-danger mt-1">
+                                    Formato de correo inválido
+                                </div>
+                                <!-- <input cFormControl id="email" [ngModelOptions]="{standalone: true}" [(ngModel)]="SUPPLIER().email" placeholder="Ej: email@gmail.com" type="email" /> -->
+                            </div>
+                            <div class="col-md-4">
+                                <label cLabel for="phome">Telefono (*)</label>
+                                <input cFormControl id="phone" placeholder="Ej: 0987654321" type="tel" [value]="SUPPLIER().phone" (input)="updatePhone($event)"/>
+                                <!-- <input cFormControl id="phome" [ngModelOptions]="{standalone: true}" [(ngModel)]="SUPPLIER().phone" placeholder="Ej: 0982223471" type="text" /> -->
+                                <div *ngIf="!SUPPLIER().phone.trim() && SUPPLIER().phone !== ''" class="text-danger mt-1">
+                                    El teléfono es obligatorio
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label cLabel for="address">Direccion (*)</label>
+                        <input cFormControl id="address" placeholder="Ej: Av siempre viva" type="text" [value]="SUPPLIER().address" (input)="updateAddress($event)"/>
+                        <!-- <input cFormControl id="address" [ngModelOptions]="{standalone: true}" [(ngModel)]="SUPPLIER().address" placeholder="Ej: Av. amazonas 0e3-123 y ..." type="text" /> -->
+                        <div *ngIf="!SUPPLIER().address.trim() && SUPPLIER().address !== ''" class="text-danger mt-1">
+                            La direccion es obligatorio
+                        </div>
+                    </div>
+
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button cButton color="primary" title="Guardar" (click)="save()" [disabled]="!isFormValid()" class="w-100">
+                                <svg [cIcon]="icons.cilSave" size="xl" ></svg>
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button cButton color="danger" title="Cancelar" (click)="goList()" class="w-100">
+                                <svg [cIcon]="icons.cilBan" size="xl" ></svg>
+                            </button>                                
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content rounded-bottom">
+            <div class="tab-pane active show p-3 preview fade">
+                <ng-content />
+            </div>
+        </div>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+

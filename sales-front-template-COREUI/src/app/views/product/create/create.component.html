@@ -1,0 +1,105 @@
+<c-row ngPreserveWhitespaces>
+  <c-col xs="8">
+    <c-card class="mb-4" >
+      <c-card-header >
+        <strong> Nuevo producto</strong> 
+      </c-card-header>
+      <c-card-body>
+        <div class="tab-content rounded-bottom">
+            <div class="tab-pane active show p-3 preview fade">
+                <div>
+                    <div class="mb-3">
+                        <select aria-label="Default select example" cSelect name="id_categorie" 
+                                [value]="PRODUCT().id_categorie" (input)="updateId_categorie($event)">
+                            <option value="0">- Seleccione categoria(*) -</option>
+                            @for(item of Categories; track item.id){
+                                <option [value]="item.id">{{item.name}}</option>
+                            }    
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label cLabel for="cod_pro">Codigo (*)</label>
+                        <input cFormControl id="cod_pro" placeholder="Ej: pdaveoact..." type="text" [value]="PRODUCT().cod_pro" (input)="updateCod($event)" required/>    
+                        <div *ngIf="!PRODUCT().cod_pro.trim() && PRODUCT().cod_pro !== ''" class="text-danger mt-1">
+                            Código es obligatorio
+                        </div> 
+                    </div>                    
+                    <div class="mb-3">
+                        <label cLabel for="name">Nombre (*)</label>
+                        <input cFormControl id="name" placeholder="Ej: Producto A..." type="text" [value]="PRODUCT().name" (input)="updateName($event)" required/>    
+                        <div *ngIf="!PRODUCT().name.trim() && PRODUCT().name !== ''" class="text-danger mt-1">
+                            Nombre es obligatorio
+                        </div> 
+                    </div>
+                    <div class="mb-3">
+                        <label cLabel for="description">Descripcion (*)</label>
+                        <input cFormControl id="description" placeholder="Ej: Grupo de productos que ..." type="text" [value]="PRODUCT().description" (input)="updateDescription($event)" required/>    
+                        <div *ngIf="!PRODUCT().name.trim() && PRODUCT().name !== ''" class="text-danger mt-1">
+                            Descripcion es obligatorio
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label cLabel for="price">Precio (*)</label>
+                                <input cFormControl id="price" placeholder="Ej: 2.23" type="number" [value]="PRODUCT().price" (input)="updatePrice($event)" required/>    
+                                <div *ngIf="!PRODUCT().price.trim() && PRODUCT().price !== ''" class="text-danger mt-1">
+                                    Precio es obligatorio
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label cLabel for="stock">Stock (*)</label>
+                                <!-- <input cFormControl id="stock" [ngModelOptions]="{standalone: true}" [(ngModel)]="PRODUCT().stock" placeholder="Ej: 7" type="number" /> -->
+                                <input cFormControl id="stock" placeholder="Ej: 7" type="number" [value]="PRODUCT().stock" (input)="updateStock($event)" required/>    
+                                <div *ngIf="!PRODUCT().stock.trim() && PRODUCT().stock !== ''" class="text-danger mt-1">
+                                    Stock es obligatorio
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label cLabel for="stock">Stock minimo(*)</label>
+                                <!-- <input cFormControl id="stock" [ngModelOptions]="{standalone: true}" [(ngModel)]="PRODUCT().stock" placeholder="Ej: 7" type="number" /> -->
+                                <input cFormControl id="stock_min" placeholder="Ej: 7" type="number" [value]="PRODUCT().stock_min" (input)="updateStockMin($event)" required/>    
+                                <div *ngIf="!PRODUCT().stock_min.trim() && PRODUCT().stock_min !== ''" class="text-danger mt-1">
+                                    Stock es obligatorio
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label cLabel for="imagen">Imagen: </label>
+                        <div>
+                            <input cFormControl type="file" style="display: none;" id="productImage" accept=".jpeg, .bmp, .jpg, .png, .gif, .webp" (change)="processFile($event)">
+                        </div>
+                        <div>
+                            <img [src]="imagen_previsualiza" (click)="clickInputFileHide()" 
+                                 style="cursor:grab; margin-left: 20px; border: black 1px solid; 
+                                  width: 100px; height: 100px;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button cButton color="primary" title="Guardar" (click)="save()" [disabled]="!isFormValid()" class="w-100">
+                                <svg [cIcon]="icons.cilSave" size="xl" ></svg>
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button cButton color="danger" title="Cancelar" (click)="goList()" class="w-100">
+                                <svg [cIcon]="icons.cilBan" size="xl" ></svg>
+                            </button>                                                                
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content rounded-bottom">
+            <div class="tab-pane active show p-3 preview fade">
+                <ng-content />
+            </div>
+        </div>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>

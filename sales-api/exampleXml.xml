@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<factura id="comprobante" version="1.1.0"> 
+	<infoTributaria> 
+		<ambiente>2</ambiente> 
+		<tipoEmision>1</tipoEmision> 
+		<razonSocial>PRODUCTOS COMERCIALES E INDUSTRIALES IMPORTADORA COMMINPORT S.A.S.</razonSocial> 
+		<ruc>1793217508001</ruc> 
+		<claveAcceso>2307202501179321750800120010020000001271234567816</claveAcceso> 
+		<codDoc>01</codDoc> 
+		<estab>001</estab> 
+		<ptoEmi>002</ptoEmi> 
+		<secuencial>000000127</secuencial> 
+		<dirMatriz>QUITUMBE NAN Y ALBAN DE ROMERO</dirMatriz> 
+		<contribuyenteRimpe>CONTRIBUYENTE RÉGIMEN RIMPE</contribuyenteRimpe> 
+	</infoTributaria> 
+	<infoFactura> 
+		<fechaEmision>23/07/2025</fechaEmision> 
+		<dirEstablecimiento>QUITUMBE NAN Y ALBAN DE ROMERO</dirEstablecimiento> 
+		<obligadoContabilidad>SI</obligadoContabilidad> 
+		<tipoIdentificacionComprador>04</tipoIdentificacionComprador> 
+		<razonSocialComprador>LUNA MOYA JOEL EDUARDO</razonSocialComprador> 
+		<identificacionComprador>1718251638001</identificacionComprador> 
+		<direccionComprador>LOS LIBERTADORES OE4-131 Y PASAJE VIRACOCHA</direccionComprador> 
+		<totalSinImpuestos>36.00</totalSinImpuestos> 
+		<totalDescuento>0.00</totalDescuento> 
+		<totalConImpuestos> <totalImpuesto> 
+			<codigo>2</codigo> 
+			<codigoPorcentaje>4</codigoPorcentaje> 
+			<baseImponible>36.00</baseImponible> 
+			<valor>5.4</valor> 
+		</totalImpuesto> 
+	</totalConImpuestos> 
+	<propina>0.00</propina> 
+	<importeTotal>41.40</importeTotal> 
+	<moneda>DOLAR</moneda> 
+	<pagos> 
+		<pago> 
+			<formaPago>20</formaPago> 
+			<total>41.40</total> 
+			<plazo>0</plazo> 
+			<unidadTiempo>dias</unidadTiempo> 
+		</pago> 
+	</pagos> 
+</infoFactura> 
+<detalles> 
+	<detalle> 
+		<codigoPrincipal>B13</codigoPrincipal> 
+		<codigoAuxiliar>B13</codigoAuxiliar> 
+		<descripcion>NISSAN SENTRA B13</descripcion> 
+		<cantidad>1</cantidad> 
+		<precioUnitario>36.00</precioUnitario> 
+		<descuento>0.00</descuento> 
+		<precioTotalSinImpuesto>36.00</precioTotalSinImpuesto> 
+		<impuestos> 
+			<impuesto> 
+				<codigo>2</codigo> 
+				<codigoPorcentaje>4</codigoPorcentaje> 
+				<tarifa>15</tarifa> 
+				<baseImponible>36.00</baseImponible> 
+				<valor>5.40</valor> 
+			</impuesto> 
+		</impuestos> 
+	</detalle> 
+</detalles> 
+<infoAdicional> 
+	<campoAdicional nombre="Email Cliente">parabrisaslibertadores@hotmail.com</campoAdicional> 
+	<campoAdicional nombre="Telef. Cliente">0988333726,2659205</campoAdicional> 
+</infoAdicional>
+</factura>

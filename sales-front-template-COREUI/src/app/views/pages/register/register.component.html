@@ -1,0 +1,107 @@
+<div class="bg-light dark:bg-transparent min-vh-100 d-flex flex-row align-items-center">
+  <c-container>
+    <c-row class="justify-content-center">
+      <c-col lg="7" md="9" xl="6">
+        <c-card class="mx-4">
+          <c-card-body class="p-4">
+            <form cForm>
+
+              <div style="display: flex;
+                justify-content: space-between; /* Separa los elementos a los extremos */
+                align-items: center; /* Centra verticalmente */
+                gap: 16px; /* Separación mínima */
+                margin-bottom: 20px;">
+                <h1>Registrate</h1>
+                
+                <button type="button" style="border-radius: 20%;" (click)="goBack()" title="Regresar" class="back-button">
+                  <mat-icon aria-hidden="false" aria-label="Login Back" fontIcon="arrow_back"></mat-icon>
+                </button>
+              </div>
+              
+              <p class="text-body-secondary">Crear tu cuenta</p>
+              <c-input-group class="mb-3">
+                <span cInputGroupText>
+                  <svg cIcon name="cilUser"></svg>
+                </span>
+                <input autoComplete="name" name="name" [(ngModel)]="name" cFormControl placeholder="Usuario" />
+              </c-input-group>
+              <c-input-group class="mb-3">
+                <span cInputGroupText>&#64;</span>
+                <input autoComplete="email" name="email" [(ngModel)]="email" cFormControl placeholder="Email" />
+              </c-input-group>
+              <c-input-group class="mb-3">
+                <span cInputGroupText>
+                  <svg cIcon name="cilLockLocked"></svg>
+                </span>
+                <input autoComplete="new-password" name="password" [(ngModel)]="password" cFormControl placeholder="Password - Clave" type="password" />
+              </c-input-group>
+              <c-input-group class="mb-4">
+                <span cInputGroupText>
+                  <svg cIcon name="cilLockLocked"></svg>
+                </span>
+                <input autoComplete="new-password" name="password_confirmation" [(ngModel)]="password_confirmation" cFormControl placeholder="Repetir password - clave" type="password" />
+              </c-input-group>
+              
+              <c-input-group class="mb-3">
+                <span cInputGroupText>&#127968;</span>
+                <!-- <select aria-label="Default select example" 
+                              cSelect name="id_branch" 
+                              [ngModel]="id_branch"
+                              (ngModelChange)="id_branch = $event"
+                              [value]="id_branch" >
+                          <option value="0">- Seleccione sucursal -</option>
+                          @for(item of Branches; track item.id){
+                              <option [value]="item.id">{{item.name}}</option>
+                          }    
+                </select>
+                <select aria-label="Seleccione sucursal" 
+                          name="id_point_of_sale"
+                          [ngModel]="id_point_of_sale" 
+                          (ngModelChange)="id_point_of_sale = $event">
+                    <option value="0">- Seleccione punto de venta -</option>
+                    @for(item of PointsOfSale; track item.id) {
+                        <option [value]="item.id">{{item.name}}</option>
+                    }
+                </select> -->
+              
+                <select aria-label="Seleccione sucursal"
+                        cSelect name="id_branch"
+                        [ngModel]="id_branch"
+                        (ngModelChange)="onBranchChange($event)">
+                  <option value="0">- Seleccione sucursal -</option>
+                  @for (item of Branches; track item.id) {
+                    <option [value]="item.id">{{ item.name }}</option>
+                  }
+                </select>
+
+                <select aria-label="Seleccione punto de venta"
+                        cSelect name="id_point_of_sale"
+                        [ngModel]="id_point_of_sale"
+                        (ngModelChange)="id_point_of_sale = $event"
+                        [disabled]="PointsOfSale.length === 0">
+                  <option value="0">- Seleccione punto de venta -</option>
+                  @for (item of PointsOfSale; track item.id) {
+                    <option [value]="item.id">{{ item.descripcion }}</option>
+                  }
+                </select>
+              </c-input-group>
+
+              <div class="d-grid">
+                <button cButton color="success" [disabled]="disableBtn" (click)="register()">
+                  @if(loadingRegister){
+                    <c-spinner aria-hidden="false" size="sm"></c-spinner>Loading...
+                  }@else{
+                    Crear cuenta
+                  }
+                </button>
+                <!-- <button cButton color="danger" (click)="goBack()">
+                    Cancelar y regresar
+                </button> -->
+              </div>
+            </form>
+          </c-card-body>
+        </c-card>
+      </c-col>
+    </c-row>
+  </c-container>
+</div>

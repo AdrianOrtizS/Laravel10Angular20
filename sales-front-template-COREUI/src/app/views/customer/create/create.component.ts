@@ -1,0 +1,118 @@
+import { CustomerService } from './../customer.service';
+import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
+import { freeSet } from '@coreui/icons';
+import { Component, computed, inject, signal } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { SharedModule } from '../../../shared/shared.module';
+
+interface CustomerI {
+  name: string,
+  email: string,
+  phone: string,
+  num_identificador:string,
+  address: string
+}
+
+@Component({
+  selector: 'app-create',
+  imports: [SharedModule, ReactiveFormsModule],
+  templateUrl: './create.component.html',
+  styleUrl: './create.component.scss'
+})
+export class CreateComponent {
+
+    public favoriteColor = '#26ab3c';
+    icons   = freeSet;
+    router  = inject(Router);
+    toastr  = inject(ToastrService);
+    customerService = inject(CustomerService);
+    
+    CUSTOMER = signal<CustomerI>({
+      name:   '',
+      email:  '',
+      num_identificador:'',
+      address:'',
+      phone:  ''
+    });
+
+    // Métodos para update cada campo (evita parser error)
+    updateName(event: Event) {
+      const valor = (event.target as HTMLInputElement).value;
+      this.CUSTOMER.update(c => ({ ...c, name: valor }));
+    }
+
+    updateEmail(event: Event) {
+      const valor = (event.target as HTMLInputElement).value;
+      this.CUSTOMER.update(c => ({ ...c, email: valor }));
+    }
+
+    updateNumIdentificador(event: Event) {
+      const valor = (event.target as HTMLInputElement).value;
+      this.CUSTOMER.update(c => ({ ...c, num_identificador: valor }));
+    }
+
+    updatePhone(event: Event) {
+      const valor = (event.target as HTMLInputElement).value;
+      this.CUSTOMER.update(c => ({ ...c, phone: valor }));
+    }
+
+    updateAddress(event: Event) {
+      const valor = (event.target as HTMLInputElement).value;
+      this.CUSTOMER.update(c => ({ ...c, address: valor }));
+    }  
+
+    // Validación de email reactiva
+    isEmailValid = computed(() => {
+      const email = this.CUSTOMER().email.trim();
+      const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return regex.test(email);
+    });
+    
+    // Validar si todos los campos son obligatorios y válidos
+    isFormValid = computed(() => {
+      const c = this.CUSTOMER();
+      return (
+        c.name.trim().length > 0 &&
+        c.num_identificador.trim().length > 0 &&
+        c.phone.trim().length > 0 &&
+        c.address.trim().length > 0 &&
+        this.isEmailValid()
+      );
+    });
+
+    save(){
+      // if(!this.CUSTOMER().name || !this.CUSTOMER().num_identificador 
+      // || !this.CUSTOMER().email || !this.CUSTOMER().phone || !this.CUSTOMER().address
+      // ){
+      //   this.toastr.error('Validacion', 'Los campos con * son obligatorios');
+      //   return;
+      // }
+
+      this.customerService.createCustomer(this.CUSTOMER())
+      .subscribe((resp:any) =>{
+        if(resp.code == 403){
+          this.toastr.error('Validacion', 'El cliente ya existe');
+          return;
+        }
+        this.limpiarFormulario()
+        this.toastr.success('Exito', 'El cliente se ha creado correctamente');
+      });
+    }
+
+    // Limpiar formulario
+    limpiarFormulario() {
+      this.CUSTOMER.set({ 
+        name:   '', 
+        num_identificador: '',
+        email:  '', 
+        phone:  '',
+        address:''});
+    }
+
+    goList(){
+      this.limpiarFormulario()
+      this.router.navigateByUrl("/customer/list");
+    }
+
+}

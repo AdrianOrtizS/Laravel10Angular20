@@ -1,0 +1,50 @@
+<c-row ngPreserveWhitespaces>
+  <c-col xs="8">
+    <c-card class="mb-4" >
+      <c-card-header >
+        <strong> Nueva categoria</strong> 
+      </c-card-header>
+      <c-card-body>
+        <div class="tab-content rounded-bottom">
+            <div class="tab-pane active show p-3 preview fade">
+                <div>
+                    <div class="mb-3">
+                        <label cLabel for="name">Nombre categoria (*)</label>
+                        <input cFormControl id="name" [ngModelOptions]="{standalone: true}" [(ngModel)]="name" placeholder="Ej: Categoria A..." type="text" />
+                    </div>
+                    <div class="mb-3">
+                        <label cLabel for="description">Descripcion (*)</label>
+                        <input cFormControl id="description" [ngModelOptions]="{standalone: true}" [(ngModel)]="description" placeholder="Ej: Grupo de productos que ..." type="text" />
+                    </div>
+                    <div class="mb-3">
+                        <label cLabel for="imagen">Imagen: </label>
+                        <div>
+                            <input cFormControl type="file" style="display: none;" id="categorieImage" accept=".jpeg, .bmp, .jpg, .png, .gif, .webp" (change)="processFile($event)">
+                        </div>
+                        <div>
+                            <img [src]="imagen_previsualiza" (click)="clickInputFileHide()" 
+                                 style="cursor:grab; margin-left: 20px; border: black 1px solid; 
+                                  width: 100px; height: 100px;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button cButton color="primary" title="Guardar" (click)="save()">
+                        <svg [cIcon]="icons.cilSave" size="xl" ></svg>
+                    </button>
+                    <button cButton color="danger" title="Cancelar" (click)="goList()">
+                        <svg [cIcon]="icons.cilBan" size="xl" ></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content rounded-bottom">
+            <div class="tab-pane active show p-3 preview fade">
+                <ng-content />
+            </div>
+        </div>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>

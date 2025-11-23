@@ -1,0 +1,97 @@
+import { NgModule } from '@angular/core';
+import { CommonModule, NgStyle } from '@angular/common';
+import { IconDirective } from '@coreui/icons-angular';
+import { BadgeComponent, BorderDirective, ButtonCloseDirective, ButtonDirective, ButtonGroupComponent, CardBodyComponent, CardComponent, CardFooterComponent, CardHeaderComponent, CardImgDirective, CardTextDirective, CardTitleDirective, ColComponent,
+        ColDirective, ContainerComponent, FormControlDirective, FormDirective, FormLabelDirective, InputGroupComponent,
+        InputGroupTextDirective, ModalBodyComponent, ModalComponent, ModalFooterComponent, ModalHeaderComponent, ModalModule, ModalTitleDirective, PaginationModule, RowComponent, SpinnerComponent,
+        TableModule, UtilitiesModule } from '@coreui/angular';
+import { MatIconModule } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { NgbPagination } from '@ng-bootstrap/ng-bootstrap';
+
+@NgModule({
+  declarations: [
+    // cformcheck
+  ],
+  imports: [
+    BadgeComponent,
+    NgStyle,
+    CardImgDirective,
+    BorderDirective,
+    CardTitleDirective,
+    CardTextDirective,
+    CardHeaderComponent,
+    CardFooterComponent,
+    FormLabelDirective, 
+    ButtonCloseDirective,
+    ModalBodyComponent,
+    ModalComponent,
+    ModalFooterComponent,
+    ModalHeaderComponent,
+    ModalTitleDirective,
+    ButtonGroupComponent, 
+    NgbPagination,
+    ModalModule, 
+    TableModule,
+    UtilitiesModule,
+    RouterModule,
+    CommonModule,
+    IconDirective,
+    ButtonDirective,
+    CardBodyComponent,
+    CardComponent,
+    ColComponent,
+    ContainerComponent,
+    FormControlDirective,
+    FormDirective,
+    InputGroupComponent,
+    InputGroupTextDirective,
+    RowComponent,
+    SpinnerComponent,
+    MatIconModule,
+    FormsModule,
+    ColDirective,
+  ],
+  exports:[
+    BadgeComponent,
+    NgStyle,
+    CardImgDirective,
+    BorderDirective,
+    CardTitleDirective,
+    CardTextDirective,
+    CardHeaderComponent,
+    CardFooterComponent, 
+    FormLabelDirective, 
+    ButtonCloseDirective,
+    ModalBodyComponent,
+    ModalComponent,
+    ModalFooterComponent,
+    ModalHeaderComponent,
+    ModalTitleDirective,
+    ButtonGroupComponent, 
+    NgbPagination,
+    ModalModule, 
+    TableModule,
+    UtilitiesModule,
+    RouterModule,
+    CommonModule,
+    IconDirective,
+    ButtonDirective,
+    CardBodyComponent,
+    CardComponent,
+    ColComponent,
+    ContainerComponent,
+    FormControlDirective,
+    FormDirective,
+    InputGroupComponent,
+    InputGroupTextDirective,
+    RowComponent,
+    SpinnerComponent,
+    MatIconModule,
+    FormsModule,
+    ColDirective,
+    
+  ]
+})
+export class SharedModule { }
