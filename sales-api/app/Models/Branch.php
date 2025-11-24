@@ -42,10 +42,10 @@ class Branch extends Model
         return $this->hasMany(PointOfSale::class, 'id_branch');
     }
 
-    public function users()
-    {
-        return $this->hasMany(User::class, 'id_branch');
-    }
+    // public function users()
+    // {
+    //     return $this->hasMany(User::class, 'id_branch');
+    // }
 
 //     APP_NAME=Parabrisas_Libertadores
 // APP_ENV=local
