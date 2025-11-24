@@ -46,6 +46,4 @@ class Branch extends Model
     // {
     //     return $this->hasMany(User::class, 'id_branch');
     // }
-
-
 }
