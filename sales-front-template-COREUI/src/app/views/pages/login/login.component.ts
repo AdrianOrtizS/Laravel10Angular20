@@ -73,6 +73,7 @@ export class LoginComponent implements OnInit {
     }
     this.authService.login(this.email, this.password)
     .subscribe((resp:any)=>{
+      console.log(resp);
       if(resp.error && resp.error.error == 'Unauthorized'){
         this.toastr.error('Validacion','Las credenciales son incorrectas');
         this.disableBtn = false;
