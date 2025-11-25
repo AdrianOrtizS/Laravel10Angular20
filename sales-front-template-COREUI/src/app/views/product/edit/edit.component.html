@@ -34,7 +34,6 @@
                                 Nombre es obligatorio
                             </div> 
                         </div>    
-
                         <div class="mb-3">
                             <label cLabel for="description">Descripcion (*)</label>
                             <input cFormControl id="description" placeholder="Ej: Grupo de productos que ..." type="text" [value]="PRODUCT().description" (input)="updateDescription($event)" required/>    
@@ -47,23 +46,21 @@
                                 <div class="col-md-4">
                                     <label cLabel for="price">Precio (*)</label>
                                     <input cFormControl id="price" placeholder="Ej: 2.23" type="number" [value]="PRODUCT().price" (input)="updatePrice($event)" required/>    
-                                    <div *ngIf="PRODUCT().price < 0" class="text-danger mt-1">
-                                        Precio es obligatorio
+                                    <div *ngIf="PRODUCT().price < 0 || PRODUCT().price == null || PRODUCT().price == '' " class="text-danger mt-1">
+                                        Precio es obligatorio  y mayor o igual a 0
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <label cLabel for="stock">Stock (*)</label>
-                                    <!-- <input cFormControl id="stock" [ngModelOptions]="{standalone: true}" [(ngModel)]="PRODUCT().stock" placeholder="Ej: 7" type="number" /> -->
                                     <input cFormControl id="stock" placeholder="Ej: 7" type="number" [value]="PRODUCT().stock" (input)="updateStock($event)" required/>    
-                                    <div *ngIf="PRODUCT().stock < 0" class="text-danger mt-1">
+                                    <div *ngIf="PRODUCT().stock == null || PRODUCT().stock == '' " class="text-danger mt-1">
                                         Stock es obligatorio
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <label cLabel for="stock_min">Stock minimo(*)</label>
-                                    <!-- <input cFormControl id="stock" [ngModelOptions]="{standalone: true}" [(ngModel)]="PRODUCT().stock" placeholder="Ej: 7" type="number" /> -->
                                     <input cFormControl id="stock_min" placeholder="Ej: 7" type="number" [value]="PRODUCT().stock_min" (input)="updateStockMin($event)" required/>    
-                                    <div *ngIf="PRODUCT().stock_min < 0" class="text-danger mt-1">
+                                    <div *ngIf="PRODUCT().stock_min == null || PRODUCT().stock_min == '' " class="text-danger mt-1">
                                         Stock minimo es obligatorio
                                     </div>
                                 </div>                                

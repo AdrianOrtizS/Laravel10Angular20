@@ -5,7 +5,7 @@ import { provideRouter, withEnabledBlockingInitialNavigation,
 } from '@angular/router';
 
 import { DropdownModule, SidebarModule } from '@coreui/angular';
-import { IconSetService } from '@coreui/icons-angular';
+import { IconModule, IconSetModule, IconSetService } from '@coreui/icons-angular';
 import { routes } from './app.routes';
 import { provideHttpClient } from '@angular/common/http';
 import { provideToastr } from 'ngx-toastr';
@@ -14,6 +14,8 @@ import { PermisionAuth } from './views/services/auth.guard';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    // IconModule,
+    // IconSetModule,
     // NgbModule,
     PermisionAuth,
     provideAnimationsAsync(), // required animations providers
@@ -32,8 +34,9 @@ export const appConfig: ApplicationConfig = {
       withHashLocation()
     ),
     
-    importProvidersFrom(SidebarModule, DropdownModule),
-    IconSetService,
+    importProvidersFrom(
+      SidebarModule, DropdownModule, IconSetService),
+    
     provideAnimationsAsync()
   ]
 };

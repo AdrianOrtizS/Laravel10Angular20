@@ -17,6 +17,7 @@ import {
   cifPl,
   cifUs,
   cilAccountLogout,
+  cilAirplay,
   cilAlignCenter,
   cilAlignLeft,
   cilAlignRight,
@@ -101,6 +102,7 @@ import { signet } from './signet';
 import { logo } from './logo';
 
 export const iconSubset = {
+  cilAirplay,
   cibCcAmex,
   cibCcApplePay,
   cibCcMastercard,
@@ -202,6 +204,7 @@ export const iconSubset = {
 };
 
 export enum IconSubset {
+  cilAirplay = 'cilAirplay',
   cibCcAmex = 'cibCcAmex',
   cibCcApplePay = 'cibCcApplePay',
   cibCcMastercard = 'cibCcMastercard',

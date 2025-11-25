@@ -31,8 +31,8 @@ class ProductResource extends JsonResource
                 'id' => $this->resource->categorie->id,
                 'name' => $this->resource->categorie->name
             ]: NULL, 
-            'stock' => $this->resource->stock, // Stock directo desde el join
-            'stock_min' => $this->resource->stock_min, 
+            'stock' => $this->resource->stock.'', // Stock directo desde el join
+            'stock_min' => $this->resource->stock_min.'', 
         ];
     }
 }

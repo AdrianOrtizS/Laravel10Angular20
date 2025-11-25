@@ -230,8 +230,8 @@ class ProductController extends Controller
             'description'   => 'required',
             'price'         => 'required|numeric|min:0',
             'id_categorie'  => 'required|exists:categories,id',
-            'stock'         => 'required|integer|min:0',
-            'stock_min'     => 'required|integer|min:0',
+            'stock'         => 'required|integer',
+            'stock_min'     => 'required|integer',
             'producto'      => 'sometimes|image|max:2048'
         ]);
         

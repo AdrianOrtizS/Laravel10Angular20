@@ -99,7 +99,7 @@ export class CreateComponent {
         c.cod_pro.trim().length > 0 &&
         c.name.trim().length > 0 &&
         c.description.trim().length > 0 &&
-        c.price.trim().length > 0 &&
+        (c.price >=0 && c.price.trim().length > 0) &&
         c.stock.trim().length > 0 &&
         c.stock_min.trim().length > 0 && 
         c.id_categorie > 0

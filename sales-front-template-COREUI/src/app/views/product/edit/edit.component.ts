@@ -12,8 +12,9 @@ interface ProductI {
   cod_pro: string,
   name:    string,
   description: string,
-  price:  string,
-  stock:  string,
+  price:  number,
+  stock:  number,
+  stock_min: number,
   imagen: string,
   id_categorie: number,
   // state: any
@@ -51,8 +52,9 @@ export class EditComponent {
       cod_pro: '',
       name:    '',
       description:  '',
-      price:  '',
-      stock:  '',
+      price:  0,
+      stock:  0,
+      stock_min: 0,
       imagen: '',
       id_categorie: 0
     });
@@ -75,10 +77,13 @@ export class EditComponent {
       });
       this.productService.showProduct(this.PRODUCT_ID)
       .subscribe((resp:any)=>{
-        console.log(resp);
         
         this.isEmpty = Object.keys(this.PRODUCT()).length === 0;
         this.PRODUCT.set(resp.Product);
+        
+        console.log(this.PRODUCT());
+        
+
         if(this.PRODUCT().imagen){
           this.imagen_previsualiza = this.PRODUCT().imagen;
         }
@@ -141,8 +146,10 @@ export class EditComponent {
         c.cod_pro.trim().length > 0 &&
         c.name.trim().length > 0 &&
         c.description.trim().length > 0 &&
-        c.price >= 0 && 
-        c.stock >= 0 && 
+        
+        (c.price != '' && c.price >= 0) && 
+        c.stock != '' &&
+        c.stock_min != '' &&
         c.id_categorie > 0
       );
     });

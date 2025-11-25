@@ -19,6 +19,36 @@ export const navItems: INavData[] = [
     url: '/configuration',
     iconComponent: { name: 'cil-settings' }
   },
+/////////////////////////////////////////
+
+  {
+    name: 'Base',
+    url: '/base',
+    iconComponent: { name: 'cil-puzzle' },
+    children: [
+      {
+        name: 'Accordion',
+        url: '/base/accordion',
+        icon: 'nav-icon-bullet'
+      },
+      {
+        name: 'Calendar',
+        url: 'https://coreui.io/angular/docs/components/calendar/',
+        icon: 'nav-icon-bullet',
+        badge: {
+          color: 'danger',
+          text: 'PRO'
+        },
+        attributes: { target: '_blank' }
+      },
+    ]
+  },
+
+
+
+
+
+////////////////////////////////////////
   {
     name: 'Categorias',
     url: '/categorie',
@@ -51,7 +81,7 @@ export const navItems: INavData[] = [
   {
     name: 'Puntos de venta',
     url: '/pointsOfSale',
-    iconComponent: { name: 'cil-home' }
+    iconComponent: { name: 'cil-airplay' }
 
   },
   {
