@@ -1,5 +1,5 @@
 import { SupplierService } from './../../supplier/supplier.service';
-import { ProductService } from './../../product/product.service';
+// import { ProductService } from './../../../product/product.service';
 import { ToastrService } from 'ngx-toastr';
 import { freeSet } from '@coreui/icons';
 import { Component, computed, inject, signal } from '@angular/core';
@@ -7,6 +7,7 @@ import { SharedModule } from '../../../shared/shared.module';
 import { Router } from '@angular/router';
 import { ButtonDirective, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective, ListGroupDirective, ListGroupItemDirective, ModalBodyComponent, ModalComponent, ModalHeaderComponent, ModalTitleDirective, ModalToggleDirective } from '@coreui/angular';
 import { BuyService } from '../buy.service';
+import { ProductService } from '../../inventory/product/product.service';
 
 //para crear cliente desde la venta
 interface SupplierI {

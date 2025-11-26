@@ -19,58 +19,45 @@ export const navItems: INavData[] = [
     url: '/configuration',
     iconComponent: { name: 'cil-settings' }
   },
-/////////////////////////////////////////
-
   {
-    name: 'Base',
-    url: '/base',
+    name: 'Inventario',
+    url: '/inventory',
     iconComponent: { name: 'cil-puzzle' },
     children: [
       {
-        name: 'Accordion',
-        url: '/base/accordion',
-        icon: 'nav-icon-bullet'
+        name: 'Categorias',
+        url: '/inventory/list-categorie',
+        icon: 'nav-icon-bullet',
       },
       {
-        name: 'Calendar',
-        url: 'https://coreui.io/angular/docs/components/calendar/',
+        name: 'Productos',
+        url: '/inventory/list-product',
         icon: 'nav-icon-bullet',
-        badge: {
-          color: 'danger',
-          text: 'PRO'
-        },
-        attributes: { target: '_blank' }
       },
     ]
   },
 
+  ////////////////////////////////////////
+  // {
+  //   name: 'Categorias',
+  //   url: '/categorie',
+  //   iconComponent: { name: 'cil-tags' }
+  // },
+  // {
+  //   name: 'Productos',
+  //   url: '/product',
+  //   iconComponent: { name: 'cil-spreadsheet' }
 
-
-
-
-////////////////////////////////////////
-  {
-    name: 'Categorias',
-    url: '/categorie',
-    iconComponent: { name: 'cil-tags' }
-  },
-  {
-    name: 'Productos',
-    url: '/product',
-    iconComponent: { name: 'cil-spreadsheet' }
-
-  },
+  // },
   {
     name: 'Clientes',
     url: '/customer',
     iconComponent: { name: 'cil-user' }
-
   },
   {
     name: 'Proveedores',
     url: '/supplier',
     iconComponent: { name: 'cil-people' }
-
   },
   {
     name: 'Sucursales',

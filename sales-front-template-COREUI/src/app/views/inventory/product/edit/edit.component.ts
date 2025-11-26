@@ -1,4 +1,4 @@
-import { SharedModule } from './../../../shared/shared.module';
+// import { SharedModule } from './../../../shared/shared.module';
 import { ProductService } from './../product.service';
 import { ToastrService } from 'ngx-toastr';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -6,6 +6,7 @@ import { freeSet } from '@coreui/icons';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormSelectDirective } from '@coreui/angular';
+import { SharedModule } from 'src/app/shared/shared.module';
 // import { error } from 'console';
 
 interface ProductI {
@@ -189,7 +190,7 @@ export class EditComponent {
     }
 
     goList(){
-      this.router.navigateByUrl("/product/list");
+      this.router.navigateByUrl("/inventory/list-product");
     }
 
 }

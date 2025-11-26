@@ -1,7 +1,9 @@
-import { AuthService } from '../services/auth.service';
-import { URL_SERVICIOS } from '../../config/config';
+// import { AuthService } from '../services/auth.service';
+// import { URL_SERVICIOS } from '../../config/config';
 import { Injectable, signal  } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { AuthService } from '../../services/auth.service';
+import { URL_SERVICIOS } from 'src/app/config/config';
 
 @Injectable({
   providedIn: 'root'

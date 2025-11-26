@@ -1,4 +1,4 @@
-import { ProductService } from './../../product/product.service';
+// import { ProductService } from './../../product/product.service';
 import { ToastrService } from 'ngx-toastr';
 import { freeSet } from '@coreui/icons';
 import { Component, computed, inject, signal } from '@angular/core';
@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { SaleService } from '../sale.service';
 import { ButtonDirective, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective, ListGroupDirective, ListGroupItemDirective, ModalBodyComponent, ModalComponent, ModalHeaderComponent, ModalTitleDirective, ModalToggleDirective } from '@coreui/angular';
 import { CustomerService } from '../../customer/customer.service';
+import { ProductService } from '../../inventory/product/product.service';
 
 //para crear cliente desde la venta
 interface CustomerI {

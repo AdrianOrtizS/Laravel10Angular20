@@ -1,11 +1,14 @@
 // import { NgModel } from '@angular/forms';
-import { SharedModule } from './../../../shared/shared.module';
+// import { SharedModule } from './../../../shared/shared.module';
 import { CategorieService } from '../categorie.service';
 import { Component, inject, signal } from '@angular/core';
-import { URL_BACKEND } from '../../../config/config';
+// import { URL_BACKEND } from '../../../config/config';
 import { Router } from '@angular/router';
 import { freeSet  } from '@coreui/icons';
 import { ToastrService } from 'ngx-toastr';
+// import { SharedModule } from 'src/app/shared/shared.module';
+import { SharedModule } from '../../../../shared/shared.module';
+import { URL_BACKEND } from 'src/app/config/config';
 
 @Component({
   selector: 'app-list',
@@ -124,15 +127,16 @@ export class ListComponent {
   }
 
   createCategorie(){
-    this.router.navigateByUrl("/categorie/create");
+    this.router.navigateByUrl("/inventory/create-categorie");
   }
 
   editCategorie(item:any){
-    this.router.navigateByUrl("/categorie/edit/"+item.id);
+    this.router.navigateByUrl("/inventory/edit-categorie/"+item.id);
   }
 
   verCategorie(item:any){
-    this.router.navigateByUrl("/categorie/show/"+item.id);
+    this.router.navigateByUrl("/inventory/show-categorie/"+item.id);
   }
+  
 
 }

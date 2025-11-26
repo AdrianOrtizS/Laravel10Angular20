@@ -1,32 +1,29 @@
-import { ActivatedRoute } from '@angular/router';
+// import { URL_BACKEND } from './../../../config/config';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Component, inject } from '@angular/core';
 import { CategorieService } from '../categorie.service';
-import { SharedModule } from './../../../shared/shared.module';
-import { URL_BACKEND } from '../../../config/config';
-import { Router } from '@angular/router';
+import { SharedModule } from './../../../../shared/shared.module';
 import { ToastrService } from 'ngx-toastr';
-import { Location } from '@angular/common';
 import { freeSet } from '@coreui/icons';
 
 @Component({
-  selector: 'app-edit',
-  imports: [ SharedModule ,  ],
-  templateUrl: './edit.component.html',
-  styleUrl: './edit.component.scss',
+  selector: 'app-create',
+  imports: [  SharedModule ,  ],
+  templateUrl: './create.component.html',
+  styleUrl: './create.component.scss',
   host: {
     'class': 'example',
   },
 })
-export class EditComponent {
+export class CreateComponent {
 
     public favoriteColor = '#26ab3c';
     icons = freeSet;
-    location = inject(Location); 
-    toastr  = inject(ToastrService);
     router = inject(Router);
+    toastr  = inject(ToastrService);
     categorieService = inject(CategorieService);
     activatedRoute = inject(ActivatedRoute);
-    CATEGORIE_ID:any;
+    // CATEGORIE_ID:any;
     CATEGORIE:any;
     name:string = '';
     description:string = '';
@@ -36,20 +33,7 @@ export class EditComponent {
     file_imagen:any =null;
     
     ngOnInit(){
-      this.activatedRoute.params.subscribe((resp:any)=>{
-        this.CATEGORIE_ID = resp.id;
-      });
-      this.categorieService.showCategorie(this.CATEGORIE_ID)
-      .subscribe((resp:any)=>{
-        this.CATEGORIE = resp.categorie;
-        this.name = this.CATEGORIE.name;
-        this.description = this.CATEGORIE.description;
-        if(this.CATEGORIE.imagen){
-          let url = URL_BACKEND+'storage/'+this.CATEGORIE.imagen;
-          this.imagen_previsualiza = url;
-        }
-        this.state = this.CATEGORIE.state;
-      });
+    
     }
 
     clickInputFileHide(){
@@ -82,17 +66,23 @@ export class EditComponent {
         formData.append('categorie', this.file_imagen);
       }
 
-      this.categorieService.updateCategorie(this.CATEGORIE_ID, formData)
+      this.categorieService.createCategorie(formData)
       .subscribe((resp:any) =>{
-        if(resp.message == 403){
+        // console.log(resp);
+        if(resp.code == 403){
           this.toastr.error('Validacion', 'La categorie ya existe');
           return;
         }
-        this.toastr.success('Exito', 'La categorie se actualizo correctamente');
+        this.name = '';
+        this.description = '';
+        this.file_imagen = null;
+        this.imagen_previsualiza = '../../../../assets/images/sin_imagen.jpg';        
+        this.toastr.success('Exito', 'La categorie se ha creado correctamente');
       });
     }
 
     goList(){
-      this.router.navigateByUrl("/categorie/list");
+      this.router.navigateByUrl("/inventory/list-categorie");
     }
+
 }

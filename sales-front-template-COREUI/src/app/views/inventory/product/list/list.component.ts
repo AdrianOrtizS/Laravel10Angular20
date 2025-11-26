@@ -3,8 +3,10 @@ import { freeSet } from '@coreui/icons';
 import { Component, inject, signal } from '@angular/core';
 import { ProductService } from '../product.service';
 import { Router } from '@angular/router';
-import { URL_BACKEND } from '../../../config/config';
-import { SharedModule } from '../../../shared/shared.module';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { URL_BACKEND } from 'src/app/config/config';
+// import { URL_BACKEND } from '../../../config/config';
+// import { SharedModule } from '../../../shared/shared.module';
 
 @Component({
   selector: 'app-list',
@@ -130,15 +132,15 @@ export class ListComponent {
   }
 
   createProduct(){
-    this.router.navigateByUrl("/product/create");
+    this.router.navigateByUrl("/inventory/create-product");
   }
 
   editProduct(item:any){
-    this.router.navigateByUrl("/product/edit/"+item.id);
+    this.router.navigateByUrl("/inventory/edit-product/"+item.id);
   }
 
   viewProduct(item:any){
-    this.router.navigateByUrl("/product/show/"+item.id);
+    this.router.navigateByUrl("/inventory/show-product/"+item.id);
   }
 
 }

@@ -1,12 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, } from '@angular/router';
 import { CategorieService } from '../categorie.service';
-import { URL_BACKEND } from '../../../config/config';
+// import { URL_BACKEND } from '../../../config/config';
 import moment  from 'moment';
 import 'moment/locale/es';
-import { SharedModule } from '../../../shared/shared.module';
+// import { SharedModule } from '../../../shared/shared.module';
 import { freeSet } from '@coreui/icons';
 import { Location } from '@angular/common';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { URL_BACKEND } from 'src/app/config/config';
 
 @Component({
   selector: 'app-show',
@@ -54,15 +56,15 @@ export class ShowComponent {
     }
 
     goBack(){
-      this.router.navigateByUrl("/categorie/list");
+      this.router.navigateByUrl("/inventory/list-categorie");
     }
 
     goUpdateCategorie(){
-      this.router.navigate(['/categorie/edit/'+this.CATEGORIE_ID]);
+      this.router.navigate(['/inventory/edit-categorie/'+this.CATEGORIE_ID]);
     }
 
     goList(){
-      this.router.navigateByUrl("/categorie/list");
+      this.router.navigateByUrl("/inventory/list-categorie");
     }
 
 }
