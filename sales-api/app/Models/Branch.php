@@ -47,7 +47,7 @@ class Branch extends Model
     //     return $this->hasMany(User::class, 'id_branch');
     // }
 
-//     APP_NAME=Parabrisas_Libertadores
+// APP_NAME=Parabrisas_Libertadores
 // APP_ENV=local
 // APP_KEY=base64:h8PEWh+izb8JiG2C4SgxcrJ4HZoP2PskKl7XqJjc9AY=
 // APP_DEBUG=true

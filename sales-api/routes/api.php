@@ -24,6 +24,7 @@ use App\Http\Controllers\API\PayController;
 
 use App\Http\Controllers\API\ConfigurationController;
 use App\Http\Controllers\API\BranchController;
+use App\Http\Controllers\API\ReportsController;
 
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -97,10 +98,18 @@ Route::middleware('auth:api')->group(function () {
     Route::post('sale/sendFacturaPdfXml/{clave}/{mailCustomerSale}', [SaleController::class, 'sendFacturaPdfXml']);
 
     Route::resource("receivables", ReceivableController::class);
+    Route::resource("pointsOfSale", PointsOfSaleController::class);
+
     Route::get('sale/receivable/{id}/pdf', [ReceivableController::class, 'pdf']);
     Route::get('sale/receivable/{id}/rePrintPdf', [ReceivableController::class, 'rePrintPdf']);
 
-    Route::resource("pointsOfSale", PointsOfSaleController::class);
+    Route::prefix('reports')->group(function () {
+        Route::get('/sales/monthly',    [ReportsController::class, 'salesMonthly']);
+        Route::get('/sales/daily',      [ReportsController::class, 'salesDaily']);
+        Route::get('/products/top',     [ReportsController::class, 'topProducts']);
+        Route::get('/purchases/monthly', [ReportsController::class, 'purchasesMonthly']);
+        Route::get('/inventory/low-stock', [ReportsController::class, 'lowStock']);
+    });
 
     Route::resource("buys", BuyController::class);
     Route::get("buy/getSuppliers", [BuyController::class, 'getSuppliers']);

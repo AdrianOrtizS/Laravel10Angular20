@@ -27,12 +27,12 @@ export const navItems: INavData[] = [
       {
         name: 'Categorias',
         url: '/inventory/list-categorie',
-        icon: 'nav-icon-bullet',
+        icon: 'nav-icon-bullet ms-4',
       },
       {
         name: 'Productos',
         url: '/inventory/list-product',
-        icon: 'nav-icon-bullet',
+        icon: 'nav-icon-bullet ms-4',
       },
     ]
   },
