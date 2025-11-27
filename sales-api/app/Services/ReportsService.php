@@ -10,10 +10,14 @@ class ReportsService
     public function salesMonthly()
     {
         return DB::table('sales')
-            ->select(DB::raw('MONTH(created_at) as month'), DB::raw('SUM(total) as total'))
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get();
+	        ->select(
+	            DB::raw('MONTH(created_at) as month'),
+	            DB::raw('SUM(total) as total')
+	        )
+	        ->whereYear('created_at', date('Y'))
+	        ->groupBy('month')
+	        ->orderBy('month')
+	        ->get();    
     }
 
     public function salesDaily()

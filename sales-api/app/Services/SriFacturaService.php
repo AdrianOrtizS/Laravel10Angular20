@@ -22,8 +22,8 @@ class SriFacturaService
     public function __construct()
     {
         // Coloca aquí la ruta al XSD del SRI que vayas a usar (ej: resources/schemas/factura_v2.1.0.xsd)
-        $this->xsdPath = storage_path('\app\schemas\factura_v1.1.0.xsd');
-                         // resource_path('schemas\factura_v2.1.0.xsd');
+        $this->xsdPath = storage_path('/app/schemas/factura_V1.1.0.xsd');
+        // error_log($this->xsdPath);
     }
 
     public function generarClaveAcceso( 
@@ -197,16 +197,10 @@ class SriFacturaService
         
         libxml_use_internal_errors(true);
 
-        if (!$doc->schemaValidate($this->xsdPath)) {
-            foreach (libxml_get_errors() as $error) {
-                echo "Error: " . $error->message . "\n";
-                error_log("Error: " . $error->message);
-            }
-        }
-
         $valid = $doc->schemaValidate($this->xsdPath);
-
+        // Capturar errores generados
         $errors = libxml_get_errors();
+        // Limpiar estado
         libxml_clear_errors();
 
         return [
