@@ -192,12 +192,12 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
 
     // Ahora sí generas this.data
     for (let idx = 0; idx < 4; idx++) {
+      const length = this.datasets[idx][0].data.length;
       this.data[idx] = {
-        labels: idx < 3 ? this.labels.slice(0, 7) : this.labels,
+        labels: this.labels.slice(0, length),
         datasets: this.datasets[idx]
       };
     }
-
     this.setOptions();
   }
 
@@ -246,12 +246,16 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
 
 
   firstWidget:any=[];
+  total_year:any=0;
   getDatafirstWidget(){
     this.widgetsService.reportsSalesMonthly()
       .subscribe(
         {
           next:(resp:any)=>{
-            this.firstWidget = resp.map((x:any) => x.total);
+            console.log(resp.original);
+            let month = resp.original.month;
+            this.total_year = resp.original.total_year;
+            this.firstWidget = month.map((x:any) => x.total);
           },
           error:(err)=>{
             console.log(err);

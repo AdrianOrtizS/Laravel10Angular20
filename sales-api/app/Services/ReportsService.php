@@ -9,7 +9,16 @@ class ReportsService
 {
     public function salesMonthly()
     {
-        return DB::table('sales')
+        // return DB::table('sales')
+	       //  ->select(
+	       //      DB::raw('MONTH(created_at) as month'),
+	       //      DB::raw('SUM(total) as total'),
+	       //  )
+	       //  ->whereYear('created_at', date('Y'))
+	       //  ->groupBy('month')
+	       //  ->orderBy('month')
+	       //  ->get();    
+	    $monthly = DB::table('sales')
 	        ->select(
 	            DB::raw('MONTH(created_at) as month'),
 	            DB::raw('SUM(total) as total')
@@ -17,7 +26,16 @@ class ReportsService
 	        ->whereYear('created_at', date('Y'))
 	        ->groupBy('month')
 	        ->orderBy('month')
-	        ->get();    
+	        ->get();
+
+	    $totalYear = DB::table('sales')
+	        ->whereYear('created_at', date('Y'))
+	        ->sum('total');
+
+	    return response()->json([
+	        'month' => $monthly,
+	        'total_year' => $totalYear
+	    ]);
     }
 
     public function salesDaily()
