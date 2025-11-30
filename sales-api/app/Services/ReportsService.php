@@ -9,34 +9,47 @@ class ReportsService
 {
     public function salesMonthly()
     {
-        // return DB::table('sales')
-	       //  ->select(
-	       //      DB::raw('MONTH(created_at) as month'),
-	       //      DB::raw('SUM(total) as total'),
-	       //  )
-	       //  ->whereYear('created_at', date('Y'))
-	       //  ->groupBy('month')
-	       //  ->orderBy('month')
-	       //  ->get();    
-	    $monthly = DB::table('sales')
-	        ->select(
-	            DB::raw('MONTH(created_at) as month'),
-	            DB::raw('SUM(total) as total')
-	        )
-	        ->whereYear('created_at', date('Y'))
-	        ->groupBy('month')
-	        ->orderBy('month')
-	        ->get();
+        $monthly = DB::table('sales')
+            ->selectRaw('MONTH(created_at) as month, SUM(total) as total')
+            ->whereYear('created_at', date('Y'))
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('total', 'month');
 
-	    $totalYear = DB::table('sales')
-	        ->whereYear('created_at', date('Y'))
-	        ->sum('total');
+        $result = [];
+        $month_current = date('n'); // 1 a 12
 
-	    return response()->json([
-	        'month' => $monthly,
-	        'total_year' => $totalYear
-	    ]);
+        // Crear array indexado (1 a mes actual)
+        for ($month = 1; $month <= $month_current; $month++) {
+            $result[] = isset($monthly[$month]) ? (float) $monthly[$month] : 0.0;
+        }
+
+        $totalCurrentYear = (float) DB::table('sales')
+            ->whereYear('created_at', date('Y'))
+            ->sum('total');
+
+        $totalLastYear = (float) DB::table('sales')
+            ->whereYear('created_at', date('Y') - 1)
+            ->sum('total');
+
+        // Porcentaje de diferencia
+        if ($totalLastYear > 0) {
+            $percentDifference = (($totalCurrentYear - $totalLastYear) / $totalLastYear) * 100;
+        } else {
+            // Si el año anterior es 0, se define crecimiento del 100%
+            $percentDifference = 100;
+        }
+
+        return [
+            'month_current' => $month_current,
+            'monthly'       => $result,
+            'total_current_year' => $totalCurrentYear,
+            'total_last_year'    => $totalLastYear,
+            'percent_difference'  => round($percentDifference, 2)
+        ];
     }
+
+
 
     public function salesDaily()
     {

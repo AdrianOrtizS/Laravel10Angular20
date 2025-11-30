@@ -7,11 +7,12 @@ import { ButtonDirective,ColComponent,DropdownComponent,DropdownDividerDirective
          DropdownItemDirective,DropdownMenuDirective,DropdownToggleDirective,RowComponent,
          TemplateIdDirective,WidgetStatAComponent} from '@coreui/angular';
 import { WidgetsService } from '../widgets.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-widgets-dropdown',
   templateUrl: './widgets-dropdown.component.html',
-  imports: [RowComponent, ColComponent, WidgetStatAComponent, TemplateIdDirective, IconDirective, DropdownComponent, ButtonDirective, DropdownToggleDirective, DropdownMenuDirective, DropdownItemDirective, RouterLink, DropdownDividerDirective, ChartjsComponent]
+  imports: [CommonModule,RowComponent, ColComponent, WidgetStatAComponent, TemplateIdDirective, IconDirective, DropdownComponent, ButtonDirective, DropdownToggleDirective, DropdownMenuDirective, DropdownItemDirective, RouterLink, DropdownDividerDirective, ChartjsComponent]
 })
 export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
   
@@ -22,18 +23,18 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
   data: any[] = [];
   options: any[] = [];
   labels = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
+    'Enero',
+    'Febrero',
+    'Marzo',
+    'Abril',
+    'Mayo',
+    'Junio',
+    'Julio',
+    'Agosto',
+    'Septiembre',
+    'Octubre',
+    'Noviembre',
+    'Diciembre',
     // 'January',
     // 'February',
     // 'March',
@@ -157,7 +158,7 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
   setData() {
     this.datasets = [
       [{
-        label: 'My First dataset',
+        label: 'Total',
         backgroundColor: 'transparent',
         borderColor: 'rgba(255,255,255,.55)',
         pointBackgroundColor: getStyle('--cui-primary'),
@@ -245,17 +246,26 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
   }
 
 
-  firstWidget:any=[];
-  total_year:any=0;
+  firstWidget:      any=[];
+  total_current_year:any=0;
+  total_last_year:  any=0;
+  percent_difference:any=0;
+
   getDatafirstWidget(){
     this.widgetsService.reportsSalesMonthly()
       .subscribe(
         {
           next:(resp:any)=>{
-            console.log(resp.original);
-            let month = resp.original.month;
-            this.total_year = resp.original.total_year;
-            this.firstWidget = month.map((x:any) => x.total);
+            let monthly = resp.monthly;
+            this.total_current_year = resp.total_current_year;
+            this.total_last_year = resp.total_last_year;
+            this.percent_difference = resp.percent_difference;
+            this.firstWidget = monthly;
+
+            console.log(this.total_current_year);
+            console.log(this.total_last_year);
+            console.log(this.percent_difference);
+            console.log(this.firstWidget);
           },
           error:(err)=>{
             console.log(err);
