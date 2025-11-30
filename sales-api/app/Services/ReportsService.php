@@ -50,12 +50,13 @@ class ReportsService
     }
 
 
-
     public function salesDaily()
-    {
+    {   //ventas de los ultimos 10 dias
         return DB::table('sales')
-            ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total) as total'))
-            ->where('created_at', '>=', Carbon::now()->subDays(30))
+            ->select(
+                DB::raw('DATE(created_at) as date'), 
+                DB::raw('SUM(total) as total'))
+            ->where('created_at', '>=', Carbon::now()->subDays(10))
             ->groupBy('date')
             ->orderBy('date')
             ->get();

@@ -9,10 +9,8 @@
         ${{total_current_year}}
         <span class="fw-normal" style="font-size: 12px;">
           ({{percent_difference}}% 
-          
           <svg *ngIf="percent_difference < 0" cIcon name="cilArrowBottom" size="sm"></svg>)
           <svg *ngIf="percent_difference >= 0" cIcon name="cilArrowTop" size="sm"></svg>)
-        
         </span>
       </ng-template>
       <!-- <ng-template cTemplateId="widgetActionTemplate">
