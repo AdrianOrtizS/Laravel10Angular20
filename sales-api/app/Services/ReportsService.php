@@ -4,50 +4,80 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Models\Sale;
+use App\Models\PointsOfSale;
 
 class ReportsService
 {
     public function salesMonthly()
-    {
-        $monthly = DB::table('sales')
-            ->selectRaw('MONTH(created_at) as month, SUM(total) as total')
-            ->whereYear('created_at', date('Y'))
-            ->groupBy('month')
-            ->orderBy('month')
-            ->pluck('total', 'month');
+	{
+	    $user = auth()->user();
+	    $pointOfSale = $user->pointsOfSale()->first();
 
-        $result = [];
-        $month_current = date('n'); // 1 a 12
+	    if (!$pointOfSale) {
+	        return response()->json([
+	            'error' => 'El usuario no tiene puntos de venta asignados'
+	        ], 403);
+	    }
 
-        // Crear array indexado (1 a mes actual)
-        for ($month = 1; $month <= $month_current; $month++) {
-            $result[] = isset($monthly[$month]) ? (float) $monthly[$month] : 0.0;
-        }
+	    $id_branch = $pointOfSale->id_branch;
 
-        $totalCurrentYear = (float) DB::table('sales')
-            ->whereYear('created_at', date('Y'))
-            ->sum('total');
+	    if (!$id_branch) {
+	        return response()->json([
+	            'error' => 'No se pudo determinar la sucursal del usuario'
+	        ], 403);
+	    }
 
-        $totalLastYear = (float) DB::table('sales')
-            ->whereYear('created_at', date('Y') - 1)
-            ->sum('total');
+	    // Filtro general para todas las consultas
+	    $query = Sale::whereHas('point_of_sale', function($q) use ($id_branch) {
+	        $q->where('id_branch', $id_branch);
+	    });
 
-        // Porcentaje de diferencia
-        if ($totalLastYear > 0) {
-            $percentDifference = (($totalCurrentYear - $totalLastYear) / $totalLastYear) * 100;
-        } else {
-            // Si el año anterior es 0, se define crecimiento del 100%
-            $percentDifference = 100;
-        }
+	    // ➤ Ventas mensuales del año actual
+	    $monthly = $query
+	        ->selectRaw('MONTH(created_at) as month, SUM(total) as total')
+	        ->whereYear('created_at', date('Y'))
+	        ->groupBy('month')
+	        ->orderBy('month')
+	        ->pluck('total', 'month');
 
-        return [
-            'month_current' => $month_current,
-            'monthly'       => $result,
-            'total_current_year' => $totalCurrentYear,
-            'total_last_year'    => $totalLastYear,
-            'percent_difference'  => round($percentDifference, 2)
-        ];
-    }
+	    $result = [];
+	    $month_current = date('n');
+
+	    for ($month = 1; $month <= $month_current; $month++) {
+	        $result[] = isset($monthly[$month]) ? (float) $monthly[$month] : 0.0;
+	    }
+
+	    // ➤ Total año actual (filtrado por branch)
+	    $totalCurrentYear = (float) Sale::whereHas('point_of_sale', function($q) use ($id_branch) {
+	            $q->where('id_branch', $id_branch);
+	        })
+	        ->whereYear('created_at', date('Y'))
+	        ->sum('total');
+
+	    // ➤ Total año anterior (filtrado por branch)
+	    $totalLastYear = (float) Sale::whereHas('point_of_sale', function($q) use ($id_branch) {
+	            $q->where('id_branch', $id_branch);
+	        })
+	        ->whereYear('created_at', date('Y') - 1)
+	        ->sum('total');
+
+	    // ➤ Porcentaje de diferencia
+	    if ($totalLastYear > 0) {
+	        $percentDifference = (($totalCurrentYear - $totalLastYear) / $totalLastYear) * 100;
+	    } else {
+	        $percentDifference = 100;
+	    }
+
+	    return [
+	        'month_current'       => $month_current,
+	        'monthly'             => $result,
+	        'total_current_year'  => $totalCurrentYear,
+	        'total_last_year'     => $totalLastYear,
+	        'percent_difference'  => round($percentDifference, 2)
+	    ];
+	}
+
 
 
     public function salesDaily()

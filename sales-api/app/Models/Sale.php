@@ -10,6 +10,7 @@ use App\Models\Customer;
 use App\Models\SaleDetail;
 use App\Models\Branch;
 use App\Models\Receivable;
+use App\Models\PointsOfSale;
 
 class Sale extends Model
 {
@@ -18,21 +19,18 @@ class Sale extends Model
 
     protected $fillable = [
         'id_customer', 
-        // 'num_venta',
         'subtotal',
         'iva',
         'total',
         'discount',
         'type_receivable',
         'state',
-        // 'id_branch',
         'id_point_of_sale',
         'establecimiento',
         'punto_emision',
         'secuencial',
         'numero_factura',
         'clave_acceso'
-        // 'notes'
     ];
 
     public function setCreatedAtAttribute($value){
@@ -81,7 +79,7 @@ class Sale extends Model
     
     public function point_of_sale()  //punto de venta  -  sucursal
     {                                           
-        return $this->belongsTo(PointOfSale::class,'id_point_of_sale');
+        return $this->belongsTo(PointsOfSale::class,'id_point_of_sale');
     }
 
     public function customer()

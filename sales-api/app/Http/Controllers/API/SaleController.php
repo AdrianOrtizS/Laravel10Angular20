@@ -97,7 +97,6 @@ class SaleController extends Controller
             try {
                 $inicio = \Carbon\Carbon::parse($fecha_ini)->startOfDay();
                 $fin    = \Carbon\Carbon::parse($fecha_fin)->endOfDay();
-
                 $query->whereBetween('created_at', [$inicio, $fin]);
             } catch (\Exception $e) {
                 \Log::error('Error al parsear fechas: ' . $e->getMessage());
