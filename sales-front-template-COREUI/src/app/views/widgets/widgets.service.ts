@@ -22,4 +22,11 @@ export class WidgetsService {
             .pipe();
   }
 
+  reportsSalesDaily(){
+    let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
+    let URL = URL_SERVICIOS+'/reports/sales/daily';
+    return this.http.get(URL, {headers: headers})
+            .pipe();
+  }
+
 }

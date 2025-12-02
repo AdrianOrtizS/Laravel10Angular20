@@ -22,6 +22,7 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
 
   data: any[] = [];
   options: any[] = [];
+  labels_10Days:any[] = [];
   labels = [
     'Enero',
     'Febrero',
@@ -37,47 +38,46 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
     'Diciembre',
   ];
   optionsDefault: any = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: false
-    }
-  },
-  scales: {
-    x: {
-      display: false,
-      grid: { display: false, drawBorder: false },
-      ticks: { display: false }
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false
+      }
     },
-    y: {
-      display: false,
-      grid: { display: false },
-      ticks: { display: false }
-    }
-  },
-  elements: {
-    line: {
-      borderWidth: 1,
-      tension: 0.4
+    scales: {
+      x: {
+        display: false,
+        grid: { display: false, drawBorder: false },
+        ticks: { display: false }
+      },
+      y: {
+        display: false,
+        grid: { display: false },
+        ticks: { display: false }
+      }
     },
-    point: {
-      radius: 3,
-      hitRadius: 10,
-      hoverRadius: 5
+    elements: {
+      line: {
+        borderWidth: 1,
+        tension: 0.4
+      },
+      point: {
+        radius: 3,
+        hitRadius: 10,
+        hoverRadius: 5
+      }
     }
-  }
-};
+  };
 
 
   ngOnInit(): void {
-    this.getDatafirstWidget();
-    // this.setData();
+    this.reportsSalesMonthly();
+    this.reportsSalesDaily();
   }
 
   ngAfterContentInit(): void {
     this.changeDetectorRef.detectChanges();
-    // this.setData();
   }
 
   datasets:any = [];
@@ -92,12 +92,12 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
         data: [...this.firstWidget]  // ✔️ ahora ya está inicializado
       }],
       [{
-        label: 'My Second dataset',
+        label: 'Total',
         backgroundColor: 'transparent',
         borderColor: 'rgba(255,255,255,.55)',
         pointBackgroundColor: getStyle('--cui-info'),
         pointHoverBorderColor: getStyle('--cui-info'),
-        data: [1, 18, 9, 17, 34, 22, 11]
+        data: [...this.secondWidget]
       }],
       [{
         label: 'My Third dataset',
@@ -120,11 +120,20 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
     // Ahora sí generas this.data
     for (let idx = 0; idx < 4; idx++) {
       const length = this.datasets[idx][0].data.length;
-      this.data[idx] = {
-        labels: this.labels.slice(0, length),
-        datasets: this.datasets[idx]
-      };
+      if(idx == 1){
+        this.labels_10Days = this.date_last_10days;
+        this.data[idx] = {
+          labels: this.labels_10Days.slice(0, length),
+          datasets: this.datasets[idx]
+        };
+      }else{
+        this.data[idx] = {
+          labels: this.labels.slice(0, length),
+          datasets: this.datasets[idx]
+        };
+      }
     }
+    
     this.setOptions();
   }
 
@@ -169,26 +178,56 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
 
 
   firstWidget:      any=[];
+  
   total_current_year:any=0;
-  total_last_year:  any=0;
+  total_last_year:   any=0;
   percent_difference:any=0;
 
-  getDatafirstWidget(){
+  reportsSalesMonthly(){
     this.widgetsService.reportsSalesMonthly()
       .subscribe(
         {
           next:(resp:any)=>{
-            let monthly = resp.monthly;
             this.total_current_year = resp.total_current_year;
             this.total_last_year    = resp.total_last_year;
             this.percent_difference = resp.percent_difference;
+            
+            let monthly = resp.monthly;
             this.firstWidget = monthly;
+            console.log(this.firstWidget)
           },
           error:(err)=>{
             console.log(err);
           },
           complete:()=>{
-            console.log(this.firstWidget);
+            // console.log(this.firstWidget);
+            this.setData();
+          }
+        });    
+  }
+
+  secondWidget:any =[];
+  date_last_10days:any =[];
+  total_last_10days:any =[];
+
+  reportsSalesDaily(){
+    this.date_last_10days=[];
+    this.widgetsService.reportsSalesDaily()
+      .subscribe(
+        {
+          next:(resp:any) =>{
+            let sale_daily = resp.last_10days;
+            sale_daily.forEach((element:any) => {
+              this.date_last_10days.push(element.date)
+              this.secondWidget.push(element.total);
+            });
+            this.total_last_10days = resp.total_last_10days;
+            console.log(this.total_last_10days);
+          },
+          error:(err)=>{
+            console.log(err);
+          },
+          complete:()=>{
             this.setData();
           }
         });    
