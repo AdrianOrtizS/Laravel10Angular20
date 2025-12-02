@@ -29,17 +29,18 @@ class ReportsService
 	    }
 
 	    // Filtro general para todas las consultas
+                    // belongsTo
 	    $query = Sale::whereHas('point_of_sale', function($q) use ($id_branch) {
 	        $q->where('id_branch', $id_branch);
 	    });
 
-	    // ➤ Ventas mensuales del año actual
+	    // Ventas mensuales del año actual
 	    $monthly = $query
-	        ->selectRaw('MONTH(created_at) as month, SUM(total) as total')
-	        ->whereYear('created_at', date('Y'))
-	        ->groupBy('month')
-	        ->orderBy('month')
-	        ->pluck('total', 'month');
+        	        ->selectRaw('MONTH(created_at) as month, SUM(total) as total')
+        	        ->whereYear('created_at', date('Y'))
+        	        ->groupBy('month')
+        	        ->orderBy('month')
+        	        ->pluck('total', 'month');
 
 	    $result = [];
 	    $month_current = date('n');
