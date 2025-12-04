@@ -80,7 +80,7 @@ class ReportsService
 	}
 
 
-	public function salesDaily()
+	public function sales10Daily()
 	{
 	    $user = auth()->user();
 	    $pointOfSale = $user->pointsOfSale()->first();
@@ -135,16 +135,109 @@ class ReportsService
 	}
 
 
-    public function topProducts()
-    {
-        return DB::table('sale_items')
-            ->join('products', 'products.id', '=', 'sale_items.product_id')
-            ->select('products.name', DB::raw('SUM(sale_items.quantity) as qty'))
-            ->groupBy('products.name')
-            ->orderByDesc('qty')
-            ->limit(10)
-            ->get();
-    }
+  //   public function topProducts()
+  //   {
+	 //    $user = auth()->user();
+	 //    $pointOfSale = $user->pointsOfSale()->first();
+
+	 //    if (!$pointOfSale) {
+	 //        return response()->json([
+	 //            'error' => 'El usuario no tiene puntos de venta asignados'
+	 //        ], 403);
+	 //    }
+
+	 //    $id_branch = $pointOfSale->id_branch;
+
+	 //    if (!$id_branch) {
+	 //        return response()->json([
+	 //            'error' => 'No se pudo determinar la sucursal del usuario'
+	 //        ], 403);
+	 //    }
+
+	 //    // Filtrar por branch (sucursal)
+	 //    $query = Sale::whereHas('point_of_sale', function($q) use ($id_branch) {
+	 //        $q->where('id_branch', $id_branch);
+	 //    })->with(['details.product'])->get();
+
+
+		// $products = [];
+
+		// foreach ($query as $sale) {
+
+		//     foreach ($sale->details as $detail) {
+
+		//         $products[] = [
+		//             'product_id'   => $detail->product->id ?? null,
+		//             'product_name' => $detail->product->name ?? null,
+		//             'quantity'     => $detail->quantity
+		//         ];
+		//     }
+		// }		
+
+
+	 //    return [
+	 //        'products' => $products
+	 //    ];
+  //   }
+	public function topProducts()
+	{
+	    $user = auth()->user();
+	    $pointOfSale = $user->pointsOfSale()->first();
+
+	    if (!$pointOfSale) {
+	        return response()->json([
+	            'error' => 'El usuario no tiene puntos de venta asignados'
+	        ], 403);
+	    }
+
+	    $id_branch = $pointOfSale->id_branch;
+
+	    if (!$id_branch) {
+	        return response()->json([
+	            'error' => 'No se pudo determinar la sucursal del usuario'
+	        ], 403);
+	    }
+
+	    // Ventas filtradas por sucursal con detalles y productos
+	    $sales = Sale::whereHas('point_of_sale', function($q) use ($id_branch) {
+	            $q->where('id_branch', $id_branch);
+	        })
+	        ->with(['details.product'])
+	        ->get();
+
+	    // Agrupar productos y sumar cantidades
+	    $products = [];
+
+	    foreach ($sales as $sale) {
+	        foreach ($sale->details as $detail) {
+
+	            $id = $detail->product->id;
+
+	            if (!isset($products[$id])) {
+	                $products[$id] = [
+	                    'product_id'   => $id,
+	                    'product_name' => $detail->product->name,
+	                    'quantity'     => 0
+	                ];
+	            }
+
+	            $products[$id]['quantity'] += $detail->quantity;
+	        }
+	    }
+
+	    // Ordenar de mayor a menor cantidad
+	    usort($products, function($a, $b){
+	        return $b['quantity'] <=> $a['quantity'];
+	    });
+
+	    // Obtener solo los primeros 5
+	    $top5 = array_slice($products, 0, 5);
+
+	    return [
+	        'top_5_products' => $top5
+	    ];
+	}
+
 
     public function purchaseslast_10days()
     {

@@ -23,9 +23,9 @@ class ReportsController extends Controller
 	}
 
 
-	public function salesDaily()
+	public function sales10Daily()
 	{
-		return response()->json($this->reports->salesDaily());
+		return response()->json($this->reports->sales10Daily());
 	}
 
 	public function topProducts()

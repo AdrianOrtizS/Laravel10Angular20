@@ -635,8 +635,7 @@ class SaleController extends Controller
      * Display the specified resource.
      */
     public function show(string $id)
-    {
-        
+    {  
         $sale = Sale::with(['customer', 'receivables','details.product'])->find($id);
 
         if (!$sale) {

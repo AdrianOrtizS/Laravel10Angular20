@@ -194,13 +194,11 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
             
             let monthly = resp.monthly;
             this.firstWidget = monthly;
-            console.log(this.firstWidget)
           },
           error:(err)=>{
             console.log(err);
           },
           complete:()=>{
-            // console.log(this.firstWidget);
             this.setData();
           }
         });    
