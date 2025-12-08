@@ -23,6 +23,7 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
   data: any[] = [];
   options: any[] = [];
   labels_10Days:any[] = [];
+  labels_top_5_products:any[] = [];
   labels = [
     'Enero',
     'Febrero',
@@ -70,10 +71,10 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
     }
   };
 
-
   ngOnInit(): void {
     this.reportsSalesMonthly();
     this.reportsSalesDaily();
+    this.reportsProductsTop();
   }
 
   ngAfterContentInit(): void {
@@ -100,16 +101,16 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
         data: [...this.secondWidget]
       }],
       [{
-        label: 'My Third dataset',
+        label: 'Total',
         backgroundColor: 'rgba(255,255,255,.2)',
         borderColor: 'rgba(255,255,255,.55)',
         pointBackgroundColor: getStyle('--cui-warning'),
         pointHoverBorderColor: getStyle('--cui-warning'),
-        data: [78, 81, 80, 45, 34, 12, 40],
+        data: [...this.thirdWidget],
         fill: true
       }],
       [{
-        label: 'My Fourth dataset',
+        label: 'Total',
         backgroundColor: 'rgba(255,255,255,.2)',
         borderColor: 'rgba(255,255,255,.55)',
         data: [78, 81, 80, 45, 34, 12, 40, 85, 65, 23, 12, 98, 34, 84, 67, 82],
@@ -126,7 +127,16 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
           labels: this.labels_10Days.slice(0, length),
           datasets: this.datasets[idx]
         };
-      }else{
+      }
+      if(idx == 2){
+        // console.log('idx 2');
+        this.labels_top_5_products = this.top_5_products;
+        this.data[idx] = {
+          labels: this.labels_top_5_products.slice(0, length),
+          datasets: this.datasets[idx]
+        };
+      }
+      if(idx != 2 && idx != 1){
         this.data[idx] = {
           labels: this.labels.slice(0, length),
           datasets: this.datasets[idx]
@@ -220,7 +230,7 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
               this.secondWidget.push(element.total);
             });
             this.total_last_10days = resp.total_last_10days;
-            console.log(this.total_last_10days);
+            // console.log(this.total_last_10days);
           },
           error:(err)=>{
             console.log(err);
@@ -230,6 +240,36 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
           }
         });    
   }
+
+  thirdWidget:any =[];  
+  top_5_products:any =[];
+  total_products:any=0;
+  
+  reportsProductsTop(){
+    this.top_5_products=[];
+    this.widgetsService.reportsProductsTop()
+      .subscribe(
+        {
+          next:(resp:any) =>{
+            let sale_top = resp.top_5_products;
+            sale_top.forEach((element:any) => {
+              this.top_5_products.push(element.product_name)
+              this.thirdWidget.push(element.quantity);
+            });
+            this.total_products = resp.total_products;
+            console.log(this.total_products);
+            console.log(this.top_5_products);
+            console.log(this.thirdWidget);
+          },
+          error:(err)=>{
+            console.log(err);
+          },
+          complete:()=>{
+            this.setData();
+          }
+        });    
+  }
+
 
 }
 
