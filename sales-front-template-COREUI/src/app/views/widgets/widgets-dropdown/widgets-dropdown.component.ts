@@ -269,6 +269,35 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
           }
         });    
   }
+  ///////////////////////7
+  fourWidget:any =[];  
+  low_stock:any =[];
+  // total_products:any=0;
+  
+  reportsLowStock(){
+    this.low_stock=[];
+    this.widgetsService.reportsLowStock()
+      .subscribe(
+        {
+          next:(resp:any) =>{
+            let sale_top = resp.top_5_products;
+            sale_top.forEach((element:any) => {
+              this.top_5_products.push(element.product_name)
+              this.thirdWidget.push(element.quantity);
+            });
+            this.total_products = resp.total_products;
+            console.log(this.total_products);
+            console.log(this.top_5_products);
+            console.log(this.thirdWidget);
+          },
+          error:(err)=>{
+            console.log(err);
+          },
+          complete:()=>{
+            this.setData();
+          }
+        });    
+  }
 
 
 }
