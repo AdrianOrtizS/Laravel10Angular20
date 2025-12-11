@@ -154,14 +154,14 @@ class ReportsService
 	            'error' => 'No se pudo determinar la sucursal del usuario'
 	        ], 403);
 	    }
-        $first_day_of_year = now()->startOfYear();
+        $oneYearOld = now()->subYear();
 	    
         // Ventas filtradas por sucursal con detalles y productos
 	    $sales = Sale::whereHas('point_of_sale', function($q) use ($id_branch) {
 	            $q->where('id_branch', $id_branch);
 	        })
 	        ->with(['details.product'])
-	        ->where('created_at', '>=', $first_day_of_year)
+	        ->where('created_at', '>=', $oneYearOld)
             ->get();
 
 	    // Agrupar productos y sumar cantidades
