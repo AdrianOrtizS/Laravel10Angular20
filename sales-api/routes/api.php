@@ -106,7 +106,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('reports')->group(function () {
         Route::get('/sales/monthly',    [ReportsController::class, 'salesMonthly']);
         Route::get('/sales/daily',      [ReportsController::class, 'sales10Daily']);
-        Route::get('/products/top',     [ReportsController::class, 'topProducts']);
+        Route::get('/products/top',     [ReportsController::class, 'top5Products']);
         Route::get('/inventory/low-stock', [ReportsController::class, 'lowStock']);
         Route::get('/purchases/monthly', [ReportsController::class, 'purchasesMonthly']);
     });

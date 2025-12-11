@@ -74,7 +74,7 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
   ngOnInit(): void {
     this.reportsSalesMonthly();
     this.reportsSalesDaily();
-    this.reportsProductsTop();
+    this.reportsProducts5Top();
   }
 
   ngAfterContentInit(): void {
@@ -100,27 +100,34 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
         pointHoverBorderColor: getStyle('--cui-info'),
         data: [...this.secondWidget]
       }],
+      
+      [{
+        label: 'Total',
+        backgroundColor: 'rgba(255,255,255,.2)',
+        borderColor: 'rgba(255,255,255,.55)',
+        data: [33,11,55],
+        barPercentage: 0.7
+      }],
       [{
         label: 'Total',
         backgroundColor: 'rgba(255,255,255,.2)',
         borderColor: 'rgba(255,255,255,.55)',
         pointBackgroundColor: getStyle('--cui-warning'),
         pointHoverBorderColor: getStyle('--cui-warning'),
-        data: [...this.thirdWidget],
+        data: [...this.fourWidget],
         fill: true
-      }],
-      [{
-        label: 'Total',
-        backgroundColor: 'rgba(255,255,255,.2)',
-        borderColor: 'rgba(255,255,255,.55)',
-        data: [78, 81, 80, 45, 34, 12, 40, 85, 65, 23, 12, 98, 34, 84, 67, 82],
-        barPercentage: 0.7
       }]
     ];
 
     // Ahora sí generas this.data
     for (let idx = 0; idx < 4; idx++) {
       const length = this.datasets[idx][0].data.length;
+      if(idx == 0){
+        this.data[idx] = {
+          labels: this.labels.slice(0, length),
+          datasets: this.datasets[idx]
+        };
+      }
       if(idx == 1){
         this.labels_10Days = this.date_last_10days;
         this.data[idx] = {
@@ -129,21 +136,20 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
         };
       }
       if(idx == 2){
-        // console.log('idx 2');
         this.labels_top_5_products = this.top_5_products;
         this.data[idx] = {
           labels: this.labels_top_5_products.slice(0, length),
           datasets: this.datasets[idx]
         };
       }
-      if(idx != 2 && idx != 1){
+      if(idx == 3){
+        this.labels_top_5_products = this.top_5_products;
         this.data[idx] = {
-          labels: this.labels.slice(0, length),
+          labels: this.labels_top_5_products.slice(0, length),
           datasets: this.datasets[idx]
         };
       }
     }
-    
     this.setOptions();
   }
 
@@ -167,7 +173,6 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
       else if (idx === 1) {
         options.elements.line.tension = 0;
       }
-
       // === WIDGET 3 ===
       else if (idx === 2) {
         options.elements.line.borderWidth = 2;
@@ -175,13 +180,11 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
         options.scales.x.display = false;
         options.scales.y.display = false;
       }
-
       // === WIDGET 4 (bar chart) ===
       else if (idx === 3) {
         options.scales.y.min = undefined;
         options.scales.y.max = undefined;
       }
-
       this.options.push(options);
     }
   }
@@ -230,7 +233,6 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
               this.secondWidget.push(element.total);
             });
             this.total_last_10days = resp.total_last_10days;
-            // console.log(this.total_last_10days);
           },
           error:(err)=>{
             console.log(err);
@@ -241,11 +243,42 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
         });    
   }
 
-  thirdWidget:any =[];  
+  ///////////////////////7
+  // fourWidget:any =[];  
+  // low_stock:any =[];
+  // // total_products:any=0;
+  
+  // reportsLowStock(){
+  //   this.low_stock=[];
+  //   this.widgetsService.reportsLowStock()
+  //     .subscribe(
+  //       {
+  //         next:(resp:any) =>{
+  //           let sale_top = resp.top_5_products;
+  //           sale_top.forEach((element:any) => {
+  //             this.top_5_products.push(element.product_name)
+  //             this.thirdWidget.push(element.quantity);
+  //           });
+  //           this.total_products = resp.total_products;
+  //           console.log(this.total_products);
+  //           console.log(this.top_5_products);
+  //           console.log(this.thirdWidget);
+  //         },
+  //         error:(err)=>{
+  //           console.log(err);
+  //         },
+  //         complete:()=>{
+  //           this.setData();
+  //         }
+  //       });    
+  // }
+
+
+  fourWidget:any =[];  
   top_5_products:any =[];
   total_products:any=0;
   
-  reportsProductsTop(){
+  reportsProducts5Top(){
     this.top_5_products=[];
     this.widgetsService.reportsProductsTop()
       .subscribe(
@@ -254,12 +287,12 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
             let sale_top = resp.top_5_products;
             sale_top.forEach((element:any) => {
               this.top_5_products.push(element.product_name)
-              this.thirdWidget.push(element.quantity);
+              this.fourWidget.push(element.quantity);
             });
             this.total_products = resp.total_products;
-            console.log(this.total_products);
-            console.log(this.top_5_products);
-            console.log(this.thirdWidget);
+            // console.log(this.total_products);
+            // console.log(this.top_5_products);
+            // console.log(this.fourWidget);
           },
           error:(err)=>{
             console.log(err);
@@ -269,40 +302,7 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
           }
         });    
   }
-  ///////////////////////7
-  fourWidget:any =[];  
-  low_stock:any =[];
-  // total_products:any=0;
-  
-  reportsLowStock(){
-    this.low_stock=[];
-    this.widgetsService.reportsLowStock()
-      .subscribe(
-        {
-          next:(resp:any) =>{
-            let sale_top = resp.top_5_products;
-            sale_top.forEach((element:any) => {
-              this.top_5_products.push(element.product_name)
-              this.thirdWidget.push(element.quantity);
-            });
-            this.total_products = resp.total_products;
-            console.log(this.total_products);
-            console.log(this.top_5_products);
-            console.log(this.thirdWidget);
-          },
-          error:(err)=>{
-            console.log(err);
-          },
-          complete:()=>{
-            this.setData();
-          }
-        });    
-  }
-
-
 }
-
-
 
 // @Component({
 //   selector: 'app-chart-sample',

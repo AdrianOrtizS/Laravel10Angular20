@@ -136,7 +136,7 @@ class ReportsService
 	}
 
 
-	public function topProducts()
+	public function top5Products()
 	{
 	    $user = auth()->user();
 	    $pointOfSale = $user->pointsOfSale()->first();
