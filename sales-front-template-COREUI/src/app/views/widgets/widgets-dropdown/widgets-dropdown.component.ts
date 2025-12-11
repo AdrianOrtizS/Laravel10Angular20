@@ -23,7 +23,7 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
   data: any[] = [];
   options: any[] = [];
   labels_10Days:any[] = [];
-  labels_top_5_products:any[] = [];
+
   labels = [
     'Enero',
     'Febrero',
@@ -74,7 +74,8 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
   ngOnInit(): void {
     this.reportsSalesMonthly();
     this.reportsSalesDaily();
-    this.reportsProducts5Top();
+    this.reportsProductsTop();
+    this.reportsLowStock();
   }
 
   ngAfterContentInit(): void {
@@ -116,6 +117,13 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
         pointHoverBorderColor: getStyle('--cui-warning'),
         data: [...this.fourWidget],
         fill: true
+      }],
+      [{
+        label: 'Total',
+        backgroundColor: 'rgba(255,255,255,.2)',
+        borderColor: 'rgba(255,255,255,.55)',
+        data: [...this.fourWidget],
+        barPercentage: 0.7
       }]
     ];
 
@@ -135,20 +143,24 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
           datasets: this.datasets[idx]
         };
       }
+
       if(idx == 2){
-        this.labels_top_5_products = this.top_5_products;
+
         this.data[idx] = {
-          labels: this.labels_top_5_products.slice(0, length),
+          labels: this.low_stock_product.slice(0, length),
           datasets: this.datasets[idx]
         };
       }
+      
       if(idx == 3){
-        this.labels_top_5_products = this.top_5_products;
         this.data[idx] = {
-          labels: this.labels_top_5_products.slice(0, length),
+          labels: this.label_top_10_products.slice(0, length),
           datasets: this.datasets[idx]
         };
       }
+
+
+      
     }
     this.setOptions();
   }
@@ -243,56 +255,23 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
         });    
   }
 
-  ///////////////////////7
-  // fourWidget:any =[];  
-  // low_stock:any =[];
-  // // total_products:any=0;
-  
-  // reportsLowStock(){
-  //   this.low_stock=[];
-  //   this.widgetsService.reportsLowStock()
-  //     .subscribe(
-  //       {
-  //         next:(resp:any) =>{
-  //           let sale_top = resp.top_5_products;
-  //           sale_top.forEach((element:any) => {
-  //             this.top_5_products.push(element.product_name)
-  //             this.thirdWidget.push(element.quantity);
-  //           });
-  //           this.total_products = resp.total_products;
-  //           console.log(this.total_products);
-  //           console.log(this.top_5_products);
-  //           console.log(this.thirdWidget);
-  //         },
-  //         error:(err)=>{
-  //           console.log(err);
-  //         },
-  //         complete:()=>{
-  //           this.setData();
-  //         }
-  //       });    
-  // }
 
-
-  fourWidget:any =[];  
-  top_5_products:any =[];
-  total_products:any=0;
+  thirdWidget:any =[];  
+  low_stock_product:any =[];
+  total_products_low_stock:any=0;
   
-  reportsProducts5Top(){
-    this.top_5_products=[];
-    this.widgetsService.reportsProductsTop()
+  reportsLowStock(){
+    this.total_products_low_stock =0;
+    this.low_stock_product =[];
+    this.widgetsService.reportsLowStock()
       .subscribe(
         {
           next:(resp:any) =>{
-            let sale_top = resp.top_5_products;
-            sale_top.forEach((element:any) => {
-              this.top_5_products.push(element.product_name)
-              this.fourWidget.push(element.quantity);
+            resp.low_stock_20.forEach((element:any) => {
+              this.low_stock_product.push(element.name);
+              this.thirdWidget.push(element.stock);
+              this.total_products_low_stock += element.stock;
             });
-            this.total_products = resp.total_products;
-            // console.log(this.total_products);
-            // console.log(this.top_5_products);
-            // console.log(this.fourWidget);
           },
           error:(err)=>{
             console.log(err);
@@ -302,88 +281,44 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
           }
         });    
   }
+
+
+  fourWidget:any =[];  
+  label_top_10_products:any =[];
+  total_products:any=0;
+  
+  reportsProductsTop(){
+    this.label_top_10_products=[];
+    this.widgetsService.reportsProductsTop()
+      .subscribe(
+        {
+          next:(resp:any) =>{
+            let sale_top = resp.top_10_products;
+            sale_top.forEach((element:any) => {
+              this.label_top_10_products.push(element.product_name)
+              this.fourWidget.push(element.quantity);
+            });
+            this.total_products = resp.total_products;
+            console.log(this.label_top_10_products);
+            console.log(this.fourWidget);
+            console.log(this.total_products);
+          },
+          error:(err)=>{
+            console.log(err);
+          },
+          complete:()=>{
+            this.setData();
+          }
+        });    
+  }
+
+
+
+
+
+
+
+
+
 }
 
-// @Component({
-//   selector: 'app-chart-sample',
-//   template: '<c-chart type="line" [data]="data" [options]="options" width="300" #chart />',
-//   imports: [ChartjsComponent]
-// })
-// export class ChartSample implements AfterViewInit {
-
-//   constructor() {}
-
-//   readonly chartComponent = viewChild.required<ChartjsComponent>('chart');
-
-//   colors = {
-//     label: 'My dataset',
-//     backgroundColor: 'rgba(77,189,116,.2)',
-//     borderColor: '#4dbd74',
-//     pointHoverBackgroundColor: '#fff'
-//   };
-
-//   labels = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
-
-//   data = {
-//     labels: this.labels,
-//     datasets: [{
-//       data: [65, 59, 84, 84, 51, 55, 40],
-//       ...this.colors,
-//       fill: { value: 65 }
-//     }]
-//   };
-
-//   options = {
-//     maintainAspectRatio: false,
-//     plugins: {
-//       legend: {
-//         display: false
-//       }
-//     },
-//     elements: {
-//       line: {
-//         tension: 0.4
-//       }
-//     }
-//   };
-
-//   ngAfterViewInit(): void {
-//     setTimeout(() => {
-//       const data = () => {
-//         return {
-//           ...this.data,
-//           labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-//           datasets: [{
-//             ...this.data.datasets[0],
-//             data: [42, 88, 42, 66, 77],
-//             fill: { value: 55 }
-//           }, { ...this.data.datasets[0], borderColor: '#ffbd47', data: [88, 42, 66, 77, 42] }]
-//         };
-//       };
-//       const newLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May'];
-//       const newData = [42, 88, 42, 66, 77];
-//       let { datasets, labels } = { ...this.data };
-//       // @ts-ignore
-//       const before = this.chartComponent()?.chart?.data.datasets.length;
-//       console.log('before', before);
-//       // console.log('datasets, labels', datasets, labels)
-//       // @ts-ignore
-//       // this.data = data()
-//       this.data = {
-//         ...this.data,
-//         datasets: [{ ...this.data.datasets[0], data: newData }, {
-//           ...this.data.datasets[0],
-//           borderColor: '#ffbd47',
-//           data: [88, 42, 66, 77, 42]
-//         }],
-//         labels: newLabels
-//       };
-//       // console.log('datasets, labels', { datasets, labels } = {...this.data})
-//       // @ts-ignore
-//       setTimeout(() => {
-//         const after = this.chartComponent()?.chart?.data.datasets.length;
-//         console.log('after', after);
-//       });
-//     }, 5000);
-//   }
-// }

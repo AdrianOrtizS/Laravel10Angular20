@@ -136,7 +136,8 @@ class ReportsService
 	}
 
 
-	public function top5Products()
+
+	public function top10Products()
 	{
 	    $user = auth()->user();
 	    $pointOfSale = $user->pointsOfSale()->first();
@@ -202,7 +203,7 @@ class ReportsService
 	    $top5 = array_slice($products, 0, 5);
 
 	    return [
-	        'top_5_products' => $top5,
+	        'top_10_products' => $top5,
             'total_products' => $total_products
 	    ];
 	}
@@ -210,8 +211,8 @@ class ReportsService
     public function lowStock()
     {
         $user = auth()->user();
-        $pointOfSale = $user->pointsOfSale()->first();
 
+        $pointOfSale = $user->pointsOfSale()->first();
         if (!$pointOfSale) {
             return response()->json([
                 'error' => 'El usuario no tiene puntos de venta asignados'
@@ -219,32 +220,35 @@ class ReportsService
         }
 
         $id_branch = $pointOfSale->id_branch;
-
         if (!$id_branch) {
             return response()->json([
                 'error' => 'No se pudo determinar la sucursal del usuario'
             ], 403);
         }
 
-        $query = Product::select('products.name', 'categories.name as categorie',
-                            //COALESCE  ->  si es null return 0  
-                    \DB::raw('COALESCE(inventories.stock, 0) as stock'),
-                    \DB::raw('COALESCE(inventories.stock_min, 0) as stock_min')
-                )
-                ->where('inventories.stock', '<=', 'inventories.stock_min')
-                ->leftJoin('inventories', function($join) use ($id_branch) {
-                    $join->on('products.id', '=', 'inventories.id_product')
-                         ->where('inventories.id_branch', $id_branch);
-                })
-                ->join('categories', 'products.id_categorie', '=', 'categories.id')
-                ->orderBy('products.name')
-                ->get();
+		$query = Product::select('products.name',
+								//COALESCE(si es null, devuelve 0)
+					        \DB::raw('cat.name as categorie'),
+					        \DB::raw('COALESCE(inv.stock, 0) as stock'),
+					        \DB::raw('COALESCE(inv.stock_min, 0) as stock_min')
+		    )
+		    ->leftJoin('inventories as inv', function ($join) use ($id_branch) {
+		        $join->on('products.id', '=', 'inv.id_product')
+		             ->where('inv.id_branch', $id_branch);
+		    })
+		    ->join('categories as cat', 'products.id_categorie', '=', 'cat.id')
+		    	      // COALESCE(si es null, devuelve 0)
+		    ->whereRaw('COALESCE(inv.stock, 0) <= COALESCE(inv.stock_min, 0)')
+		    // ->orderBy('inv.stock', 'desc')
+		    ->take(20)
+		    ->get();
+
+		// $low5 = array_slice($query, 0, 5);
 
         return [
-            'low-stock' => $query
+            'low_stock_20' => $query
         ];
     }
-
 
 
     public function purchaseslast_10days()

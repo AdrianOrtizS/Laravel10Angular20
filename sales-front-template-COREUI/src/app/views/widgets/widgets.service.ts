@@ -38,7 +38,7 @@ export class WidgetsService {
 
   reportsLowStock(){
     let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
-    let URL = URL_SERVICIOS+'/reports/inventory/low-stock';
+    let URL = URL_SERVICIOS+'/reports/inventory/low_stock';
     return this.http.get(URL, {headers: headers})
             .pipe();
   }
