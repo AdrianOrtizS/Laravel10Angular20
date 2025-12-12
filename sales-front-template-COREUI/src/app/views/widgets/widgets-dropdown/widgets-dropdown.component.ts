@@ -3,9 +3,7 @@ import { getStyle } from '@coreui/utils';
 import { ChartjsComponent } from '@coreui/angular-chartjs';
 import { RouterLink } from '@angular/router';
 import { IconDirective } from '@coreui/icons-angular';
-import { ButtonDirective,ColComponent,DropdownComponent,DropdownDividerDirective,
-         DropdownItemDirective,DropdownMenuDirective,DropdownToggleDirective,RowComponent,
-         TemplateIdDirective,WidgetStatAComponent} from '@coreui/angular';
+import { ButtonDirective,ColComponent,DropdownComponent,DropdownDividerDirective,DropdownItemDirective,DropdownMenuDirective,DropdownToggleDirective,RowComponent,TemplateIdDirective,WidgetStatAComponent} from '@coreui/angular';
 import { WidgetsService } from '../widgets.service';
 import { CommonModule } from '@angular/common';
 
@@ -22,7 +20,6 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
 
   data: any[] = [];
   options: any[] = [];
-  labels_10Days:any[] = [];
 
   labels = [
     'Enero',
@@ -101,21 +98,13 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
         pointHoverBorderColor: getStyle('--cui-info'),
         data: [...this.secondWidget]
       }],
-      
       [{
         label: 'Total',
         backgroundColor: 'rgba(255,255,255,.2)',
         borderColor: 'rgba(255,255,255,.55)',
-        data: [33,11,55],
-        barPercentage: 0.7
-      }],
-      [{
-        label: 'Total',
-        backgroundColor: 'rgba(255,255,255,.2)',
-        borderColor: 'rgba(255,255,255,.55)',
-        pointBackgroundColor: getStyle('--cui-warning'),
-        pointHoverBorderColor: getStyle('--cui-warning'),
-        data: [...this.fourWidget],
+        // pointBackgroundColor: getStyle('--cui-warning'),
+        // pointHoverBorderColor: getStyle('--cui-warning'),
+        data: [...this.thirdWidget],
         fill: true
       }],
       [{
@@ -137,15 +126,13 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
         };
       }
       if(idx == 1){
-        this.labels_10Days = this.date_last_10days;
         this.data[idx] = {
-          labels: this.labels_10Days.slice(0, length),
+          labels: this.date_last_10days.slice(0, length),
           datasets: this.datasets[idx]
         };
       }
 
       if(idx == 2){
-
         this.data[idx] = {
           labels: this.low_stock_product.slice(0, length),
           datasets: this.datasets[idx]
@@ -159,8 +146,6 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
         };
       }
 
-
-      
     }
     this.setOptions();
   }
@@ -203,7 +188,6 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
 
 
   firstWidget:      any=[];
-  
   total_current_year:any=0;
   total_last_year:   any=0;
   percent_difference:any=0;
@@ -231,7 +215,7 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
 
   secondWidget:any =[];
   date_last_10days:any =[];
-  total_last_10days:any =[];
+  total_last_10days:any =0;
 
   reportsSalesDaily(){
     this.date_last_10days=[];
@@ -311,14 +295,6 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
           }
         });    
   }
-
-
-
-
-
-
-
-
 
 }
 

@@ -1,6 +1,6 @@
 <c-row class="g-4">
   
-  <c-col sm="6" xl="3">
+  <c-col sm="6" xl="3" *ngIf="total_current_year > 0">
     <c-widget-stat-a
       color="primary"
       [title]="'Ventas del año actual'">
@@ -18,7 +18,7 @@
     </c-widget-stat-a>
   </c-col>
 
-  <c-col sm="6" xl="3">
+  <c-col sm="6" xl="3" *ngIf="total_last_10days > 0">
     <c-widget-stat-a
       [title]="'Ventas ultimos 10 dias'"
       color="info">
@@ -31,9 +31,9 @@
     </c-widget-stat-a>
   </c-col>
 
-  <c-col sm="6" xl="3">
+  <c-col sm="6" xl="3" *ngIf="total_products_low_stock > 0">
     <c-widget-stat-a
-      [title]="'Productos con stock minimo'"
+      [title]="'Prod. con stock minimo'"
       color="warning"
     >
       <ng-template cTemplateId="widgetValueTemplate" ngPreserveWhitespaces>
@@ -45,10 +45,10 @@
     </c-widget-stat-a>
   </c-col>
 
-  <c-col sm="6" xl="3">
+  <c-col sm="6" xl="3" *ngIf="total_products > 0">
     <c-widget-stat-a
 
-      [title]="'Productos mas vendidos en el año'"
+      [title]="'Prod. mas vendidos en el año'"
       color="danger">
       <ng-template cTemplateId="widgetValueTemplate" ngPreserveWhitespaces>
         <span>{{total_products}} unid.</span>

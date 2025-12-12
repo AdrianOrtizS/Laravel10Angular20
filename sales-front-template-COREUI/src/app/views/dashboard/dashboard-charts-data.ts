@@ -29,53 +29,54 @@ export class DashboardChartsData {
   }
 
   initMainChart(period: string = 'Month') {
-    const brandSuccess = getStyle('--cui-success') ?? '#4dbd74';
-    const brandInfo = getStyle('--cui-info') ?? '#20a8d8';
-    const brandInfoBg = `rgba(${getStyle('--cui-info-rgb')}, .1)`
-    const brandDanger = getStyle('--cui-danger') ?? '#f86c6b';
+    const brandSuccess  = getStyle('--cui-success') ?? '#4dbd74';
+    const brandInfo     = getStyle('--cui-info') ?? '#20a8d8';
+    const brandInfoBg   = `rgba(${getStyle('--cui-info-rgb')}, .1)`
+    const brandDanger   = getStyle('--cui-danger') ?? '#f86c6b';
 
     // mainChart
     this.mainChart['elements'] = period === 'Month' ? 12 : 27;
     this.mainChart['Data1'] = [];
     this.mainChart['Data2'] = [];
-    this.mainChart['Data3'] = [];
+    // this.mainChart['Data3'] = [];
 
     // generate random values for mainChart
     for (let i = 0; i <= this.mainChart['elements']; i++) {
-      this.mainChart['Data1'].push(this.random(50, 240));
-      this.mainChart['Data2'].push(this.random(20, 160));
-      this.mainChart['Data3'].push(65);
+      this.mainChart['Data1'].push(this.random(5, 24));
+      this.mainChart['Data2'].push(this.random(100, 160));
+      // this.mainChart['Data3'].push(65);
     }
 
     let labels: string[] = [];
     if (period === 'Month') {
       labels = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December'
+        'Enero',
+        'Febrero',
+        'Marzo',
+        'Abril',
+        'Mayo',
+        'Junio',
+        'Julio',
+        'Agosto',
+        'Septiember',
+        'Octubre',
+        'Noviembre',
+        'Diciembre'
       ];
-    } else {
-      /* tslint:disable:max-line-length */
-      const week = [
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-        'Sunday'
-      ];
-      labels = week.concat(week, week, week);
-    }
+    } 
+    // else {
+    //   /* tslint:disable:max-line-length */
+    //   const week = [
+    //     'Monday',
+    //     'Tuesday',
+    //     'Wednesday',
+    //     'Thursday',
+    //     'Friday',
+    //     'Saturday',
+    //     'Sunday'
+    //   ];
+    //   labels = week.concat(week, week, week);
+    // }
 
     const colors = [
       {
@@ -92,14 +93,14 @@ export class DashboardChartsData {
         borderColor: brandSuccess || '#4dbd74',
         pointHoverBackgroundColor: '#fff'
       },
-      {
-        // brandDanger
-        backgroundColor: 'transparent',
-        borderColor: brandDanger || '#f86c6b',
-        pointHoverBackgroundColor: brandDanger,
-        borderWidth: 1,
-        borderDash: [8, 5]
-      }
+      // {
+      //   // brandDanger
+      //   backgroundColor: 'transparent',
+      //   borderColor: brandDanger || '#f86c6b',
+      //   pointHoverBackgroundColor: brandDanger,
+      //   borderWidth: 1,
+      //   borderDash: [8, 5]
+      // }
     ];
 
     const datasets: ChartDataset[] = [
@@ -113,11 +114,11 @@ export class DashboardChartsData {
         label: 'Previous',
         ...colors[1]
       },
-      {
-        data: this.mainChart['Data3'],
-        label: 'BEP',
-        ...colors[2]
-      }
+      // {
+      //   data: this.mainChart['Data3'],
+      //   label: 'BEP',
+      //   ...colors[2]
+      // }
     ];
 
     const plugins: DeepPartial<PluginOptionsByType<any>> = {
