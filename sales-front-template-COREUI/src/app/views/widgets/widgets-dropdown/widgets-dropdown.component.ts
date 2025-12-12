@@ -283,9 +283,9 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
               this.fourWidget.push(element.quantity);
             });
             this.total_products = resp.total_products;
-            console.log(this.label_top_10_products);
-            console.log(this.fourWidget);
-            console.log(this.total_products);
+            // console.log(this.label_top_10_products);
+            // console.log(this.fourWidget);
+            // console.log(this.total_products);
           },
           error:(err)=>{
             console.log(err);

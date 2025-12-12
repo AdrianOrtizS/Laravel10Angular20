@@ -1,15 +1,16 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable, OnInit } from '@angular/core';
 import { ChartData, ChartDataset, ChartOptions, ChartType, PluginOptionsByType, ScaleOptions, TooltipLabelStyle } from 'chart.js';
 import { DeepPartial } from './utils';
 import { getStyle } from '@coreui/utils';
+import { DashboardService } from './dashboard.service';
 
 export interface IChartProps {
-  data?: ChartData;
-  labels?: any;
+  data?:    ChartData;
+  labels?:  any;
   options?: ChartOptions;
-  colors?: any;
-  type: ChartType;
-  legend?: any;
+  colors?:  any;
+  type:     ChartType;
+  legend?:  any;
 
   [propName: string]: any;
 }
@@ -18,9 +19,13 @@ export interface IChartProps {
   providedIn: 'any'
 })
 export class DashboardChartsData {
+  
+  dashboardService = inject(DashboardService);
+
   constructor() {
-    this.initMainChart();
+    this.reportsSalesMonthly();
   }
+
 
   public mainChart: IChartProps = { type: 'line' };
 
@@ -28,11 +33,34 @@ export class DashboardChartsData {
     return Math.floor(Math.random() * (max - min + 1) + min);
   }
 
+  sales_monthly: any=[];
+  sales_monthly_last: any=[];
+
+  reportsSalesMonthly(){
+    this.dashboardService.reportsSalesMonthly()
+      .subscribe({
+        next:(resp:any) =>{
+          this.sales_monthly = resp.monthly;
+          this.sales_monthly_last = resp.monthly_last;
+          console.log(this.sales_monthly);
+          this.initMainChart();
+
+        },
+        error:(err:any) =>{
+          console.log(err);
+        },
+        complete:() =>{
+          console.log('jajaja'); 
+        }
+      });
+  }
+
+
   initMainChart(period: string = 'Month') {
     const brandSuccess  = getStyle('--cui-success') ?? '#4dbd74';
     const brandInfo     = getStyle('--cui-info') ?? '#20a8d8';
     const brandInfoBg   = `rgba(${getStyle('--cui-info-rgb')}, .1)`
-    const brandDanger   = getStyle('--cui-danger') ?? '#f86c6b';
+    // const brandDanger   = getStyle('--cui-danger') ?? '#f86c6b';
 
     // mainChart
     this.mainChart['elements'] = period === 'Month' ? 12 : 27;
@@ -40,12 +68,15 @@ export class DashboardChartsData {
     this.mainChart['Data2'] = [];
     // this.mainChart['Data3'] = [];
 
+
     // generate random values for mainChart
-    for (let i = 0; i <= this.mainChart['elements']; i++) {
-      this.mainChart['Data1'].push(this.random(5, 24));
-      this.mainChart['Data2'].push(this.random(100, 160));
+    for (let i = 0; i < this.mainChart['elements']; i++) {
+      this.mainChart['Data1'].push(this.sales_monthly[i]);
+      this.mainChart['Data2'].push(this.sales_monthly_last[i]);
       // this.mainChart['Data3'].push(65);
     }
+
+    
 
     let labels: string[] = [];
     if (period === 'Month') {
@@ -159,6 +190,7 @@ export class DashboardChartsData {
     };
   }
 
+
   getScales() {
     const colorBorderTranslucent = getStyle('--cui-border-color-translucent');
     const colorBody = getStyle('--cui-body-color');
@@ -173,6 +205,7 @@ export class DashboardChartsData {
           color: colorBody
         }
       },
+
       y: {
         border: {
           color: colorBorderTranslucent
@@ -180,7 +213,7 @@ export class DashboardChartsData {
         grid: {
           color: colorBorderTranslucent
         },
-        max: 250,
+        // max: 1000,
         beginAtZero: true,
         ticks: {
           color: colorBody,
@@ -191,4 +224,5 @@ export class DashboardChartsData {
     };
     return scales;
   }
+
 }

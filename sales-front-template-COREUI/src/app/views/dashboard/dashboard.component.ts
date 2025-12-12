@@ -10,9 +10,10 @@ import { IconDirective } from '@coreui/icons-angular';
 import { WidgetsBrandComponent } from '../widgets/widgets-brand/widgets-brand.component';
 import { WidgetsDropdownComponent } from '../widgets/widgets-dropdown/widgets-dropdown.component';
 import { DashboardChartsData, IChartProps } from './dashboard-charts-data';
-import { AuthService } from '../services/auth.service';
+// import { AuthService } from '../services/auth.service';
 import { ToastrService } from 'ngx-toastr';
 import { ActivatedRoute, Router } from '@angular/router';
+import { DashboardService } from './dashboard.service';
 
 @Component({
   templateUrl: 'dashboard.component.html',
@@ -21,18 +22,17 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class DashboardComponent implements OnInit {
 
-  authService = inject(AuthService);
-  toastr  = inject(ToastrService);
-  router  = inject(Router);
+  toastr      = inject(ToastrService);
+  router      = inject(Router);
   // activatedRoute  = inject(ActivatedRoute);
 
   readonly #destroyRef: DestroyRef = inject(DestroyRef);
-  readonly #document: Document = inject(DOCUMENT);
-  readonly #renderer: Renderer2 = inject(Renderer2);
+  readonly #document:   Document = inject(DOCUMENT);
+  readonly #renderer:   Renderer2 = inject(Renderer2);
   readonly #chartsData: DashboardChartsData = inject(DashboardChartsData);
 
-  public mainChart: IChartProps = { type: 'line' };
-  public mainChartRef: WritableSignal<any> = signal(undefined);
+  public mainChart:     IChartProps = { type: 'line' };
+  public mainChartRef:  WritableSignal<any> = signal(undefined);
   #mainChartRefEffect = effect(() => {
     if (this.mainChartRef()) {
       this.setChartStyles();
@@ -44,8 +44,6 @@ export class DashboardComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    // console.log('IIIIIInit Dashboard');
-    this.authService.initAuth();
     this.initCharts();
     this.updateChartOnColorModeChange();
   }
@@ -55,11 +53,12 @@ export class DashboardComponent implements OnInit {
     this.mainChart = this.#chartsData.mainChart;
   }
 
-  setTrafficPeriod(value: string): void {
-    this.trafficRadioGroup.setValue({ trafficRadio: value });
-    this.#chartsData.initMainChart(value);
-    this.initCharts();
-  }
+  // setTrafficPeriod(value: string): void {
+  //   console.log(value);
+  //   this.trafficRadioGroup.setValue({ trafficRadio: value });
+  //   this.#chartsData.initMainChart(value);
+  //   this.initCharts();
+  // }
 
   handleChartRef($chartRef: any) {
     if ($chartRef) {
@@ -78,6 +77,7 @@ export class DashboardComponent implements OnInit {
   }
 
   setChartStyles() {
+    // console.log('setChartStyles');
     if (this.mainChartRef()) {
       setTimeout(() => {
         const options: ChartOptions = { ...this.mainChart.options };
