@@ -100,7 +100,7 @@ export class ListComponent {
           this.valor_abono = '';
           this.observacion = '';
           this.toastr.success('Exito', 'El cobro se ha creado correctamente');
-          console.log(resp.receivable.id);
+          // console.log(resp.receivable.id);
           this.printReceivable(resp.receivable.id)
         }, 1000);
       });
@@ -137,13 +137,13 @@ export class ListComponent {
         }
         this.totalPages = resp.total;
         this.currentPage = page;
-        console.log(resp.Sales.data);
+        // console.log(resp.Sales.data);
         return this.sales.set(resp.Sales.data) ;
       });
     }
   
     mostrarFiltros(){
-      console.log('mostrar filtros');
+      // console.log('mostrar filtros');
       this.seeFilter = true;
       if(this.seeFilter){
         const today = new Date();

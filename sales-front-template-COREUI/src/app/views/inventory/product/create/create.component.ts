@@ -1,3 +1,4 @@
+import { SharedModule } from './../../../../shared/shared.module';
 // import { SharedModule } from './../../../shared/shared.module';
 import { ProductService } from './../product.service';
 import { ToastrService } from 'ngx-toastr';
@@ -6,7 +7,7 @@ import { freeSet } from '@coreui/icons';
 import { Component, computed, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormSelectDirective } from '@coreui/angular';
-import { SharedModule } from 'src/app/shared/shared.module';
+// import { SharedModule } from 'src/app/shared/shared.module';
 
 interface ProductI {
   cod_pro:string,
@@ -144,7 +145,7 @@ export class CreateComponent {
 
       this.productService.createProduct(formData)
       .subscribe((resp:any) =>{
-        console.log(resp);
+        // console.log(resp);
         if(resp.code == 403){
           this.toastr.error('Validacion', 'El producto ya existe');
           return;

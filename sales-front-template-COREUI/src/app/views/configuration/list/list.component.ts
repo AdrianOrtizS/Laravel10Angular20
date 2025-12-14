@@ -63,7 +63,7 @@ export class ListComponent {
   listarConfigurations(page = 1){
     this.configurationService.listConfigurations(page, this.search, this.pageSize)
     .subscribe((resp:any) => {
-      console.log(resp);
+      // console.log(resp);
       this.verifData = 0;
       if(resp.configurations.length == 0 && this.verifData == 0){
         this.verifData ++;
@@ -72,7 +72,7 @@ export class ListComponent {
       }
       this.totalPages = resp.total;
       this.currentPage = page;
-      console.log(resp.configurations);
+      // console.log(resp.configurations);
       return this.configurations.set(resp.configurations) ;
     });
   }

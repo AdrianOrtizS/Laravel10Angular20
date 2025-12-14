@@ -41,7 +41,7 @@ export class CreateComponent {
         this.toastr.error('Validacion', 'Los campos con * son obligatorios');
         return;
       }
-      console.log(this.CONFIGURATION);
+      // console.log(this.CONFIGURATION);
       this.configurationService.createConfiguration(this.CONFIGURATION)
       .subscribe((resp:any) =>{
         // console.log(resp);

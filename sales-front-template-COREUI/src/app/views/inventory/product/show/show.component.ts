@@ -7,12 +7,12 @@ import 'moment/locale/es';
 // import { SharedModule } from '../../../shared/shared.module';
 import { freeSet } from '@coreui/icons';
 import { Location } from '@angular/common';
-import { SharedModule } from 'src/app/shared/shared.module';
+import { SharedModule } from '../../../../shared/shared.module';
+// import { SharedModule } from 'src/app/shared/shared.module';
 
 @Component({
   selector: 'app-show',
-  imports: [ 
-    SharedModule,],
+  imports: [ SharedModule,],
   templateUrl: './show.component.html',
   styleUrl: './show.component.scss'
 })

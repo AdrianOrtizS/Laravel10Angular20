@@ -8,7 +8,8 @@ import { freeSet  } from '@coreui/icons';
 import { ToastrService } from 'ngx-toastr';
 // import { SharedModule } from 'src/app/shared/shared.module';
 import { SharedModule } from '../../../../shared/shared.module';
-import { URL_BACKEND } from 'src/app/config/config';
+import { URL_BACKEND } from '../../../../config/config';
+// import { URL_BACKEND } from 'src/app/config/config';
 
 @Component({
   selector: 'app-list',
@@ -68,7 +69,7 @@ export class ListComponent {
   listarCategories(page = 1){
     this.categorieService.listCategories(page, this.search, this.pageSize)
     .subscribe((resp:any) => {
-      console.log(resp);
+      // console.log(resp);
       this.verifData = 0;
       if(resp.total == 0 && this.verifData == 0){
         this.verifData ++;

@@ -9,10 +9,11 @@ export interface IChartProps {
   labels?:  any;
   options?: ChartOptions;
   colors?:  any;
-  type:     ChartType;
+  type?:     ChartType;
   legend?:  any;
 
   [propName: string]: any;
+  current_year?:any;
 }
 
 @Injectable({
@@ -26,15 +27,15 @@ export class DashboardChartsData {
     this.reportsSalesMonthly();
   }
 
-
   public mainChart: IChartProps = { type: 'line' };
 
   public random(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1) + min);
   }
 
-  sales_monthly: any=[];
+  sales_monthly: any  =[];
   sales_monthly_last: any=[];
+  current_year:any;
 
   reportsSalesMonthly(){
     this.dashboardService.reportsSalesMonthly()
@@ -42,7 +43,9 @@ export class DashboardChartsData {
         next:(resp:any) =>{
           this.sales_monthly = resp.monthly;
           this.sales_monthly_last = resp.monthly_last;
-          console.log(this.sales_monthly);
+          this.current_year = resp.current_year;
+
+          this.mainChart.current_year = this.current_year;
           this.initMainChart();
 
         },
@@ -50,7 +53,7 @@ export class DashboardChartsData {
           console.log(err);
         },
         complete:() =>{
-          console.log('jajaja'); 
+          // console.log('jajaja'); 
         }
       });
   }
@@ -68,15 +71,12 @@ export class DashboardChartsData {
     this.mainChart['Data2'] = [];
     // this.mainChart['Data3'] = [];
 
-
     // generate random values for mainChart
     for (let i = 0; i < this.mainChart['elements']; i++) {
       this.mainChart['Data1'].push(this.sales_monthly[i]);
       this.mainChart['Data2'].push(this.sales_monthly_last[i]);
       // this.mainChart['Data3'].push(65);
     }
-
-    
 
     let labels: string[] = [];
     if (period === 'Month') {
@@ -137,12 +137,12 @@ export class DashboardChartsData {
     const datasets: ChartDataset[] = [
       {
         data: this.mainChart['Data1'],
-        label: 'Current',
+        label: 'Actual',
         ...colors[0]
       },
       {
         data: this.mainChart['Data2'],
-        label: 'Previous',
+        label: 'Anterior',
         ...colors[1]
       },
       // {
@@ -217,8 +217,8 @@ export class DashboardChartsData {
         beginAtZero: true,
         ticks: {
           color: colorBody,
-          maxTicksLimit: 5,
-          stepSize: Math.ceil(250 / 5)
+          // maxTicksLimit: 5,
+          // stepSize: Math.ceil(250 / 5)
         }
       }
     };

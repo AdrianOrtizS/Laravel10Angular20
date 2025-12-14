@@ -6,7 +6,8 @@ import { freeSet } from '@coreui/icons';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormSelectDirective } from '@coreui/angular';
-import { SharedModule } from 'src/app/shared/shared.module';
+import { SharedModule } from '../../../../shared/shared.module';
+// import { SharedModule } from 'src/app/shared/shared.module';
 // import { error } from 'console';
 
 interface ProductI {
@@ -82,7 +83,7 @@ export class EditComponent {
         this.isEmpty = Object.keys(this.PRODUCT()).length === 0;
         this.PRODUCT.set(resp.Product);
         
-        console.log(this.PRODUCT());
+        // console.log(this.PRODUCT());
         
 
         if(this.PRODUCT().imagen){
@@ -176,16 +177,14 @@ export class EditComponent {
       }
 
       this.productService.updateProduct(this.PRODUCT_ID, formData)
-      .subscribe((resp:any) =>{
-        console.log(resp);
-        // if(resp.code == 403){
-        //   this.toastr.error('Validacion', 'El producto ya existe');
-        //   return;
-        // }
-        this.toastr.success('Exito', 'La producto se ha actualizado correctamente');
-      },error =>{
-        console.log(error.error.errors);
-        this.toastr.error('Error', error.error.message);
+      .subscribe({
+        next:() =>{
+          this.toastr.success('Exito', 'La producto se ha actualizado correctamente');
+        },
+        error:(error) =>{
+          console.log(error.error.errors);
+          this.toastr.error('Error', error.error.message);
+        }
       });
     }
 

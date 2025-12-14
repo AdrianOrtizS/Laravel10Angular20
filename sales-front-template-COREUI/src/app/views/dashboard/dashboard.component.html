@@ -1,13 +1,13 @@
 
 <app-widgets-dropdown />
-<c-card class="my-4" style="overflow: hidden;">
-
+@if(mainChart.data && mainChart.options && mainChart.type){
+  <c-card class="my-4" style="overflow: hidden;" >
 <!-- <c-card class="my-4"> -->
   <c-card-body>
     <c-row>
       <c-col sm="5">
-        <h4 class="card-title mb-0" id="traffic">Traffic</h4>
-        <div class="small text-body-secondary">January - December 2023</div>
+        <h4 class="card-title mb-0" id="traffic">Ventas</h4>
+        <div class="small text-body-secondary">Enero - Diciembre {{mainChart.current_year}}</div>
       </c-col>
       <!--<c-col class="d-none d-md-block" sm="7">
          <button cButton class="float-end" color="primary" aria-label="Download">
@@ -70,22 +70,17 @@
         </form> -->
       <!-- </c-col> -->
     </c-row>
-    <!-- <c-chart [data]   = "mainChart.data"
-             [options]= "mainChart.options"
-             [type]   = "mainChart.type"
-             [height] = "280"
-             [ngStyle]= "{ 'marginTop.px': 40 }"
-             (chartRef)="handleChartRef($event)" >
-      Main chart
-    </c-chart> -->
-
-    <c-chart
-            [data]    ="mainChart.data"
-            [options] ="mainChart.options"
-            [type]    ="mainChart.type"
-            [height]  ="350"
-            (chartRef)="handleChartRef($event)"
-          >
-          </c-chart>
+    <c-chart [data]    ="mainChart.data"
+             [options] ="mainChart.options"
+             [type]    ="mainChart.type"
+             [height]  ="350"
+             (chartRef)="handleChartRef($event)">
+    </c-chart>
   </c-card-body>
 </c-card>
+}@else{
+    <div class="loading-overlay text-center p-5">
+        <div class="spinner-border" role="status" aria-hidden="true"></div>
+    </div>
+}
+

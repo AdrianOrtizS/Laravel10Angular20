@@ -50,7 +50,7 @@ export class ShowComponent {
       this.isLoading.set(true);
       this.saleService.showSale(this.SALE_ID).subscribe({
         next: (resp: any) => {
-          console.log(resp);
+          // console.log(resp);
           this.SALE.set(resp);
           this.isLoading.set(false);
         },
@@ -110,7 +110,7 @@ export class ShowComponent {
     }
 
     printReceivable(receivable:any){
-      console.log(receivable.id);
+      // console.log(receivable.id);
       this.saleService.rePrintPDF(receivable.id).subscribe((pdfBlob: Blob) => {
           const url = window.URL.createObjectURL(pdfBlob);
           const newWindow = window.open(url, '_blank');

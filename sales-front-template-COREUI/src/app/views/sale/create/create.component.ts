@@ -117,8 +117,7 @@ export class CreateComponent {
     this.searchProductNull = false;
     this.saleService.getProducts(search)
     .subscribe((resp:any)=>{
-
-      console.log(resp);
+      // console.log(resp);
       this.products.set(resp.Products.data);
       this.searchProductNull = true;
     });
@@ -318,7 +317,7 @@ export class CreateComponent {
 // console.log(this.sale);
     this.saleService.createSale(this.sale)
     .subscribe((resp:any) =>{
-      console.log(resp);
+      // console.log(resp);
       if(resp.resp.code == 403){
         const messageError: any[] = Object.values(resp.message);
         if(messageError[0][0].includes("customer")) {
@@ -344,6 +343,9 @@ export class CreateComponent {
         
         let mailCustomerSale = resp.sale.customer.email;
         let claveAcceso = resp.sale.clave_acceso;
+        // console.log(mailCustomerSale);
+        // console.log(claveAcceso);
+        
         this.saleService.sendFacturaPdfXml(claveAcceso, mailCustomerSale, resp.sale)
           .subscribe((resp:any)=>{
             this.toastr.success(resp.message);

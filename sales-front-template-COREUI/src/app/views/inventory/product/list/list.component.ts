@@ -3,8 +3,10 @@ import { freeSet } from '@coreui/icons';
 import { Component, inject, signal } from '@angular/core';
 import { ProductService } from '../product.service';
 import { Router } from '@angular/router';
-import { SharedModule } from 'src/app/shared/shared.module';
-import { URL_BACKEND } from 'src/app/config/config';
+import { SharedModule } from '../../../../shared/shared.module';
+import { URL_BACKEND } from '../../../../config/config';
+// import { SharedModule } from 'src/app/shared/shared.module';
+// import { URL_BACKEND } from 'src/app/config/config';
 // import { URL_BACKEND } from '../../../config/config';
 // import { SharedModule } from '../../../shared/shared.module';
 

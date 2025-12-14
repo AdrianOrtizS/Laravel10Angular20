@@ -139,6 +139,7 @@ class ReportsService
 	    // Armar arrays del 1 al mes actual
 	    $result = [];
 	    $result_last = [];
+        $current_year = date('Y');
 	    $month_current = date('n');
 
 	    for ($month = 1; $month <= $month_current; $month++) {
@@ -167,6 +168,7 @@ class ReportsService
 	        'total_current_year'  => round($totalCurrentYear, 2),
 	        'total_last_year'     => round($totalLastYear, 2),
 	        'percent_difference'  => round($percentDifference, 2),
+            'current_year'        => $current_year  
 	    ];
 	}
 

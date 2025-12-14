@@ -1,3 +1,4 @@
+import { SharedModule } from './../../../../shared/shared.module';
 import { ActivatedRoute } from '@angular/router';
 import { Component, inject } from '@angular/core';
 import { CategorieService } from '../categorie.service';
@@ -7,8 +8,9 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Location } from '@angular/common';
 import { freeSet } from '@coreui/icons';
-import { SharedModule } from 'src/app/shared/shared.module';
-import { URL_BACKEND } from 'src/app/config/config';
+import { URL_BACKEND } from '../../../../config/config';
+// import { SharedModule } from 'src/app/shared/shared.module';
+// import { URL_BACKEND } from 'src/app/config/config';
 
 @Component({
   selector: 'app-edit',
