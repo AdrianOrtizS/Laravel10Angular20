@@ -17,46 +17,25 @@ export interface IChartProps {
 }
 
 @Injectable({
-  providedIn: 'any'
+  providedIn: 'root'
 })
 export class DashboardChartsData {
   
-  dashboardService = inject(DashboardService);
-
-  constructor() {
-    this.reportsSalesMonthly();
-  }
 
   public mainChart: IChartProps = { type: 'line' };
 
-  public random(min: number, max: number) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
+  buildChart(monthly: number[], last: number[], year: number) {
+    this.sales_monthly = monthly;
+    this.sales_monthly_last = last;
+    this.current_year = year;
+    this.mainChart.current_year = year;
+
+    this.initMainChart();
   }
 
   sales_monthly: any  =[];
   sales_monthly_last: any=[];
   current_year:any;
-
-  reportsSalesMonthly(){
-    this.dashboardService.reportsSalesMonthly()
-      .subscribe({
-        next:(resp:any) =>{
-          this.sales_monthly = resp.monthly;
-          this.sales_monthly_last = resp.monthly_last;
-          this.current_year = resp.current_year;
-
-          this.mainChart.current_year = this.current_year;
-          this.initMainChart();
-
-        },
-        error:(err:any) =>{
-          console.log(err);
-        },
-        complete:() =>{
-          // console.log('jajaja'); 
-        }
-      });
-  }
 
 
   initMainChart(period: string = 'Month') {
@@ -73,9 +52,8 @@ export class DashboardChartsData {
 
     // generate random values for mainChart
     for (let i = 0; i < this.mainChart['elements']; i++) {
-      this.mainChart['Data1'].push(this.sales_monthly[i]);
-      this.mainChart['Data2'].push(this.sales_monthly_last[i]);
-      // this.mainChart['Data3'].push(65);
+      this.mainChart['Data1'].push(this.sales_monthly[i] ?? 0);
+      this.mainChart['Data2'].push(this.sales_monthly_last[i] ?? 0);
     }
 
     let labels: string[] = [];
@@ -95,84 +73,64 @@ export class DashboardChartsData {
         'Diciembre'
       ];
     } 
-    // else {
-    //   /* tslint:disable:max-line-length */
-    //   const week = [
-    //     'Monday',
-    //     'Tuesday',
-    //     'Wednesday',
-    //     'Thursday',
-    //     'Friday',
-    //     'Saturday',
-    //     'Sunday'
-    //   ];
-    //   labels = week.concat(week, week, week);
-    // }
+
 
     const colors = [
       {
-        // brandInfo
-        backgroundColor: brandInfoBg,
+        backgroundColor: 'transparent',
         borderColor: brandInfo,
         pointHoverBackgroundColor: brandInfo,
         borderWidth: 2,
-        fill: true
+        fill: false
       },
       {
-        // brandSuccess
         backgroundColor: 'transparent',
         borderColor: brandSuccess || '#4dbd74',
-        pointHoverBackgroundColor: '#fff'
-      },
-      // {
-      //   // brandDanger
-      //   backgroundColor: 'transparent',
-      //   borderColor: brandDanger || '#f86c6b',
-      //   pointHoverBackgroundColor: brandDanger,
-      //   borderWidth: 1,
-      //   borderDash: [8, 5]
-      // }
+        pointHoverBackgroundColor: '#fff',
+        fill: false
+      }
     ];
 
-    const datasets: ChartDataset[] = [
+
+
+    const datasets: ChartDataset<'line'>[] = [
       {
         data: this.mainChart['Data1'],
         label: 'Actual',
-        ...colors[0]
+        borderWidth: 2,
+        fill: false
       },
       {
         data: this.mainChart['Data2'],
         label: 'Anterior',
-        ...colors[1]
-      },
-      // {
-      //   data: this.mainChart['Data3'],
-      //   label: 'BEP',
-      //   ...colors[2]
-      // }
+        borderWidth: 2,
+        fill: false
+      }
     ];
 
+
     const plugins: DeepPartial<PluginOptionsByType<any>> = {
-      legend: {
-        display: false
-      },
+      legend: { display: false },
+      // filler: { propagate: false }, // 🔥 FIX REAL
       tooltip: {
         callbacks: {
-          labelColor: (context) => ({ backgroundColor: context.dataset.borderColor } as TooltipLabelStyle)
+          labelColor: (context) => ({
+            backgroundColor: context.dataset.borderColor
+          }) as TooltipLabelStyle
         }
       }
     };
 
-    const scales = this.getScales();
+    // const scales = this.getScales();
 
     const options: ChartOptions = {
       maintainAspectRatio: false,
-      plugins,
-      scales,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: this.getScales(),
       elements: {
-        line: {
-          tension: 0.4
-        },
+        line: { tension: 0.4 },
         point: {
           radius: 0,
           hitRadius: 10,
@@ -188,6 +146,9 @@ export class DashboardChartsData {
       datasets,
       labels
     };
+
+
+
   }
 
 
@@ -224,5 +185,6 @@ export class DashboardChartsData {
     };
     return scales;
   }
+
 
 }

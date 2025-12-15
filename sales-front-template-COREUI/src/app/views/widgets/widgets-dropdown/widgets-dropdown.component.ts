@@ -105,7 +105,7 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
         // pointBackgroundColor: getStyle('--cui-warning'),
         // pointHoverBorderColor: getStyle('--cui-warning'),
         data: [...this.thirdWidget],
-        fill: true
+        fill: false
       }],
       [{
         label: 'Total',
