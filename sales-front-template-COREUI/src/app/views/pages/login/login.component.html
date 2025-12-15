@@ -21,10 +21,19 @@
                   <input
                     name="password" [(ngModel)]="password"
                     autoComplete="current-password"
+                    [type]="showPassword ? 'text' : 'password'"
                     cFormControl
                     placeholder="Password"
                     type="password"
                   />
+                  <!-- Icono derecho (ver / ocultar) -->
+                  <button
+                    type="button"
+                    cInputGroupText
+                    (click)="togglePassword()"
+                    style="cursor: pointer">
+                    <svg cIcon [name]="showPassword ? 'cilEyeSlash' : 'cilEye'"></svg>
+                  </button>
                 </c-input-group>
                 <c-row>
                   <c-col xs="6">

@@ -30,6 +30,12 @@ export class LoginComponent implements OnInit {
   loadingRegister:  boolean =false;
   disableBtn:       boolean=false;
 
+  // password: string = '';
+  showPassword: boolean = false;
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
   ngOnInit(){
     // console.log('OnInit Login');
     if(this.authService.token && this.authService.user){
