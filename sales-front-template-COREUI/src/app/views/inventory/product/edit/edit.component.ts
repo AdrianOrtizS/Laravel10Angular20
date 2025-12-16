@@ -33,6 +33,15 @@ interface ProductI {
 })
 export class EditComponent {
 
+    id_categorieTouched  = false;
+    cod_proTouched = false;
+    nameTouched    = false;
+    descriptionTouched = false;
+    priceTouched   = false;
+    stockTouched   = false;
+    stock_minTouched = false;
+    imagenTouched  = false;
+
     public favoriteColor = '#26ab3c';
     icons   = freeSet;
     router  = inject(Router);
@@ -136,8 +145,9 @@ export class EditComponent {
       this.PRODUCT.update((c:any) => ({ ...c, stock_min: valor }));
     }
     
-    updateId_categorie(value: number) {
-      this.PRODUCT.update((c:any) => ({ ...c, id_categorie: +value }));
+    updateId_categorie(event: Event) {
+      const valor = (event.target as HTMLInputElement).value;
+      this.PRODUCT.update((c:any) => ({ ...c, id_categorie: valor }));
     }
     
 

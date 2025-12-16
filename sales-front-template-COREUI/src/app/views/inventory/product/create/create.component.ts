@@ -29,6 +29,16 @@ interface ProductI {
 })
 export class CreateComponent {
 
+    id_categorieTouched  = false;
+    cod_proTouched = false;
+    nameTouched    = false;
+    descriptionTouched = false;
+    priceTouched   = false;
+    stockTouched   = false;
+    stock_minTouched = false;
+    imagenTouched  = false;
+
+
     public favoriteColor = '#26ab3c';
     icons = freeSet;
     router = inject(Router);
