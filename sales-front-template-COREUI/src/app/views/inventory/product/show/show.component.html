@@ -1,48 +1,61 @@
-@if(isFull){
-  <c-card class="mb-3" [ngStyle]="{'max-width.px': 540}">
+@if (isFull) {
+  <c-card class="mb-4 shadow-sm" style="max-width: 620px">
     <c-row class="g-0">
-      <c-col [md]="4" class="overflow-hidden position-relative">
-        <img cCardImg="start" [src]="imagen_previsualiza" class="d-none d-md-inline object-fit-cover" style="min-height: 100%; object-position: left">
-        <!-- <img cCardImg="top" src="../../../../assets/images/sin_imagen.jpg" alt="CoreUI Angular Logo" class="d-md-none d-sm-inline"> -->
+
+      <!-- IMAGEN -->
+      <c-col md="4" class="overflow-hidden">
+        <img
+          cCardImg="start"
+          [src]="imagen_previsualiza"
+          class="d-none d-md-block h-100 w-100 object-fit-cover"
+          style="object-position: center"
+          alt="Imagen del producto" />
       </c-col>
-      <c-card-body cCol [md]="8">
-        <h4 cCardTitle>{{PRODUCT().name}}</h4>
-        
-        <p cCardText>
-          <strong>Codigo:</strong>  {{PRODUCT().cod_pro}}.
-        </p>
-        <p cCardText>
-          <strong>Descripcion:</strong>  {{PRODUCT().description}}.
-        </p>
-        <p cCardText>
-          <strong>Categoria:</strong>  {{PRODUCT().categorie.name}}.
-        </p>
-        <p cCardText>
-          <strong>Precio:</strong>  {{PRODUCT().price}}.
-        </p>
-        <p cCardText>
-          <strong>Stock:</strong>  {{PRODUCT().stock}}.
-        </p>
-        <p cCardText>
-          <strong>Stock minimo:</strong>  {{PRODUCT().stock_min}}.
-        </p>
-        <p cCardText>
-          <small class="text-medium-emphasis">Creado {{tiempo_creacion}} </small>
-        </p>
 
-        <button cButton color="warning" title="Editar" (click)="goUpdateProduct()">
-          <svg cIcon name="cil-pen" size="xl" ></svg>
-        </button>
+      <!-- CONTENIDO -->
+      <c-card-body cCol md="8" class="d-flex flex-column">
 
-        <button cButton color="primary" title="Regresar" (click)="goBack()">
-          <svg [cIcon]="icons.cilActionUndo"  size="xl" ></svg>
-        </button>
-        
+        <h4 class="mb-3 fw-semibold">
+          {{ PRODUCT().name || '— Sin nombre —' }}
+        </h4>
+
+        <ul class="list-unstyled mb-3 small">
+          <li><strong>Código:</strong> {{ PRODUCT().cod_pro || '—' }}</li>
+          <li><strong>Descripción:</strong> {{ PRODUCT().description || '—' }}</li>
+          <li><strong>Categoría:</strong> {{ PRODUCT().categorie?.name || '—' }}</li>
+          <li><strong>Precio:</strong> ${{ PRODUCT().price | number:'1.2-2' }}</li>
+          <li><strong>Stock:</strong> {{ PRODUCT().stock }}</li>
+          <li><strong>Stock mínimo:</strong> {{ PRODUCT().stock_min }}</li>
+        </ul>
+
+        <small class="text-medium-emphasis mb-3">
+          Creado {{ tiempo_creacion }}
+        </small>
+
+        <!-- BOTONES -->
+        <div class="mt-auto d-flex gap-2">
+          <button
+            cButton
+            color="warning"
+            title="Editar producto"
+            (click)="goUpdateProduct()">
+            <svg cIcon name="cil-pen" size="lg"></svg>
+          </button>
+
+          <button
+            cButton
+            color="secondary"
+            title="Regresar"
+            (click)="goBack()">
+            <svg [cIcon]="icons.cilActionUndo" size="lg"></svg>
+          </button>
+        </div>
+
       </c-card-body>
     </c-row>
   </c-card>
-}@else{
+} @else {
   <div class="loading-overlay text-center p-5">
-      <div class="spinner-border" role="status" aria-hidden="true"></div>
+    <div class="spinner-border" role="status" aria-hidden="true"></div>
   </div>
 }

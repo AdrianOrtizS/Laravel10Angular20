@@ -145,11 +145,16 @@ export class EditComponent {
       this.PRODUCT.update((c:any) => ({ ...c, stock_min: valor }));
     }
     
-    updateId_categorie(event: Event) {
-      const valor = (event.target as HTMLInputElement).value;
-      this.PRODUCT.update((c:any) => ({ ...c, id_categorie: valor }));
+    // updateId_categorie(event: Event) {
+    //   const valor = (event.target as HTMLInputElement).value;
+    //   this.PRODUCT.update((c:any) => ({ ...c, id_categorie: valor }));
+    // }
+    updateId_categorie(value: number) {
+      this.PRODUCT.update((c:any) => ({
+        ...c,
+        id_categorie: Number(value)
+      }));
     }
-    
 
     // Validar si todos los campos son obligatorios y válidos
     isFormValid = computed(() => {
