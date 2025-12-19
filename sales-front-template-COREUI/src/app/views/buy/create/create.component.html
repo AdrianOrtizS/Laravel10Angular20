@@ -16,14 +16,16 @@
       </div>
       <div class="col-md-4 mb-3 mt-3">
         <label  class="text-center d-block">Tipo pago</label>
-        <c-form-check inline>
-          <input cFormCheckInput [(ngModel)]="selectedTypeBuy" (click)="onTypeBuyChange()" value="1" id="radioinline1" name="radioinline" type="radio" />
-          <label cFormCheckLabel for="radioinline1">Contado</label>
-        </c-form-check>
-        <c-form-check inline>
-          <input cFormCheckInput [(ngModel)]="selectedTypeBuy" (click)="onTypeBuyChange()" value="2" id="radioinline2" name="radioinline" type="radio" />
-          <label cFormCheckLabel for="radioinline2">Credito</label>
-        </c-form-check>
+        <div class="text-center d-block">
+          <c-form-check inline>
+            <input cFormCheckInput [(ngModel)]="selectedTypeBuy" (click)="onTypeBuyChange()" value="1" id="radioinline1" name="radioinline" type="radio" />
+            <label cFormCheckLabel for="radioinline1">Contado</label>
+          </c-form-check>
+          <c-form-check inline>
+            <input cFormCheckInput [(ngModel)]="selectedTypeBuy" (click)="onTypeBuyChange()" value="2" id="radioinline2" name="radioinline" type="radio" />
+            <label cFormCheckLabel for="radioinline2">Credito</label>
+          </c-form-check>
+        </div>
 
       </div>      
     </div>
@@ -172,14 +174,16 @@
         </div>
         <div class="col-md-4 mb-3 mt-3">
           <label  class="text-center d-block">Tipo comprobante</label>
-          <c-form-check inline>
-            <input cFormCheckInput [(ngModel)]="selectedTypeDoc" (click)="onTypeDocChange()" value="1" id="radioinlinetype1" name="radioinlinetype" type="radio" />
-            <label cFormCheckLabel for="radioinlinetype1">Fact.</label>
-          </c-form-check>
-          <c-form-check inline>
-            <input cFormCheckInput [(ngModel)]="selectedTypeDoc" (click)="onTypeDocChange()" value="2" id="radioinlinetype2" name="radioinlinetype" type="radio" />
-            <label cFormCheckLabel for="radioinlinetype2">Nota de v.</label>
-          </c-form-check>
+          <div class="text-center d-block">
+            <c-form-check inline>
+              <input cFormCheckInput [(ngModel)]="selectedTypeDoc" (click)="onTypeDocChange()" value="1" id="radioinlinetype1" name="radioinlinetype" type="radio" />
+              <label cFormCheckLabel for="radioinlinetype1">Fact.</label>
+            </c-form-check>
+            <c-form-check inline>
+              <input cFormCheckInput [(ngModel)]="selectedTypeDoc" (click)="onTypeDocChange()" value="2" id="radioinlinetype2" name="radioinlinetype" type="radio" />
+              <label cFormCheckLabel for="radioinlinetype2">Nota de v.</label>
+            </c-form-check>
+          </div>
 
         </div>      
     </div>

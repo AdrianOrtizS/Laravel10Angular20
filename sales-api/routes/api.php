@@ -12,6 +12,7 @@ use App\Http\Controllers\API\CategorieController;
 
 use App\Http\Controllers\API\CustomerController;
 use App\Http\Controllers\API\SupplierController;
+use App\Http\Controllers\API\UserController;
 
 use App\Http\Controllers\API\SaleController;
 use App\Http\Controllers\API\ReceivableController;
@@ -83,6 +84,7 @@ Route::middleware('auth:api')->group(function () {
     Route::resource("branches", BranchController::class);
     
 
+    Route::resource("users", UserController::class);
     Route::resource("customers", CustomerController::class);
     Route::resource("suppliers", SupplierController::class);
 

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
 use App\Models\User;
 use App\Models\Branch;
 use Illuminate\Support\Facades\Auth;
@@ -24,9 +23,10 @@ class AuthController extends Controller
     public function __construct()
     {
           $this->middleware('auth:api', ['except' => 
-                                            [
+                                            [   
                                                 'register','getBranches','login',
-                                                'recover_password_email','update_password_for_code',
+                                                'recover_password_email',
+                                                'update_password_for_code',
                                                 'verified_auth','verified_code'
                                             ]
                                         ]);
@@ -34,13 +34,11 @@ class AuthController extends Controller
 
     public function getBranches()
     {
-        $branches = Branch::orderBy('name')
-                            // ->where('state', 1)
-                            ->get();
+        $branches = Branch::orderBy('name')->get();
 
         return response()->json(
-            [   'code'  => 200,
-                // 'total' => $branches->total(),
+            [   
+                'code'  => 200,
                 'Branches' => ($branches)
             ]);
     }
