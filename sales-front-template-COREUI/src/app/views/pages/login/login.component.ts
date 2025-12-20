@@ -78,28 +78,67 @@ export class LoginComponent implements OnInit {
       return;
     }
     this.authService.login(this.email, this.password)
-    .subscribe((resp:any)=>{
-      console.log(resp);
-      if(resp.error && resp.error.error == 'Unauthorized'){
-        this.toastr.error('Validacion','Las credenciales son incorrectas');
-        this.disableBtn = false;
-        this.loadingRegister = false;
-        return;
+    .subscribe({
+      next:(resp:any) =>{
+          console.log(resp);
+
+          if(resp != true){
+            this.toastr.error('Validacion', resp);
+            this.disableBtn = false;
+            this.loadingRegister = false;
+            return;
+          }
+          if(resp == true){
+            this.toastr.success("Exito", "Bienvenido a la tienda");
+            setTimeout(() => {
+              this.disableBtn = false;
+              this.loadingRegister = false;
+              window.location.reload();
+              this.router.navigateByUrl('/');
+              return;
+            }, 100);
+          }
+      },
+      error:(err:any) =>{
+
       }
-      if(resp == true){
-        this.toastr.success("Exito", "Bienvenido a la tienda");
-        setTimeout(() => {
-          this.disableBtn = false;
-          this.loadingRegister = false;
-          window.location.reload();
-          this.router.navigateByUrl('/');
-          return;
-        }, 500);
-      }
-    },(error)=>{
-      console.log(error);
     });
-  }
+      
+
+   }
+
+  // login(){
+  //   this.disableBtn = true;
+  //   this.loadingRegister = true;
+  //   if(!this.email || !this.password){
+  //     this.toastr.error('Validacion', 'Ingresa todos los campos');
+  //     this.disableBtn = false;
+  //     this.loadingRegister = false;
+  //     return;
+  //   }
+  //   this.authService.login(this.email, this.password)
+  //   .subscribe((resp:any)=>{
+  //     console.log(resp);
+  //     if(resp.error && resp.error.error == 'Unauthorized'){
+  //       this.toastr.error('Validacion','Las credenciales son incorrectas');
+  //       this.disableBtn = false;
+  //       this.loadingRegister = false;
+  //       return;
+  //     }
+  //     if(resp == true){
+  //       this.toastr.success("Exito", "Bienvenido a la tienda");
+  //       setTimeout(() => {
+  //         this.disableBtn = false;
+  //         this.loadingRegister = false;
+  //         window.location.reload();
+  //         this.router.navigateByUrl('/');
+  //         return;
+  //       }, 500);
+  //     }
+  //   },(error)=>{
+  //     console.log(error);
+  //   });
+  // }
 
   goRecoverPassword(){
     this.router.navigateByUrl('/recover-password');    

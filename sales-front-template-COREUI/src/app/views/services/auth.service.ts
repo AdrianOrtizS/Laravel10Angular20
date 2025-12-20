@@ -60,8 +60,12 @@ export class AuthService {
     let URL = URL_SERVICIOS+"/login";
     return this.http.post(URL, {email, password}).pipe(map((resp:any)=> {
       console.log(resp);
+      if(resp.code == '402' || resp.code == '401'){
+        return resp.message; 
+      }
       const result = this.saveLocalStorage(resp);
       return result;
+
     }),catchError((err:any)=>{
       return of(err);
     }));
