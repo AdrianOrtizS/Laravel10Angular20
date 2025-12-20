@@ -66,6 +66,18 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsTo(PointsOfSale::class, 'id_point_of_sale');
     }
 
+    public function scopeFilterUser($query, $search)
+    {
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        return $query;
+    }
+
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *

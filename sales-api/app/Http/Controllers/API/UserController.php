@@ -24,7 +24,7 @@ class UserController extends Controller
         $pageSize = $request->pageSize;
 
         if($search){
-            $users = User::where('name', 'like', '%'.$search.'%')
+            $users = User::FilterUser($   )
                             ->orderBy('id')
                             ->paginate($pageSize);            
         }else{
