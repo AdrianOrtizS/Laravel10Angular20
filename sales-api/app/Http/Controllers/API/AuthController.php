@@ -65,6 +65,7 @@ class AuthController extends Controller
                             'id_point_of_sale' => request()->id_point_of_sale,
                             'password' => Hash::make(request()->password),
                             'uniqid' => uniqid(),
+                            'state'  => 1
                             ]);
             // $token = JWTAuth::fromUser($user);
             
@@ -116,13 +117,20 @@ class AuthController extends Controller
                     'email'=> request()->email,
                     'password'=> request()->password])
             ){
-                return response()->json(['error' => 'Unauthorized'], 401);
+                return response()->json([ 'code'    => 401 ,
+                                          'message' => 'Usuario o clave incorrcto']);
             }
 
             // solo ingresa si esta lleno el campo email_verified_at
             if(!auth('api')->user()->email_verified_at){
                 $token = null;
-                return response()->json(['error' => 'Unauthorized2 Email no esta verificado'], 401);
+                return response()->json([ 'code'    => 402,  
+                                          'message' => 'Email no esta verificado']);
+            }
+            if(auth('api')->user()->state == 0){
+                $token = null;
+                return response()->json([ 'code'    => 403,
+                                          'message' => 'Usuario desactivado']);
             }
             return $this->respondWithToken($token);
         }catch(JWTException $e){
