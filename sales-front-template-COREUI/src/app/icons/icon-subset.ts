@@ -1,4 +1,5 @@
 import {
+  cilOpacity,
   cibCcAmex,
   cibCcApplePay,
   cibCcMastercard,
@@ -102,6 +103,7 @@ import { signet } from './signet';
 import { logo } from './logo';
 
 export const iconSubset = {
+  cilOpacity,
   cilAirplay,
   cibCcAmex,
   cibCcApplePay,
@@ -204,6 +206,7 @@ export const iconSubset = {
 };
 
 export enum IconSubset {
+  cilOpacity = 'cilOpacity',
   cilAirplay = 'cilAirplay',
   cibCcAmex = 'cibCcAmex',
   cibCcApplePay = 'cibCcApplePay',

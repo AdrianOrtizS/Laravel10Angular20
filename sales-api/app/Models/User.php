@@ -33,7 +33,8 @@ class User extends Authenticatable implements JWTSubject
         'uniqid',
         'email_verified_at',
         'code_verified',    //=>para recuperar password
-        'imagen'
+        'imagen',
+        'state'
     ];
 
     /**
