@@ -20,13 +20,13 @@ export const routes: Routes = [
         }
       },
 
-      {
-        path: 'create',
-        loadComponent: () => import('./create/create.component').then(m => m.CreateComponent),
-        data: {
-          title: 'Create'
-        }
-      },
+      // {
+      //   path: 'create',
+      //   loadComponent: () => import('./create/create.component').then(m => m.CreateComponent),
+      //   data: {
+      //     title: 'Create'
+      //   }
+      // },
       {
         path: 'edit/:id',
         loadComponent: () => import('./edit/edit.component').then(m => m.EditComponent),
