@@ -43,7 +43,7 @@ class SaleController extends Controller
 
     public function __construct(SriFacturaService $sri)
     {
-        $this->sri      =   $sri;
+        $this->sri  =   $sri;
         $this->getConfig();
     }
 
@@ -213,7 +213,6 @@ class SaleController extends Controller
         }
 
         $ultimoSecuencial = $pointOfSale->secuencial_actual;
-        //actualizar secuencial ....................
 
         $nuevoSecuencial = $ultimoSecuencial ? $ultimoSecuencial + 1 : 1;
         $numeroConCeros = str_pad($nuevoSecuencial, 9, '0', STR_PAD_LEFT);
@@ -248,15 +247,15 @@ class SaleController extends Controller
                 'total'         => $request->total,
                 'discount'      => $request->discount,
                 'clave_acceso'  => $this->sri->generarClaveAcceso( 
-                                        date('d-m-Y'),                    // 8 digitos
-                                        '01',                             // 01 Factura 
-                                        $this->ruc['value'],              // $ruc emisor,
-                                        '1',                              // ambiente 1=pruebas, 2=produccion
+                                        date('d-m-Y'),                      // 8 digitos
+                                        '01',                               // 01 Factura 
+                                        $this->ruc['value'],                // $ruc emisor,
+                                        '1',                                // ambiente 1=pruebas, 2=produccion
                                         $num_establecimiento,
-                                        '001',                            // $serie 001001, 
-                                        $numeroConCeros,            // 000000123 
-                                        '12345678',                       // $codigoNumerico,
-                                        '1'                               // $tipoEmision    
+                                        $pointOfSale->codigo_punto_emision, // '001'    $serie 001001
+                                        $numeroConCeros,                    // 000000123 
+                                        '12345678',                         // $codigoNumerico,
+                                        '1'                                 // $tipoEmision    
                                     )
             ]);
 
@@ -280,8 +279,7 @@ class SaleController extends Controller
 
                 $this->updateSecuencialPointSale( 
                                         $id_branch, 
-                                        $pointOfSale->codigo_punto_emision
-                                    );
+                                        $pointOfSale->codigo_punto_emision);
             
             }
 

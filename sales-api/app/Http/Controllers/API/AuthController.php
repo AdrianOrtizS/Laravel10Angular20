@@ -275,7 +275,8 @@ class AuthController extends Controller
     
     public function recover_password_email(Request $request)
     {
-        $validator = Validator::make(request()->all(), [
+        $validator = Validator::make(request()->all(), 
+                        [
                             'email' => 'required|email',
                         ]);
  
@@ -312,10 +313,5 @@ class AuthController extends Controller
         }
     }
     
-    /////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////
-    
-
-
 
 }

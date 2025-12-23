@@ -58,6 +58,7 @@ export const routes: Routes = [
       {
         path: 'supplier', loadChildren: () => import('./views/supplier/routes').then((m) => m.routes)
       },
+
       {
         path: 'configuration', loadChildren: () => import('./views/configuration/routes').then((m) => m.routes)
       },      
@@ -73,7 +74,9 @@ export const routes: Routes = [
       {
         path: 'profile', loadChildren: () => import('./views/userAuth/routes').then((m) => m.routes)
       },      
-
+      {
+        path: 'user', loadChildren: () => import('./views/user/routes').then((m) => m.routes)
+      },
     ]
   },
   {

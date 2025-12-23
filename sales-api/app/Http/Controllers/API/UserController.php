@@ -19,7 +19,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->search;
+    	$search = $request->search;
         $user = null;
         $pageSize = $request->pageSize;
 
@@ -41,10 +41,10 @@ class UserController extends Controller
 							        'name'  => $user->name,
 							        'email' => $user->email,
 							        'role'  => $user->role,
-							        'sucursal_name_estab' => $user->pointsOfSale->branch->name,
-							        'sucursal_num_estab'  => $user->pointsOfSale->branch->num_establecimiento,
-									'point_of_sale' 	  => $user->pointsOfSale->codigo_punto_emision,
-							];
+							   		'sucursal_name_estab' => optional($user->pointsOfSale->branch)->name,
+						            'sucursal_num_estab'  => optional($user->pointsOfSale->branch)->num_establecimiento,
+						            'point_of_sale'       => optional($user->pointsOfSale)->codigo_punto_emision,
+								];
 						})
             ]);
     }
@@ -64,13 +64,13 @@ class UserController extends Controller
         }else{
             $data = ['code'		=> 200,
                      'message' 	=> [
-								        'id'    => $user->id,
-								        'name'  => $user->name,
-								        'email' => $user->email,
-								        'role'  => $user->role,
-								   		'sucursal_name_estab' => optional($user->pointsOfSale->branch)->name,
-							            'sucursal_num_estab'  => optional($user->pointsOfSale->branch)->num_establecimiento,
-							            'point_of_sale'       => optional($user->pointsOfSale)->codigo_punto_emision,
+							        'id'    => $user->id,
+							        'name'  => $user->name,
+							        'email' => $user->email,
+							        'role'  => $user->role,
+							   		'sucursal_name_estab' => optional($user->pointsOfSale->branch)->name,
+						            'sucursal_num_estab'  => optional($user->pointsOfSale->branch)->num_establecimiento,
+						            'point_of_sale'       => optional($user->pointsOfSale)->codigo_punto_emision,
 								   ]
 
                  ];

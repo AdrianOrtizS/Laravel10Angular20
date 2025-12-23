@@ -3,14 +3,15 @@ import { getStyle } from '@coreui/utils';
 import { ChartjsComponent } from '@coreui/angular-chartjs';
 import { RouterLink } from '@angular/router';
 import { IconDirective } from '@coreui/icons-angular';
-import { ButtonDirective,ColComponent,DropdownComponent,DropdownDividerDirective,DropdownItemDirective,DropdownMenuDirective,DropdownToggleDirective,RowComponent,TemplateIdDirective,WidgetStatAComponent} from '@coreui/angular';
+import { ButtonDirective,ColComponent,DropdownComponent,DropdownMenuDirective,DropdownToggleDirective,RowComponent,TemplateIdDirective,WidgetStatAComponent} from '@coreui/angular';
 import { WidgetsService } from '../widgets.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-widgets-dropdown',
   templateUrl: './widgets-dropdown.component.html',
-  imports: [CommonModule,RowComponent, ColComponent, WidgetStatAComponent, TemplateIdDirective, IconDirective, DropdownComponent, ButtonDirective, DropdownToggleDirective, DropdownMenuDirective, DropdownItemDirective, RouterLink, DropdownDividerDirective, ChartjsComponent]
+  imports: [CommonModule,RowComponent, ColComponent, WidgetStatAComponent, TemplateIdDirective, 
+    IconDirective, ChartjsComponent]
 })
 export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
   

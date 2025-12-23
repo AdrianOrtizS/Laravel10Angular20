@@ -1,13 +1,12 @@
 import { CommonModule, NgStyle } from '@angular/common';
 import { Component, DestroyRef, DOCUMENT, effect, inject, OnInit, Renderer2, signal, WritableSignal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { ChartOptions } from 'chart.js';
-import { AvatarComponent,ButtonDirective,ButtonGroupComponent,CardBodyComponent,CardComponent,CardFooterComponent,CardHeaderComponent,
-         ColComponent,FormCheckLabelDirective,GutterDirective,ProgressComponent,RowComponent,TableDirective} from '@coreui/angular';
+// import { ChartOptions } from 'chart.js';
+import { CardBodyComponent,CardComponent,ColComponent,RowComponent} from '@coreui/angular';
 import { ChartjsComponent } from '@coreui/angular-chartjs';
-import { IconDirective } from '@coreui/icons-angular';
+// import { IconDirective } from '@coreui/icons-angular';
 
-import { WidgetsBrandComponent } from '../widgets/widgets-brand/widgets-brand.component';
+// import { WidgetsBrandComponent } from '../widgets/widgets-brand/widgets-brand.component';
 import { WidgetsDropdownComponent } from '../widgets/widgets-dropdown/widgets-dropdown.component';
 import { DashboardChartsData, IChartProps } from './dashboard-charts-data';
 import { ToastrService } from 'ngx-toastr';
@@ -16,7 +15,7 @@ import { DashboardService } from './dashboard.service';
 @Component({
   templateUrl:  'dashboard.component.html',
   styleUrls:  [ 'dashboard.component.scss'],
-  imports:    [ CommonModule, WidgetsDropdownComponent, CardComponent, CardBodyComponent, RowComponent, ColComponent, ButtonDirective, IconDirective, ReactiveFormsModule, ButtonGroupComponent, FormCheckLabelDirective, ChartjsComponent, NgStyle, CardFooterComponent, GutterDirective, ProgressComponent, WidgetsBrandComponent, CardHeaderComponent, TableDirective, AvatarComponent]
+  imports:    [ CommonModule, WidgetsDropdownComponent, CardComponent, CardBodyComponent, RowComponent, ColComponent, ReactiveFormsModule, ChartjsComponent]
 })
 export class DashboardComponent implements OnInit {
 

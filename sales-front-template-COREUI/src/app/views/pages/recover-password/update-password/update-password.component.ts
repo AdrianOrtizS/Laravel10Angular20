@@ -10,7 +10,7 @@ import { NoAuthService } from '../../../services/no-auth.service';
 
 @Component({
   selector: 'app-update-password',
-  imports: [SharedModule,CommonModule, SpinnerModule, FormsModule, RouterModule, ContainerComponent, RowComponent, ColComponent, CardGroupComponent, CardComponent, CardBodyComponent, FormDirective, InputGroupComponent, InputGroupTextDirective, IconDirective, FormControlDirective, ButtonDirective, NgStyle],
+  imports: [SharedModule,CommonModule, SpinnerModule, FormsModule, RouterModule, ContainerComponent, RowComponent, ColComponent, CardGroupComponent, CardComponent, CardBodyComponent, FormDirective, InputGroupComponent, InputGroupTextDirective, IconDirective, FormControlDirective, ButtonDirective],
   templateUrl: './update-password.component.html',
   styleUrl: './update-password.component.scss'
 })

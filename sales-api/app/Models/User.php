@@ -9,10 +9,8 @@ use Illuminate\Notifications\Notifiable;
 // use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-// use App\Models\Branch;
-use App\Models\PointsOfSale;
-
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\Models\PointsOfSale;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -67,14 +65,15 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsTo(PointsOfSale::class, 'id_point_of_sale');
     }
 
+
     public function scopeFilterUser($query, $search)
     {
-        if ($search) {
+        // if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
+                $q->where( 'name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%");
             });
-        }
+        // }
 
         return $query;
     }

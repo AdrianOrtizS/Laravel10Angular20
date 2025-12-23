@@ -14,7 +14,7 @@ import { NoAuthService } from '../../services/no-auth.service';
 
 @Component({
   selector: 'app-recover-password',
-  imports: [SharedModule, RouterModule, ContainerComponent, RowComponent, ColComponent, CardGroupComponent, CardComponent, CardBodyComponent, FormDirective, InputGroupComponent, InputGroupTextDirective, IconDirective, FormControlDirective, ButtonDirective, NgStyle],
+  imports: [SharedModule, RouterModule, ContainerComponent, RowComponent, ColComponent, CardGroupComponent, CardComponent, CardBodyComponent, FormDirective, InputGroupComponent, InputGroupTextDirective, IconDirective, FormControlDirective, ButtonDirective],
   templateUrl: './recover-password.component.html',
   styleUrl: './recover-password.component.scss'
 })
