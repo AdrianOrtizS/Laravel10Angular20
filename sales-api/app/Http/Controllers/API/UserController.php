@@ -35,12 +35,13 @@ class UserController extends Controller
         return response()->json(
             [   'code'  => 200,
                 'total' => $users->total(),
-				'user'  => $users->map(function ($user) {
+				'users'  => $users->map(function ($user) {
 							    return [
 							        'id'    => $user->id,
 							        'name'  => $user->name,
 							        'email' => $user->email,
 							        'role'  => $user->role,
+							   		'state'  => $user->state,
 							   		'sucursal_name_estab' => optional($user->pointsOfSale->branch)->name,
 						            'sucursal_num_estab'  => optional($user->pointsOfSale->branch)->num_establecimiento,
 						            'point_of_sale'       => optional($user->pointsOfSale)->codigo_punto_emision,
