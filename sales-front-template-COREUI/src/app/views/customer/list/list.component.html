@@ -85,7 +85,7 @@
 
 
   <c-modal [visible]="!!selectedCustomer()" (close)="cerrarModal()">
-{{ selectedCustomer()?.state}}
+<!-- {{ selectedCustomer()?.state}} -->
     <c-modal-header>
         <h5 cModalTitle>
         {{ selectedCustomer()?.state === 1 ? 'Desactivar' : 'Activar' }} cliente

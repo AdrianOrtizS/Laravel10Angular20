@@ -91,7 +91,7 @@
 
       <c-modal-header>
           <h5 cModalTitle>
-            {{selectedBranch()?.state}}
+            <!-- {{selectedBranch()?.state}} -->
           {{ selectedBranch()?.state === 1 ? 'Desactivar' : 'Activar' }} sucursal
           </h5>
           <button cButtonClose (click)="cerrarModal()"></button>

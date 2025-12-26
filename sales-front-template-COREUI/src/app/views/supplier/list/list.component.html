@@ -88,7 +88,7 @@
 
     <c-modal-header>
         <h5 cModalTitle>
-        {{ selectedSupplier()?.state === 1 ? 'Desactivar' : 'Activar' }} usuario
+        {{ selectedSupplier()?.state === 1 ? 'Desactivar' : 'Activar' }} proveedor
         </h5>
         <button cButtonClose (click)="cerrarModal()"></button>
     </c-modal-header>
@@ -96,7 +96,7 @@
     <c-modal-body>
         ¿Deseas
         {{ selectedSupplier()?.state === 1 ? 'desactivar' : 'activar' }}
-        al usuario <strong>{{ selectedSupplier()?.name }}</strong>?
+        al proveedor <strong>{{ selectedSupplier()?.name }}</strong>?
     </c-modal-body>
 
     <c-modal-footer>
