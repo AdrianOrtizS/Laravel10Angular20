@@ -35,46 +35,22 @@
           </td>
           <td style="width: 60px;">
             @if(item.state == 1){
-              <button cButton color="success" variant="outline" shape="rounded-pill" (click)="abrirModal(item.id)" title="Activo">
+              <button cButton color="success" variant="outline" shape="rounded-pill" (click)="abrirModal(item)" title="Activo">
                 <svg [cIcon]="icons.cilToggleOn" size="xl"></svg>
               </button>
 
               <!-- Modal controlado por [visible] -->
-              <c-modal [visible]="modalId() === item.id" title="Desactivar {{item.name}}" (close)="cerrarModal()">
-                <c-modal-header>
-                  <h5 cModalTitle>Desactivar sucursal</h5>
-                  <button (click)="cerrarModal()" cButtonClose></button>
-                </c-modal-header>
-                <c-modal-body>
-                  ¿Deseas desactivar sucursal: <strong> {{item.name}} </strong>?
-                </c-modal-body>
-                <c-modal-footer>
-                  <button cButton color="secondary" (click)="cerrarModal()">Cerrar</button>
-                  <button cButton color="danger" (click)="changeState(item.id)">Desactivar</button>
-                </c-modal-footer>
-              </c-modal>
+              
             }
             @if(item.state == 0){
               
               <!-- Botón abre el modal -->
-              <button cButton color="danger" variant="outline" shape="rounded-pill" (click)="abrirModal(item.id)" title="Inactivo">
+              <button cButton color="danger" variant="outline" shape="rounded-pill" (click)="abrirModal(item)" title="Inactivo">
                 <svg [cIcon]="icons.cilToggleOff" size="xl"></svg>
               </button>
 
               <!-- Modal controlado por [visible] -->
-              <c-modal [visible]="modalId() === item.id" title="Desactivar {{item.name}}" (close)="cerrarModal()">
-                <c-modal-header>
-                  <h5 cModalTitle>Activar sucursal</h5>
-                  <button (click)="cerrarModal()" cButtonClose></button>
-                </c-modal-header>
-                <c-modal-body>
-                  ¿Deseas activar sucursal: <strong> {{item.name}} </strong>?
-                </c-modal-body>
-                <c-modal-footer>
-                  <button cButton color="secondary" (click)="cerrarModal()">Cerrar</button>
-                  <button cButton color="success" (click)="changeState(item.id)">Activar</button>
-                </c-modal-footer>
-              </c-modal>
+              
             }
           </td>
           <td style="width: 60px;"> 
@@ -109,6 +85,39 @@
       }
     </select>
   </div>
+
+
+    <c-modal [visible]="!!selectedBranch()" (close)="cerrarModal()">
+
+      <c-modal-header>
+          <h5 cModalTitle>
+            {{selectedBranch()?.state}}
+          {{ selectedBranch()?.state === 1 ? 'Desactivar' : 'Activar' }} sucursal
+          </h5>
+          <button cButtonClose (click)="cerrarModal()"></button>
+      </c-modal-header>
+
+      <c-modal-body>
+          ¿Deseas
+          {{ selectedBranch()?.state === 1 ? 'desactivar' : 'activar' }}
+          al sucursal <strong>{{ selectedBranch()?.name }}</strong>?
+      </c-modal-body>
+
+      <c-modal-footer>
+          <button
+              cButton
+              [color]="selectedBranch()?.state === 1 ? 'danger' : 'success'"
+              (click)="changeState(selectedBranch()?.id)">
+              {{ selectedBranch()?.state === 1 ? 'Desactivar' : 'Activar' }}
+          </button>
+          <button cButton color="secondary" (click)="cerrarModal()">Cerrar</button>
+      </c-modal-footer>
+
+    </c-modal>
+
+
+
+
 <!-- }@else{
   <div class="loading-overlay text-center p-5">
       <div class="spinner-border" role="status" aria-hidden="true"></div>

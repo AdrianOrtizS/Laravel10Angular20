@@ -40,7 +40,7 @@ export class ListComponent {
       {'id': 20,'val': 20}];
   
     modalId = signal<number | null>(null);
-    modalIdDelete = signal<number | null>(null);
+    modalIdDelete = signal<any | null>(null);
   
     constructor(
     ){
@@ -116,7 +116,8 @@ export class ListComponent {
     abrirModal(id: number) {
       this.modalId.set(id);
     }
-    abrirModalDelete(id: number) {
+    abrirModalDelete(id: any) {
+      console.log(id);
       this.modalIdDelete.set(id);
     }
   

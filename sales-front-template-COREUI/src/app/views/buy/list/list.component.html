@@ -138,24 +138,11 @@
                 </c-modal-footer>
               </c-modal>
 
-              <button cButton color="danger" title="Eliminar" (click)="abrirModalDelete(item.id)" >
+              <button cButton color="danger" title="Eliminar" (click)="abrirModalDelete(item)" >
                 <svg [cIcon]="icons.cilTrash" size="xl" ></svg>
               </button>
 
-              <c-modal [visible]="modalIdDelete() === item.id"  (close)="cerrarModalDelete()">
-                <c-modal-header>
-                  <h5 cModalTitle>Eliminar compra <strong>#{{item.numero_factura}}</strong></h5>
-                  <button (click)="cerrarModalDelete()" cButtonClose></button>
-                </c-modal-header>
-                <c-modal-body>
-                  Al eliminar la compra se modificará el inventario actual<br>
-                  ¿Desea eliminar compra?
-                </c-modal-body>
-                <c-modal-footer>
-                  <button cButton color="danger"  (click)="removeBuy(item.id)">Eliminar compra</button>
-                  <button cButton color="secondary" (click)="cerrarModalDelete()">Cancelar</button>
-                </c-modal-footer>
-              </c-modal>
+
 
             </c-button-group>
           </td>
@@ -182,6 +169,23 @@
       }
     </select>
   </div>
+
+  <c-modal [visible]="!!modalIdDelete()" (close)="cerrarModal()">
+    <c-modal-header>
+      <h5 cModalTitle>Eliminar compra <strong>#{{modalIdDelete()?.numero_factura}}</strong></h5>
+      <button (click)="cerrarModalDelete()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+      Al eliminar la compra se modificará el inventario actual<br>
+      ¿Desea eliminar compra?
+    </c-modal-body>
+    <c-modal-footer>
+      <button cButton color="danger"  (click)="removeBuy(modalIdDelete().id)">Eliminar compra</button>
+      <button cButton color="secondary" (click)="cerrarModalDelete()">Cancelar</button>
+    </c-modal-footer>
+  </c-modal>
+
+
 }@else if(verifData == 0){
           <div class="loading-overlay text-center p-5">
               <div class="spinner-border" role="status" aria-hidden="true"></div>

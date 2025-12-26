@@ -36,8 +36,8 @@ export class ListComponent {
     {'id':10,'val':10},
     {'id':20,'val':20}];
 
-  modalId = signal<number | null>(null);
-
+  // modalId = signal<number | null>(null);
+  selectedBranch = signal<any | null>(null);
   constructor(
   ){
   }
@@ -82,14 +82,15 @@ export class ListComponent {
   loadPage($event:any){
     this.listarBranches($event);
   }
-  
+
 
   abrirModal(id: number) {
-    this.modalId.set(id);
+    console.log(id);
+    this.selectedBranch.set(id);
   }
 
   cerrarModal() {
-    this.modalId.set(null);
+    this.selectedBranch.set(null);
   }
 
   changeState(branch_id:any){

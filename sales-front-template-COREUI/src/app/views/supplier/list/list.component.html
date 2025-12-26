@@ -33,46 +33,18 @@
           <td style="width: 60px; text-align: center;">{{item.phone}}</td>
           <td style="width: 60px;">
             @if(item.state == 1){
-              <button cButton color="success" variant="outline" shape="rounded-pill" (click)="abrirModal(item.id)" title="Activo">
+              <button cButton color="success" variant="outline" shape="rounded-pill" (click)="abrirModal(item)" title="Activo">
                 <svg [cIcon]="icons.cilToggleOn" size="xl"></svg>
               </button>
 
-              <!-- Modal controlado por [visible] -->
-              <c-modal [visible]="modalId() === item.id" title="Desactivar {{item.name}}" (close)="cerrarModal()">
-                <c-modal-header>
-                  <h5 cModalTitle>Desactivar proveedor</h5>
-                  <button (click)="cerrarModal()" cButtonClose></button>
-                </c-modal-header>
-                <c-modal-body>
-                  ¿Deseas desactivar proveedor: <strong> {{item.name}} </strong>?
-                </c-modal-body>
-                <c-modal-footer>
-                  <button cButton color="secondary" (click)="cerrarModal()">Cerrar</button>
-                  <button cButton color="danger" (click)="changeState(item.id)">Desactivar</button>
-                </c-modal-footer>
-              </c-modal>
             }
             @if(item.state == 0){
               
               <!-- Botón abre el modal -->
-              <button cButton color="danger" variant="outline" shape="rounded-pill" (click)="abrirModal(item.id)" title="Inactivo">
+              <button cButton color="danger" variant="outline" shape="rounded-pill" (click)="abrirModal(item)" title="Inactivo">
                 <svg [cIcon]="icons.cilToggleOff" size="xl"></svg>
               </button>
 
-              <!-- Modal controlado por [visible] -->
-              <c-modal [visible]="modalId() === item.id" title="Desactivar {{item.name}}" (close)="cerrarModal()">
-                <c-modal-header>
-                  <h5 cModalTitle>Activar proveedor</h5>
-                  <button (click)="cerrarModal()" cButtonClose></button>
-                </c-modal-header>
-                <c-modal-body>
-                  ¿Deseas activar proveedor: <strong> {{item.name}} </strong>?
-                </c-modal-body>
-                <c-modal-footer>
-                  <button cButton color="secondary" (click)="cerrarModal()">Cerrar</button>
-                  <button cButton color="success" (click)="changeState(item.id)">Activar</button>
-                </c-modal-footer>
-              </c-modal>
             }
           </td>
           <td style="width: 60px;"> 
@@ -110,6 +82,36 @@
       }
     </select>
   </div>
+
+
+  <c-modal [visible]="!!selectedSupplier()" (close)="cerrarModal()">
+
+    <c-modal-header>
+        <h5 cModalTitle>
+        {{ selectedSupplier()?.state === 1 ? 'Desactivar' : 'Activar' }} usuario
+        </h5>
+        <button cButtonClose (click)="cerrarModal()"></button>
+    </c-modal-header>
+
+    <c-modal-body>
+        ¿Deseas
+        {{ selectedSupplier()?.state === 1 ? 'desactivar' : 'activar' }}
+        al usuario <strong>{{ selectedSupplier()?.name }}</strong>?
+    </c-modal-body>
+
+    <c-modal-footer>
+        <button
+            cButton
+            [color]="selectedSupplier()?.state === 1 ? 'danger' : 'success'"
+            (click)="changeState(selectedSupplier()?.id)">
+            {{ selectedSupplier()?.state === 1 ? 'Desactivar' : 'Activar' }}
+        </button>
+        <button cButton color="secondary" (click)="cerrarModal()">Cerrar</button>
+    </c-modal-footer>
+
+  </c-modal>
+
+
 
 }@else if(verifData == 0){
           <div class="loading-overlay text-center p-5">

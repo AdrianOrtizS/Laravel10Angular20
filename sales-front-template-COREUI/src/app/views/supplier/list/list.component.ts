@@ -32,7 +32,8 @@ export class ListComponent {
     {'id':10,'val':10},
     {'id':20,'val':20}];
 
-  modalId = signal<number | null>(null);
+  // modalId = signal<number | null>(null);
+  selectedSupplier = signal<any | null>(null);
 
   changePage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
@@ -75,11 +76,11 @@ export class ListComponent {
   }
   
   abrirModal(id: number) {
-    this.modalId.set(id);
+    this.selectedSupplier.set(id);
   }
 
   cerrarModal() {
-    this.modalId.set(null);
+    this.selectedSupplier.set(null);
   }
 
   changeState(supplier_id:any){

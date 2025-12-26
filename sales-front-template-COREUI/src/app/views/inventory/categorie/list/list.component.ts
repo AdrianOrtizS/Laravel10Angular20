@@ -43,7 +43,8 @@ export class ListComponent {
     {'id':10,'val':10},
     {'id':20,'val':20}];
 
-  modalId = signal<number | null>(null);
+  // modalId = signal<number | null>(null);
+  selectedCategorie = signal<any | null>(null);
 
 
   constructor(
@@ -98,11 +99,11 @@ export class ListComponent {
   }
 
   abrirModal(id: number) {
-    this.modalId.set(id);
+    this.selectedCategorie.set(id);
   }
 
   cerrarModal() {
-    this.modalId.set(null);
+    this.selectedCategorie.set(null);
   }
 
   changeState(categorie_id:any){

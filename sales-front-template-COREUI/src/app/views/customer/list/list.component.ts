@@ -32,7 +32,8 @@ export class ListComponent {
     {'id':10,'val':10},
     {'id':20,'val':20}];
 
-  modalId = signal<number | null>(null);
+  // modalId = signal<number | null>(null);
+  selectedCustomer = signal<any | null>(null);
 
   changePage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
@@ -74,12 +75,13 @@ export class ListComponent {
     this.listarCustomers($event);
   }
   
-  abrirModal(id: number) {
-    this.modalId.set(id);
+  abrirModal(id: any) {
+    this.selectedCustomer.set(id);
+    console.log(this.selectedCustomer());
   }
 
   cerrarModal() {
-    this.modalId.set(null);
+    this.selectedCustomer.set(null);
   }
 
   changeState(customer_id:any){
@@ -99,7 +101,7 @@ export class ListComponent {
   }
 
   actualizarCustomer(id: number, state: boolean) {
-    console.log(id, state);
+    // console.log(id, state);
     this.customers.update((lista:any) =>
       lista.map((u:any) => u.id === id ? { ...u, state:state } : u)
     );

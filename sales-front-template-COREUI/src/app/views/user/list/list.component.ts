@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { freeSet } from '@coreui/icons';
 import { ToastrService } from 'ngx-toastr';
 import { UserService } from '../user.service';
-import { SharedModule } from 'src/app/shared/shared.module';
+import { SharedModule } from '../../../shared/shared.module';
 
 @Component({
   selector: 'app-list',
@@ -76,7 +76,7 @@ export class ListComponent {
   }
   
   abrirModal(id: number) {
-    console.log(id);
+    // console.log(id);
     this.selectedUser.set(id);
   }
 

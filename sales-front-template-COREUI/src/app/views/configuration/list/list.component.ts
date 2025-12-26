@@ -37,7 +37,8 @@ export class ListComponent {
     {'id':10,'val':10},
     {'id':20,'val':20}];
 
-  modalId = signal<number | null>(null);
+  // modalId = signal<number | null>(null);
+  selectedConfiguration = signal<any | null>(null);
 
 
   constructor(
@@ -87,11 +88,11 @@ export class ListComponent {
   
 
   abrirModal(id: number) {
-    this.modalId.set(id);
+    this.selectedConfiguration.set(id);
   }
 
   cerrarModal() {
-    this.modalId.set(null);
+    this.selectedConfiguration.set(null);
   }
 
   changeState(configuration_id:any){
