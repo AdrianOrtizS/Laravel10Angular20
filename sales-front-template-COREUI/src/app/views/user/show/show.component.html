@@ -1,1 +1,40 @@
-<p>show works!</p>
+@if(isFull){
+  <c-card style="width: 18rem;">
+    @if(USER().imagen){
+        <img cCardImg="top" [src]="USER().imagen">
+    }@else{
+        <img cCardImg="top" src="./../../../../assets/images/sin_imagen.jpg">
+   }
+    
+    <c-card-body>
+        <h5 cCardTitle>{{USER().name}}</h5>
+        <p cCardText>
+        <strong>Rol: </strong>
+        @if(USER().role == 'admin'){
+            Administrador
+        }
+        @if(USER().role == 'user'){
+            Usuario
+        }
+        </p>
+    </c-card-body>
+    <!-- <ul cListGroup [flush]="true"> -->
+    <ul cListGroup >
+        <li cListGroupItem><strong> Sucursal: </strong>{{USER().sucursal_name_estab}}</li>
+        <li cListGroupItem><strong> Establecimiento #: </strong>{{USER().sucursal_num_estab}}</li>
+        <li cListGroupItem><strong> Punto de venta #: </strong>{{USER().point_of_sale}}</li>
+    </ul>
+    <c-card-body>
+        <!-- <a cCardLink [routerLink]>Card link</a> -->
+        <button cButton color="primary" title="Regresar" (click)="goBack()">
+          <svg [cIcon]="icons.cilActionUndo"  size="xl" ></svg>
+        </button>
+
+        <!-- <a cCardLink [routerLink]>Another link</a> -->
+    </c-card-body>
+    </c-card>
+}@else{
+  <div class="loading-overlay text-center p-5">
+      <div class="spinner-border" role="status" aria-hidden="true"></div>
+  </div>
+}

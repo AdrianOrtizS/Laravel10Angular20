@@ -53,7 +53,7 @@ export class ListComponent {
   listarUsers(page = 1){
     this.userService.listUsers(page, this.search, this.pageSize)
     .subscribe((resp:any) => {
-      console.log(resp);
+      // console.log(resp);
       this.verifData = 0;
       if(resp.total == 0 && this.verifData == 0){
         this.verifData ++;
@@ -87,7 +87,7 @@ export class ListComponent {
   changeState(user_id:any){
     this.userService.changeState(user_id)
     .subscribe((resp:any) => {
-      console.log(resp);
+      // console.log(resp);
       let state = false;
       if(resp[1] === 'User deactivate'){
         state = false;

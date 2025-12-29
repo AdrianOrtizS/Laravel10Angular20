@@ -69,6 +69,7 @@ class UserController extends Controller
 							        'name'  => $user->name,
 							        'email' => $user->email,
 							        'role'  => $user->role,
+                                    'imagen'=> $user->imagen ? env('APP_URL').'storage/'.$user->imagen: null,
 							   		'sucursal_name_estab' => optional($user->pointsOfSale->branch)->name,
 						            'sucursal_num_estab'  => optional($user->pointsOfSale->branch)->num_establecimiento,
 						            'point_of_sale'       => optional($user->pointsOfSale)->codigo_punto_emision,

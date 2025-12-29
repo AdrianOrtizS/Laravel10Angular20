@@ -1,1 +1,86 @@
-<p>edit works!</p>
+@if(!isEmpty){
+    <c-row ngPreserveWhitespaces>
+      <c-col xs="8">
+        <c-card class="mb-4" >
+          <c-card-header >
+            Usuario: <strong> {{USER().name}}</strong> 
+          </c-card-header>
+          <c-card-body>
+            <div class="tab-content rounded-bottom">
+                <div class="tab-pane active show p-3 preview fade">
+                    <div>
+                        <div class="mb-3">
+                            <label cLabel for="name">Nombre (*)</label>
+                            <input cFormControl id="name" placeholder="Ej: Simón Bolívar" type="text" [value]="USER().name" (input)="updateName($event)"required/>    
+                            <div *ngIf="!USER().name.trim() && USER().name !== ''" class="text-danger mt-1">
+                                El nombre es obligatorio
+                            </div> 
+                        </div>
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <label cLabel for="email">Email (*)</label>
+                                    <input cFormControl id="email" placeholder="Ej: ejemplo@email.com" readonly type="email" [value]="USER().email" (input)="updateEmail($event)" required />
+                                    <div *ngIf="USER().email && !isEmailValid()" class="text-danger mt-1">
+                                        Formato de correo inválido
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label cLabel for="role">Rol</label>
+                                    <input cFormControl id="role" type="text" readonly [value]="USER().role" (input)="updateRole($event)"/>
+                                    <div *ngIf="!USER().role.trim() && USER().role !== ''" class="text-danger mt-1">
+                                        El rol es obligatorio
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label cLabel for="sucursal_name_estab">Sucursal(*)</label>
+                                    <input cFormControl id="sucursal_name_estab" placeholder="Ej: Sucursal..." readonly type="text" [value]="USER().sucursal_name_estab" (input)="updateSucursalNameEstab($event)" required />
+                                    <div *ngIf="USER().sucursal_name_estab" class="text-danger mt-1">
+                                        Sucursal incorrecto
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label cLabel for="point_of_sale">Punto de venta (*)</label>
+                                    <input cFormControl id="point_of_sale" placeholder="Ej: Sucursal..." readonly type="text" [value]="USER().point_of_sale" (input)="updateSucursalNameEstab($event)" required />
+                                    <div *ngIf="USER().point_of_sale" class="text-danger mt-1">
+                                        Punto de venta incorrecto
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button cButton color="primary" title="Guardar" (click)="save()" [disabled]="!isFormValid()" class="w-100">
+                                    <svg [cIcon]="icons.cilSave" size="xl" ></svg>
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <button cButton color="danger" title="Cancelar" (click)="goList()" class="w-100">
+                                    <svg [cIcon]="icons.cilBan" size="xl" ></svg>
+                                </button>                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="tab-content rounded-bottom">
+                <div class="tab-pane active show p-3 preview fade">
+                    <ng-content />
+                </div>
+            </div> -->
+          </c-card-body>
+        </c-card>
+      </c-col>
+    </c-row>
+}@else{
+  <div class="loading-overlay text-center p-5">
+      <div class="spinner-border" role="status" aria-hidden="true"></div>
+  </div>
+}
