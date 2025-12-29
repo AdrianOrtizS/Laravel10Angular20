@@ -81,7 +81,6 @@ export class EditComponent {
       this.productService.getCategories()
       .subscribe((resp:any)=>{
         this.Categories = resp.Categories;
-        // console.log(this.Categories);
       });
       this.activatedRoute.params.subscribe((resp:any)=>{
         this.PRODUCT_ID = resp.id;

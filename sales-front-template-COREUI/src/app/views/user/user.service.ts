@@ -12,7 +12,14 @@ export class UserService {
     constructor(public http: HttpClient,
       public authService: AuthService
     ) { }
-  
+
+    getBranches(){
+      let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
+      let URL = URL_SERVICIOS+'/getBranches';
+      return this.http.get(URL, {headers: headers})
+              .pipe();
+    }
+    
     listUsers(page:number=1, search:string, pageSize:number){
       let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
       let URL = URL_SERVICIOS+'/users?page='+page+'&search='+search+'&pageSize='+pageSize;

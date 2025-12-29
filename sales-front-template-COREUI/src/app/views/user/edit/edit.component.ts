@@ -5,6 +5,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '../../../shared/shared.module';
 import { ActivatedRoute, Router } from '@angular/router';
+import { FormSelectDirective } from '@coreui/angular';
 
 interface UserI {
   name:   string;
@@ -16,9 +17,14 @@ interface UserI {
   sucursal_num_estab: string;  
 }
 
+export enum Role {
+  admin = 'admin',
+  user  = 'user',
+}
+
 @Component({
   selector: 'app-edit',
-  imports: [SharedModule, ReactiveFormsModule],
+  imports: [SharedModule, ReactiveFormsModule, FormSelectDirective],
   templateUrl: './edit.component.html',
   styleUrl: './edit.component.scss',
   host: {
@@ -27,6 +33,12 @@ interface UserI {
 })
 export class EditComponent {
 
+    roles = Object.values(Role); // ['admin', 'user']
+    
+    roleTouched = false;
+    id_branchTouched = false;
+    point_of_saleTouched =false;
+
     public favoriteColor = '#26ab3c';
     icons   = freeSet;
     router  = inject(Router);
@@ -34,6 +46,9 @@ export class EditComponent {
     userService = inject(UserService);
     activatedRoute = inject(ActivatedRoute);
     
+    branches:any =[];
+    id_branch:any;
+
     USER = signal<UserI>({
       name: '',
       email:'',
@@ -57,7 +72,20 @@ export class EditComponent {
           this.USER.set(resp.User);
         });
       });
+      this.getBranches();
     }
+
+    getBranches(){
+      this.userService.getBranches()
+        .subscribe((resp:any)=>{
+          this.branches = resp.branches;
+          console.log(this.branches);
+        });
+    }
+
+
+
+
     // Métodos para update cada campo (evita parser error)
     updateName(event: Event) {
       const valor = (event.target as HTMLInputElement).value;
@@ -71,13 +99,21 @@ export class EditComponent {
       const valor = (event.target as HTMLInputElement).value;
       this.USER.update(c => ({ ...c, imagen: valor }));
     }
-    updateRole(event: Event) {
-      const valor = (event.target as HTMLInputElement).value;
-      this.USER.update(c => ({ ...c, role: valor }));
+    updateRole(value: string) {
+      this.USER.update(u => ({ ...u, role: value }));
     }
     updatePointOfSale(event: Event) {
       const valor = (event.target as HTMLInputElement).value;
       this.USER.update(c => ({ ...c, point_of_sale: valor }));
+    }
+    updateIdBranch(value: any) {
+      // const valor = (event.target as HTMLInputElement).value;
+      this.USER.update(c => ({ ...c, sucursal_name_estab: value }));
+    }
+
+    updateIdPointOfSale(value: any) {
+      // const valor = (event.target as HTMLInputElement).value;
+      this.USER.update(c => ({ ...c, point_of_sale: value }));
     }
     updateSucursalNameEstab(event: Event) {
       const valor = (event.target as HTMLInputElement).value;
@@ -102,7 +138,7 @@ export class EditComponent {
       return (
         c.name.trim().length > 0 &&
         c.role.trim().length > 0 &&
-        c.sucursal_name_estab.trim().length > 0 &&
+        // c.sucursal_name_estab.trim().length > 0 &&
         c.sucursal_num_estab.trim().length > 0 &&
         c.point_of_sale.trim().length > 0 &&
         this.isEmailValid()
@@ -110,7 +146,6 @@ export class EditComponent {
     });
 
     save(){
-
       this.userService.updateUser(this.USER_ID, this.USER())
       .subscribe((resp:any) =>{
         if(resp.code == 403){

@@ -18,31 +18,96 @@
                         </div>
                         <div class="mb-3">
                             <div class="row">
-                                <div class="col-md-8">
+                                <div class="col-md-4">
                                     <label cLabel for="email">Email (*)</label>
                                     <input cFormControl id="email" placeholder="Ej: ejemplo@email.com" readonly type="email" [value]="USER().email" (input)="updateEmail($event)" required />
                                     <div *ngIf="USER().email && !isEmailValid()" class="text-danger mt-1">
                                         Formato de correo inválido
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <!-- <div class="col-md-4">
                                     <label cLabel for="role">Rol</label>
                                     <input cFormControl id="role" type="text" readonly [value]="USER().role" (input)="updateRole($event)"/>
                                     <div *ngIf="!USER().role.trim() && USER().role !== ''" class="text-danger mt-1">
                                         El rol es obligatorio
                                     </div>
+                                </div> -->
+                                <div class="col-md-4 mb-3">
+                                    <label cLabel>Rol (*)</label>
+                                    <select
+                                        cSelect
+                                        [(ngModel)]="USER().role"
+                                        (ngModelChange)="updateRole($event); roleTouched = true"
+                                        [class.is-invalid]="roleTouched && !USER().role"
+                                        (blur)="roleTouched = true">
+
+                                        <option value="">— Seleccione rol —</option>
+
+                                        @for (item of roles; track item) {
+                                            <option [value]="item">
+                                            {{ item | titlecase }}
+                                            </option>
+                                        }
+                                    </select>
+
+                                    <small class="text-danger" *ngIf="roleTouched && USER().role === ''">
+                                        La rol es obligatoria
+                                    </small>
                                 </div>
                             </div>
                         </div>
                         <div class="mb-3">
                             <div class="row">
-                                <div class="col-md-4">
-                                    <label cLabel for="sucursal_name_estab">Sucursal(*)</label>
-                                    <input cFormControl id="sucursal_name_estab" placeholder="Ej: Sucursal..." readonly type="text" [value]="USER().sucursal_name_estab" (input)="updateSucursalNameEstab($event)" required />
-                                    <div *ngIf="USER().sucursal_name_estab" class="text-danger mt-1">
-                                        Sucursal incorrecto
-                                    </div>
+                                <div class="col-md-10 mb-3">
+                                    <label cLabel>Sucursal (*)</label>
+                                    <select
+                                        cSelect
+                                        [ngModelOptions]="{ standalone: true }"
+                                        [ngModel]="id_branch"
+                                        (ngModelChange)="updateIdBranch($event); id_branchTouched = true"
+                                        [class.is-invalid]="id_branchTouched && id_branch === 0"
+                                        (blur)="id_branchTouched = true">
+
+                                        <option [ngValue]="0">— Seleccione sucursal —</option>
+
+                                        @for (item of branches; track item.id) {
+                                            <option [ngValue]="item.id">
+                                            {{ item.name }}
+                                            </option>
+                                        }
+                                    </select>
+
+                                    <small class="text-danger" *ngIf="id_branchTouched && id_branch === 0">
+                                        La sucursal es obligatoria
+                                    </small>
                                 </div>
+
+
+                                <div class="col-md-10 mb-3">
+                                    <label cLabel>Punto de venta (*)</label>
+                                    <select
+                                        cSelect
+                                        [ngModelOptions]="{ standalone: true }"
+                                        [ngModel]="USER().id_point_of_sale"
+                                        (ngModelChange)="updateIdPointOfSale($event); point_of_saleTouched = true"
+                                        [class.is-invalid]="point_of_saleTouched && USER().id_point_of_sale === 0"
+                                        (blur)="point_of_saleTouched = true">
+
+                                        <option [ngValue]="0">— Seleccione punto de venta —</option>
+
+                                        @for (item of branches; track item.id) {
+                                            <option [ngValue]="item.id">
+                                            {{ item.name }}
+                                            </option>
+                                        }
+                                    </select>
+
+                                    <small class="text-danger" *ngIf="point_of_saleTouched && USER().id_point_of_sale === 0">
+                                        La sucursal es obligatoria
+                                    </small>
+                                </div>
+
+
                                 <div class="col-md-4">
                                     <label cLabel for="point_of_sale">Punto de venta (*)</label>
                                     <input cFormControl id="point_of_sale" placeholder="Ej: Sucursal..." readonly type="text" [value]="USER().point_of_sale" (input)="updateSucursalNameEstab($event)" required />

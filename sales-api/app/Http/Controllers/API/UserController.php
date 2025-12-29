@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\User;
+use App\Models\Branch;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\CustomerCollection;
 use App\Http\Resources\CustomerResource;
@@ -47,6 +48,46 @@ class UserController extends Controller
 						            'point_of_sale'       => optional($user->pointsOfSale)->codigo_punto_emision,
 								];
 						})
+            ]);
+    }
+
+    public function getBranches()
+    {
+		$branches = Branch::orderBy('id')->get();
+
+        return response()->json(
+            [   'code'  => 200,
+                'branches'  => $branches->map(function ($branch) {
+					    return [
+					        'id'    => $branch->id,
+					        'name'  => $branch->name,
+					        'address' => $branch->address,
+					        'num_establecimiento'  => $branch->num_establecimiento,
+					   		'phone'  => $branch->phone,
+					   		'state'  => $branch->state,
+						];
+				})
+            ]);
+    }
+
+
+    public function getPointsOfSale(Request $request)
+    {
+		$point_of_sales = PointsOfSale::where('id_branch', $request->id_branch)
+										->get();
+
+        return response()->json(
+            [   'code'  => 200,
+                'branches'  => $branches->map(function ($branch) {
+					    return [
+					        'id'    => $branch->id,
+					        'name'  => $branch->name,
+					        'address' => $branch->address,
+					        'num_establecimiento'  => $branch->num_establecimiento,
+					   		'phone'  => $branch->phone,
+					   		'state'  => $branch->state,
+						];
+				})
             ]);
     }
 
