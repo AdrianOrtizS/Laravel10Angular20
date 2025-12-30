@@ -21,40 +21,30 @@
                                 <div class="col-md-4">
                                     <label cLabel for="email">Email (*)</label>
                                     <input cFormControl id="email" placeholder="Ej: ejemplo@email.com" readonly type="email" [value]="USER().email" (input)="updateEmail($event)" required />
-                                    <div *ngIf="USER().email && !isEmailValid()" class="text-danger mt-1">
-                                        Formato de correo inválido
-                                    </div>
                                 </div>
-                                <!-- <div class="col-md-4">
-                                    <label cLabel for="role">Rol</label>
-                                    <input cFormControl id="role" type="text" readonly [value]="USER().role" (input)="updateRole($event)"/>
-                                    <div *ngIf="!USER().role.trim() && USER().role !== ''" class="text-danger mt-1">
-                                        El rol es obligatorio
-                                    </div>
-                                </div> -->
                                 <div class="col-md-4 mb-3">
                                     <label cLabel>Rol (*)</label>
-                                    
                                     <select
                                         cSelect
                                         [ngModel]="USER().role"
                                         (ngModelChange)="updateRole($event); roleTouched = true"
                                         [class.is-invalid]="roleTouched && !USER().role"
                                         (blur)="roleTouched = true">
-                                
+
                                         <option value="">— Seleccione rol —</option>
 
-                                        @for (item of roles; track item) {
+                                        @for (item of roles; track $index) {
                                             <option [value]="item">
-                                            {{ item | titlecase }}
+                                            {{ item  }}
                                             </option>
                                         }
                                     </select>
 
-                                    <small class="text-danger" *ngIf="roleTouched && USER().role === ''">
-                                        La rol es obligatoria
+                                    <small class="text-danger" *ngIf="roleTouched && !USER().role">
+                                    El rol es obligatorio
                                     </small>
                                 </div>
+
                             </div>
                         </div>
                         <div class="mb-3">
@@ -64,9 +54,9 @@
                                     <select
                                         cSelect
                                         [ngModelOptions]="{ standalone: true }"
-                                        [ngModel]="USER().id_sucursal"
+                                        [ngModel]="USER().id_branch"
                                         (ngModelChange)="updateIdBranch($event); id_branchTouched = true"
-                                        [class.is-invalid]="id_branchTouched && USER().id_sucursal === 0"
+                                        [class.is-invalid]="id_branchTouched && USER().id_branch === 0"
                                         (blur)="id_branchTouched = true">
 
                                         <option [ngValue]=0>— Seleccione sucursal —</option>
@@ -78,7 +68,7 @@
                                         }
                                     </select>
 
-                                    <small class="text-danger" *ngIf="id_branchTouched && USER().id_sucursal === 0">
+                                    <small class="text-danger" *ngIf="id_branchTouched && USER().id_branch === 0">
                                         La sucursal es obligatoria
                                     </small>
                                 </div>
@@ -96,8 +86,8 @@
 
                                         <option [ngValue]=0>— Seleccione punto de venta —</option>
 
-                                        @for (item of pointsOfSale(); track item.id) {
-                                            <option [ngValue]="item.id">
+                                        @for (item of pointsOfSale(); track $index) {
+                                            <option [ngValue]="item.codigo_punto_emision">
                                                 {{ item.codigo_punto_emision }}
                                             </option>
                                         }

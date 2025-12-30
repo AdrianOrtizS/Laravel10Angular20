@@ -81,6 +81,7 @@ class UserController extends Controller
             [   'code'  => 200,
                 'point_of_sales'  => $point_of_sales->map(function ($point) {
 					    return [
+					    	'id' => $point->id,
                             'id_branch' => $point->branch->id,
                             'codigo_punto_emision' => $point->codigo_punto_emision,
                             'secuencial_actual' => $point->secuencial_actual,
@@ -110,10 +111,11 @@ class UserController extends Controller
 							        'email' => $user->email,
 							        'role'  => $user->role,
                                     'imagen'=> $user->imagen ? env('APP_URL').'storage/'.$user->imagen: null,
-							   		'id_sucursal' => optional($user->pointsOfSale->branch)->id,
-                                    'sucursal_name_estab' => optional($user->pointsOfSale->branch)->name,
-						            'sucursal_num_estab'  => optional($user->pointsOfSale->branch)->num_establecimiento,
+							   		'id_branch' => optional($user->pointsOfSale->branch)->id,
+                                    'branch_name_estab' => optional($user->pointsOfSale->branch)->name,
+						            'branch_num_estab'  => optional($user->pointsOfSale->branch)->num_establecimiento,
 						            'point_of_sale'       => optional($user->pointsOfSale)->codigo_punto_emision,
+						            'id_point_of_sale'       => optional($user->pointsOfSale)->id,
 								   ]
 
                  ];
@@ -130,8 +132,7 @@ class UserController extends Controller
     {   
         $validator = Validator::make($request->all(), [
                   	        'name'	=>	'required',
-				        	// 'email' => ['required','email', Rule::unique('users')->ignore($id),],
-                  			'role' 	=>	'required',
+				        	'role' 	=>	'required',
 				        	'id_point_of_sale' 	=>	'required'
         ]);
 
