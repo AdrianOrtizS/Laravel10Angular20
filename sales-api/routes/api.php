@@ -85,7 +85,8 @@ Route::middleware('auth:api')->group(function () {
     
 
     Route::resource("users", UserController::class);
-    Route::get("getBranches",     [UserController::class, 'getBranches']);
+    Route::get("getBranches", [UserController::class, 'getBranches']);
+    Route::get("getPointsOfSale", [UserController::class, 'getPointsOfSale']);
 
 
     Route::resource("customers", CustomerController::class);

@@ -19,6 +19,13 @@ export class UserService {
       return this.http.get(URL, {headers: headers})
               .pipe();
     }
+
+    getPointsOfSale(id_branch:any){
+      let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
+      let URL = URL_SERVICIOS+'/getPointsOfSale?id_branch='+id_branch;
+      return this.http.get(URL, {headers: headers})
+              .pipe();
+    }
     
     listUsers(page:number=1, search:string, pageSize:number){
       let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});

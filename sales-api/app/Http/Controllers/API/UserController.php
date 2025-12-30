@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Models\User;
 use App\Models\Branch;
+use App\Models\PointsOfSale;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\CustomerCollection;
 use App\Http\Resources\CustomerResource;
@@ -78,14 +79,12 @@ class UserController extends Controller
 
         return response()->json(
             [   'code'  => 200,
-                'branches'  => $branches->map(function ($branch) {
+                'point_of_sales'  => $point_of_sales->map(function ($point) {
 					    return [
-					        'id'    => $branch->id,
-					        'name'  => $branch->name,
-					        'address' => $branch->address,
-					        'num_establecimiento'  => $branch->num_establecimiento,
-					   		'phone'  => $branch->phone,
-					   		'state'  => $branch->state,
+                            'id_branch' => $point->branch->id,
+                            'codigo_punto_emision' => $point->codigo_punto_emision,
+                            'secuencial_actual' => $point->secuencial_actual,
+                            'descripcion' => $point->descripcion,
 						];
 				})
             ]);
@@ -111,7 +110,8 @@ class UserController extends Controller
 							        'email' => $user->email,
 							        'role'  => $user->role,
                                     'imagen'=> $user->imagen ? env('APP_URL').'storage/'.$user->imagen: null,
-							   		'sucursal_name_estab' => optional($user->pointsOfSale->branch)->name,
+							   		'id_sucursal' => optional($user->pointsOfSale->branch)->id,
+                                    'sucursal_name_estab' => optional($user->pointsOfSale->branch)->name,
 						            'sucursal_num_estab'  => optional($user->pointsOfSale->branch)->num_establecimiento,
 						            'point_of_sale'       => optional($user->pointsOfSale)->codigo_punto_emision,
 								   ]
