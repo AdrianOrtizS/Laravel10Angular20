@@ -7,9 +7,9 @@
       <button cButton color="secondary" shape="rounded-pill" title="Actualizar" (click)="refresh()">
         <svg [cIcon]="icons.cilReload" size="xl"></svg>
       </button>
-      <button cButton color="primary" shape="rounded-pill" title="Nuevo" (click)="createUser()">
+      <!-- <button cButton color="primary" shape="rounded-pill" title="Nuevo" (click)="createUser()">
         <svg [cIcon]="icons.cilPlus" size="xl"></svg>
-      </button>
+      </button> -->
   </div>
   <table bordered  cTable>
     <thead cTableColor="light">
@@ -29,7 +29,16 @@
         <tr>
           <th scope="row" style="width: 40px;">{{item.id}}</th>
           <td style="width: 120px;">{{item.name}}</td>
-          <td style="width: 50px; text-align: center;">{{item.role}}</td>
+          <td style="width: 50px; text-align: center;">
+            <!-- {{item.role}} -->
+              @if(item.role == 'admin'){
+                  Administrador
+              }
+              @if(item.role == 'user'){
+                  Usuario
+              }
+          </td>
+
           <!-- <td style="width: 80px; text-align: center;">{{item.email}}</td> -->
           <td style="width: 120px; text-align: center;">{{item.sucursal_name_estab}} - {{item.sucursal_num_estab}}</td>
           <td style="width: 20px; text-align: center;">{{item.point_of_sale}}</td>
@@ -39,20 +48,6 @@
                 <svg [cIcon]="icons.cilToggleOn" size="xl"></svg>
               </button>
 
-              <!-- Modal controlado por [visible] -->
-              <!-- <c-modal [visible]="modalId() === item.id" title="Desactivar {{item.name}}" (close)="cerrarModal()">
-                <c-modal-header>
-                  <h5 cModalTitle>Desactivar usuario</h5>
-                  <button (click)="cerrarModal()" cButtonClose></button>
-                </c-modal-header>
-                <c-modal-body>
-                  ¿Deseas desactivar usuario: <strong> {{item.name}} </strong>?
-                </c-modal-body>
-                <c-modal-footer>
-                  <button cButton color="secondary" (click)="cerrarModal()">Cerrar</button>
-                  <button cButton color="danger" (click)="changeState(item.id)">Desactivar</button>
-                </c-modal-footer>
-              </c-modal> -->
             }
             @if(item.state == 0){
               <!-- Botón abre el modal -->
@@ -60,20 +55,6 @@
                 <svg [cIcon]="icons.cilToggleOff" size="xl"></svg>
               </button>
 
-              <!-- Modal controlado por [visible] -->
-              <!-- <c-modal [visible]="modalId() === item.id" title="Desactivar {{item.name}}" (close)="cerrarModal()">
-                <c-modal-header>
-                  <h5 cModalTitle>Activar usuario</h5>
-                  <button (click)="cerrarModal()" cButtonClose></button>
-                </c-modal-header>
-                <c-modal-body>
-                  ¿Deseas activar usuario: <strong> {{item.name}} </strong>?
-                </c-modal-body>
-                <c-modal-footer>
-                  <button cButton color="secondary" (click)="cerrarModal()">Cerrar</button>
-                  <button cButton color="success" (click)="changeState(item.id)">Activar</button>
-                </c-modal-footer>
-              </c-modal> -->
             }
           </td>
           <td style="width: 60px;"> 
@@ -113,26 +94,26 @@
   </div>
 
   <c-modal [visible]="!!selectedUser()" (close)="cerrarModal()">
-
+<!-- {{ selectedUser()?.state}} -->
     <c-modal-header>
         <h5 cModalTitle>
-        {{ selectedUser()?.state === 1 ? 'Desactivar' : 'Activar' }} usuario
+        {{ selectedUser()?.state === 1 || selectedUser()?.state === true ? 'Desactivar' : 'Activar' }} usuario
         </h5>
         <button cButtonClose (click)="cerrarModal()"></button>
     </c-modal-header>
 
     <c-modal-body>
         ¿Deseas
-        {{ selectedUser()?.state === 1 ? 'desactivar' : 'activar' }}
+        {{ selectedUser()?.state === 1 || selectedUser()?.state === true ? 'desactivar' : 'activar' }}
         al usuario <strong>{{ selectedUser()?.name }}</strong>?
     </c-modal-body>
 
     <c-modal-footer>
         <button
             cButton
-            [color]="selectedUser()?.state === 1 ? 'danger' : 'success'"
+            [color]="selectedUser()?.state === 1 || selectedUser()?.state === true ? 'danger' : 'success'"
             (click)="changeState(selectedUser()?.id)">
-            {{ selectedUser()?.state === 1 ? 'Desactivar' : 'Activar' }}
+            {{ selectedUser()?.state === 1 || selectedUser()?.state === true ? 'Desactivar' : 'Activar' }}
         </button>
         <button cButton color="secondary" (click)="cerrarModal()">Cerrar</button>
     </c-modal-footer>

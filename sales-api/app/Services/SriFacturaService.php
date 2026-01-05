@@ -227,7 +227,7 @@ class SriFacturaService
             // var_dump("No se pudo leer el archivo P12");
             throw new Exception('No se pudo leer el archivo P12');
         }
-        if (!openssl_pkcs12_read($pkcs12, $certs, $p12Password)) {
+        if (!openssl_pkcs12_read($pkcs12, $certs, trim($p12Password))) {
             // var_dump("Error al leer P12 - contraseña incorrecta o archivo corrupto");
             throw new Exception('Error al leer P12 - contraseña incorrecta o archivo corrupto');
         }

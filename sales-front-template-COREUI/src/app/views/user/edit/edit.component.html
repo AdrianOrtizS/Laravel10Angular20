@@ -2,8 +2,30 @@
     <c-row ngPreserveWhitespaces>
       <c-col xs="8">
         <c-card class="mb-4" >
-          <c-card-header >
-            Usuario: <strong> {{USER().name}}</strong> 
+          <c-card-header style="width: 20rem;">
+            <!-- Usuario: <strong> {{USER().name}}</strong>  -->
+            
+            <div class="mb-3">
+                <input  cFormControl
+                        type="file"
+                        hidden
+                        id="categorieImage"
+                        accept="image/*"
+                        (change)="processFile($event)"/>
+                <img    [src]="imagen_previsualiza"
+                        (click)="clickInputFileHide()"
+                        class="img-thumbnail"
+                        style="width: 120px; height: 120px; object-fit: cover; cursor: pointer"
+                        title="Click para cambiar imagen"/>
+            </div>
+            
+            
+            <!-- @if(USER().imagen){
+                <img cCardImg="top" [src]="USER().imagen">
+            }@else{
+                <img cCardImg="top" src="./../../../../assets/images/sin_imagen.jpg">
+            } -->
+                
           </c-card-header>
           <c-card-body>
             <div class="tab-content rounded-bottom">
@@ -18,9 +40,9 @@
                         </div>
                         <div class="mb-3">
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-8">
                                     <label cLabel for="email">Email (*)</label>
-                                    <input cFormControl id="email" placeholder="Ej: ejemplo@email.com" readonly type="email" [value]="USER().email" (input)="updateEmail($event)" required />
+                                    <input cFormControl id="email" placeholder="Ej: ejemplo@email.com" readonly type="email" [value]="USER().email"/>
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label cLabel>Rol (*)</label>
@@ -35,7 +57,13 @@
 
                                         @for (item of roles; track $index) {
                                             <option [value]="item">
-                                            {{ item  }}
+                                            <!-- {{ item  }} -->
+                                                    @if(item == 'admin'){
+                                                        Administrador
+                                                    }
+                                                    @if(item == 'user'){
+                                                        Usuario
+                                                    }
                                             </option>
                                         }
                                     </select>
@@ -49,7 +77,7 @@
                         </div>
                         <div class="mb-3">
                             <div class="row">
-                                <div class="col-md-10 mb-3">
+                                <div class="col-md-6 mb-3">
                                     <label cLabel>Sucursal (*)</label>
                                     <select
                                         cSelect
@@ -74,26 +102,26 @@
                                 </div>
 
 
-                                <div class="col-md-10 mb-3">
+                                <div class="col-md-6 mb-3">
                                     <label cLabel>Punto de venta (*)</label>
                                     <select
                                         cSelect
                                         [ngModelOptions]="{ standalone: true }"
-                                        [ngModel]="USER().point_of_sale"
+                                        [ngModel]="USER().id_point_of_sale"
                                         (ngModelChange)="updateIdPointOfSale($event); point_of_saleTouched = true"
-                                        [class.is-invalid]="point_of_saleTouched && USER().point_of_sale === 0"
+                                        [class.is-invalid]="point_of_saleTouched && USER().id_point_of_sale === 0"
                                         (blur)="point_of_saleTouched = true">
 
                                         <option [ngValue]=0>— Seleccione punto de venta —</option>
 
                                         @for (item of pointsOfSale(); track $index) {
-                                            <option [ngValue]="item.codigo_punto_emision">
+                                            <option [ngValue]="item.id_point_of_sale">
                                                 {{ item.codigo_punto_emision }}
                                             </option>
                                         }
                                     </select>
 
-                                    <small class="text-danger" *ngIf="point_of_saleTouched && USER().point_of_sale === 0">
+                                    <small class="text-danger" *ngIf="point_of_saleTouched && USER().id_point_of_sale === 0">
                                         La sucursal es obligatoria
                                     </small>
                                 </div>

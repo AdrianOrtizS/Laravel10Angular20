@@ -44,6 +44,7 @@ class UserController extends Controller
 							        'email' => $user->email,
 							        'role'  => $user->role,
 							   		'state'  => $user->state,
+                                    'imagen'=> $user->imagen ? env('APP_URL').'storage/'.$user->imagen: null,
 							   		'sucursal_name_estab' => optional($user->pointsOfSale->branch)->name,
 						            'sucursal_num_estab'  => optional($user->pointsOfSale->branch)->num_establecimiento,
 						            'point_of_sale'       => optional($user->pointsOfSale)->codigo_punto_emision,
@@ -81,11 +82,11 @@ class UserController extends Controller
             [   'code'  => 200,
                 'point_of_sales'  => $point_of_sales->map(function ($point) {
 					    return [
-					    	'id' => $point->id,
-                            'id_branch' => $point->branch->id,
+					    	'id_point_of_sale'  => $point->id,
+                            'id_branch'         => $point->branch->id,
                             'codigo_punto_emision' => $point->codigo_punto_emision,
                             'secuencial_actual' => $point->secuencial_actual,
-                            'descripcion' => $point->descripcion,
+                            'descripcion'       => $point->descripcion,
 						];
 				})
             ]);
@@ -114,8 +115,8 @@ class UserController extends Controller
 							   		'id_branch' => optional($user->pointsOfSale->branch)->id,
                                     'branch_name_estab' => optional($user->pointsOfSale->branch)->name,
 						            'branch_num_estab'  => optional($user->pointsOfSale->branch)->num_establecimiento,
-						            'point_of_sale'       => optional($user->pointsOfSale)->codigo_punto_emision,
-						            'id_point_of_sale'       => optional($user->pointsOfSale)->id,
+						            'point_of_sale'     => optional($user->pointsOfSale)->codigo_punto_emision,
+						            'id_point_of_sale'  => optional($user->pointsOfSale)->id,
 								   ]
 
                  ];
@@ -145,6 +146,16 @@ class UserController extends Controller
             $data = ['code'=> 404,
                      'message' => 'User not found'];
         }
+        
+        // Manejar carga de imagen
+        if ($request->hasFile('producto')) {
+            if ($user->imagen && Storage::exists($user->imagen)) {
+                Storage::delete($user->imagen);
+            }
+            $path = Storage::putFile('users', $request->file('producto'));
+            $request->merge(['imagen' => $path]);
+        }
+
         $user->update($request->all());
         $data = [
         			'code'		=> 200, 

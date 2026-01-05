@@ -12,7 +12,7 @@ interface UserI {
   name:   string;
   email:  string;
   imagen:  string;
-  point_of_sale:number;
+  id_point_of_sale:number;
   role: string;
   id_branch: number,
   branch_name_estab: string;
@@ -38,12 +38,13 @@ export class EditComponent {
     // roles = Object.values(Role); // ['admin', 'user']
     // roles = Object.values(Role); // ['admin', 'user']
     roles: Role[] = Object.values(Role);
+    imagen_previsualiza:any = '../../../../assets/images/sin_imagen.jpg';
 
     roleTouched = false;
     id_branchTouched = false;
     point_of_saleTouched =false;
     pointsOfSale = signal<any[]>([]);
-    
+    file_imagen:any =null;
     public favoriteColor = '#26ab3c';
     icons   = freeSet;
     router  = inject(Router);
@@ -63,7 +64,7 @@ export class EditComponent {
       imagen:'',
       role:'',
       id_branch:0,
-      point_of_sale:0,
+      id_point_of_sale:0,
       branch_name_estab:'',
       branch_num_estab:''
     });
@@ -77,12 +78,17 @@ export class EditComponent {
       this.activatedRoute.params.subscribe((resp:any)=>{
         this.USER_ID = resp.id;
         this.userService.showUser(this.USER_ID)
-          .subscribe((resp:any)=>{
+          .subscribe((resp:any) => {
             this.USER.set(resp.User);
-            console.log(this.USER());
+            // console.log(this.USER());
             this.isEmpty = false; // ✅ IMPORTANTE
             if (this.USER().id_branch) {
               this.getPointsOfSale();
+            }
+            if(this.USER().imagen){
+              let url = this.USER().imagen;
+              this.imagen_previsualiza = url;
+              // console.log(this.imagen_previsualiza);
             }
           });
       });
@@ -95,7 +101,7 @@ export class EditComponent {
         .subscribe({
           next:(resp:any)=>{
             this.branches = resp.branches;
-            console.log(this.branches);
+            // console.log(this.branches);
           },
           error:(err:any)=>{
             console.log(err);
@@ -119,11 +125,24 @@ export class EditComponent {
       this.userService.getPointsOfSale(idBranch)
         .subscribe((resp:any)=>{
           this.pointsOfSale.set(resp.point_of_sales);
-          console.log(this.pointsOfSale());
+          // console.log(this.pointsOfSale());
         });
-
     }
 
+    clickInputFileHide(){
+      const clickInputFile = document.getElementById('categorieImage');
+      clickInputFile?.click();
+    }
+
+    processFile($event:any){
+      if($event.target.files[0].type.indexOf('image') < 0){
+        return;
+      }
+      this.file_imagen = $event.target.files[0];
+      let reader = new FileReader();
+      reader.readAsDataURL(this.file_imagen);
+      reader.onloadend = ()=> this.imagen_previsualiza = reader.result;
+    }
 
 
     // Métodos para update cada campo (evita parser error)
@@ -131,23 +150,16 @@ export class EditComponent {
       const valor = (event.target as HTMLInputElement).value;
       this.USER.update(c => ({ ...c, name: valor }));
     }
-    updateEmail(event: Event) {
-      const valor = (event.target as HTMLInputElement).value;
-      this.USER.update(c => ({ ...c, email: valor }));
-    }
     updateImagen(event: Event) {
       const valor = (event.target as HTMLInputElement).value;
       this.USER.update(c => ({ ...c, imagen: valor }));
     }
-  
     updateRole(value: Role) {
       this.USER.update(user => ({
         ...user,
         role: value
       }));
     }
-  
-
     updateIdBranch(value: any) {
       this.USER.update(c => ({ 
         ...c, 
@@ -156,22 +168,10 @@ export class EditComponent {
       }));
       this.getPointsOfSale();
     }
-
-
     updateIdPointOfSale(value: any) {
-      console.log(value);
-      this.USER.update(c => ({ ...c, point_of_sale: value }));
+      // console.log(value);
+      this.USER.update(c => ({ ...c, id_point_of_sale: value }));
     }
-    updatebranchNameEstab(event: Event) {
-      const valor = (event.target as HTMLInputElement).value;
-      this.USER.update(c => ({ ...c, branch_name_estab: valor }));
-    }
-    updatebranchNumEstab(event: Event) {
-      const valor = (event.target as HTMLInputElement).value;
-      this.USER.update(c => ({ ...c, branch_num_estab: valor }));
-    }
-
-
     
     // Validar si todos los campos son obligatorios y válidos
     isFormValid = computed(() => {
@@ -180,20 +180,31 @@ export class EditComponent {
         c.name.trim().length > 0 &&
         c.role.trim().length > 0 &&
         c.branch_num_estab.trim().length > 0 
-        // &&
-        // c.point_of_sale.trim().length > 0 
       );
     });
 
 
 
     save(){
-      console.log(this.USER());
-      console.log(this.pointsOfSale());
+ 
+      
 
-      this.userService.updateUser(this.USER_ID, this.USER())
+      let formData = new FormData();
+      formData.append('name', this.USER().name?.toString() ?? '');
+      formData.append('role', this.USER().role?.toString() ?? '');
+      formData.append('id_point_of_sale', this.USER().id_point_of_sale?.toString() ?? '');
+
+      // console.log(this.file_imagen);
+      if(this.file_imagen){
+        formData.append('producto', this.file_imagen);
+      }
+
+      // console.log(this.USER());
+
+
+      this.userService.updateUser(this.USER_ID, formData)
       .subscribe((resp:any) =>{
-        console.log(resp);
+        // console.log(resp);
         if(resp.code == 403){
           this.toastr.error('Validacion', 'El usuario ya existe');
           return;

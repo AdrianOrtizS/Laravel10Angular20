@@ -51,7 +51,7 @@ export class UserService {
     updateUser(User_id:string, data:any){
       let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
       let URL = URL_SERVICIOS+'/users/'+User_id;
-      return this.http.put(URL, data, {headers: headers})
+      return this.http.post(URL, data, {headers: headers})
       .pipe();
     }
   

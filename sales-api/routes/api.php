@@ -85,6 +85,8 @@ Route::middleware('auth:api')->group(function () {
     
 
     Route::resource("users", UserController::class);
+    Route::post("users/{id}", [UserController::class, 'update']);
+    
     Route::get("getBranches", [UserController::class, 'getBranches']);
     Route::get("getPointsOfSale", [UserController::class, 'getPointsOfSale']);
 

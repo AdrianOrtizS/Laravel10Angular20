@@ -62,6 +62,7 @@ export class ListComponent {
       }
       this.totalPages = resp.total;
       this.currentPage = page;
+      console.log(resp);
       return this.users.set(resp.users) ;
     });
   }

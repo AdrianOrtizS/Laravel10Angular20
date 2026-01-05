@@ -17,3 +17,8 @@
   height: 3rem;
   color: white;
 }
+:host {
+  c-card {
+    min-width: 9rem;
+  }
+}

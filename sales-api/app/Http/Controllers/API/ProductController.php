@@ -245,7 +245,6 @@ class ProductController extends Controller
         }
         
         $user = auth()->user();
-        // $branchId = $user->branch_id ?? $user->branches()->first()->id ?? null;
 
         $pointsOfSale = $user->pointsOfSale()->first();
         $id_branch = $pointsOfSale->id_branch;

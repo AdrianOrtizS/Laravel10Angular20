@@ -50,7 +50,7 @@ export class ShowComponent {
   });
 
   ngOnInit() {
-    console.log(this.authService.user());
+    // console.log(this.authService.user());
     this.user.set(this.authService.user());
     this.profileForm.patchValue({
       name: this.user().name,
@@ -99,19 +99,13 @@ export class ShowComponent {
     this.authService.updateUserLog(formData).subscribe({
       next: (resp:any) => {
         this.user().name = this.profileForm.value.name;
-        
         if (resp.user?.imagen) {
           this.user().imagen = resp.user.imagen;
         }
-        // console.log(resp);
-        console.log(this.user());
         localStorage.setItem('user', JSON.stringify(this.user()));
-
         this.authService.updateUser(resp.user);
-        
         this.toastr.success('Perfil actualizado');
-        console.log(this.authService.user());
-
+        // console.log(this.authService.user());
         this.showEditModal = false;
       },
       error: (err:any) =>{

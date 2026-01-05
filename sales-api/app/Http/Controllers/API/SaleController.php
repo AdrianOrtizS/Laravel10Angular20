@@ -27,7 +27,7 @@ use DOMDocument;
 use Illuminate\Support\Facades\DB;
 use Log;
 
-// use Validator;
+// use App\Http\Controllers\API\Exception;
 
 use App\Mail\FacturaCustomerPdfXmlMail;
 use Illuminate\Support\Facades\Mail;
@@ -440,9 +440,108 @@ class SaleController extends Controller
             $this->guardarArchivo($rutaGenerados, $xml);
 
             // 3) Firmar XML
-            $certificadoPath = storage_path('app/certificados/firma_prueba.p12'); // Usar separador correcto
-            $claveCertificado = env('CERTIFICADO_CLAVE', '123456'); // Usar variable de entorno
-            
+            // $certificadoPath = storage_path('app/certificados/firma_prueba.p12'); // Usar separador correcto
+            // $claveCertificado = env('CERTIFICADO_CLAVE', '123456'); // Usar variable de entorno
+            $certificadoPath = storage_path('app/certificados/19563945_identity_1718348053.p12'); // Usar separador correcto
+            $claveCertificado = env('CERTIFICADO_CLAVE', 'Amazonas09'); // Usar variable de entorno
+
+
+
+
+
+
+
+if (!file_exists($certificadoPath)) {
+    throw new \Exception('El archivo del certificado no existe');
+}
+
+$p12 = file_get_contents($certificadoPath);
+
+if ($p12 === false) {
+    throw new \Exception('No se puede leer el archivo P12');
+}
+
+$certs = [];
+
+if (!openssl_pkcs12_read($p12, $certs, $claveCertificado)) {
+    throw new \Exception('Contraseña incorrecta o certificado corrupto');
+}
+
+if (!isset($certs['cert'])) {
+    throw new \Exception('Certificado no válido');
+}
+
+// 🔍 Parsear certificado
+$info = openssl_x509_parse($certs['cert']);
+
+if (!$info) {
+    throw new \Exception('No se pudo leer la información del certificado');
+}
+
+// ⏱ Validar vigencia
+$now = time();
+
+if ($now < $info['validFrom_time_t']) {
+    throw new \Exception('El certificado aún no es válido');
+}
+
+if ($now > $info['validTo_time_t']) {
+    throw new \Exception('El certificado ha expirado');
+}
+
+// 👤 Obtener datos del titular
+$subject = $info['subject'] ?? [];
+
+$nombre = $subject['CN'] ?? null;
+$identificacion = $subject['serialNumber'] ?? null;
+
+if (!$nombre || !$identificacion) {
+    throw new \Exception('No se pudo identificar el titular del certificado');
+}
+
+// 🧾 Detectar tipo (cédula / RUC)
+$tipo = match (strlen($identificacion)) {
+    10 => 'CEDULA',
+    13 => 'RUC',
+    default => 'DESCONOCIDO',
+};
+
+if ($tipo === 'DESCONOCIDO') {
+    throw new \Exception('Identificación no válida para SRI');
+}
+
+// 🔐 Validar uso para firma digital
+$usos = $info['extensions']['keyUsage'] ?? '';
+
+if (
+    !str_contains($usos, 'Digital Signature') &&
+    !str_contains($usos, 'Non Repudiation')
+) {
+    throw new \Exception('El certificado no está habilitado para firma digital');
+}
+
+return [
+    'nombre'          => $nombre,
+    'identificacion'  => $identificacion,
+    'tipo'            => $tipo,
+    'valido_desde'    => date('Y-m-d', $info['validFrom_time_t']),
+    'valido_hasta'    => date('Y-m-d', $info['validTo_time_t']),
+];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             $xmlFirmado = $this->sri->firmarXml($xml, $certificadoPath, $claveCertificado);
             
             if (!$xmlFirmado) {
