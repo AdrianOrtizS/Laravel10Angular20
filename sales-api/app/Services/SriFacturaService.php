@@ -22,7 +22,7 @@ class SriFacturaService
     public function __construct()
     {
         // Coloca aquí la ruta al XSD del SRI que vayas a usar (ej: resources/schemas/factura_v2.1.0.xsd)
-        $this->xsdPath = storage_path('/app/schemas/factura_V1.1.0.xsd');
+        $this->xsdPath = storage_path('/app/schemas/factura_V2.1.0.xsd');
         // error_log($this->xsdPath);
     }
 
@@ -240,19 +240,28 @@ class SriFacturaService
         $objDSig->setCanonicalMethod(XMLSecurityDSig::C14N);
         
         // Agregar referencia al documento entero
-        $objDSig->addReference(
-            $doc,
-            XMLSecurityDSig::SHA1,
-            array('http://www.w3.org/2000/09/xmldsig#enveloped-signature'),
-            ['force_uri' => true]
-        );
+$objDSig->addReference(
+    $doc,
+    XMLSecurityDSig::SHA256,
+    ['http://www.w3.org/2000/09/xmldsig#enveloped-signature'],
+    ['force_uri' => true]
+);
 
         // Crear key
-        $objKey = new XMLSecurityKey(XMLSecurityKey::RSA_SHA1, array('type' => 'private'));
+$objKey = new XMLSecurityKey(XMLSecurityKey::RSA_SHA256, ['type' => 'private']);
         $objKey->loadKey($privateKeyPem);
 
+
+
+
+
+
+
         // Firmar
-        $objDSig->sign($objKey, $doc->documentElement);
+        // $objDSig->sign($objKey, $doc->documentElement);
+        $objDSig->sign($objKey);
+        $objDSig->appendSignature($doc->documentElement);
+
 
         // Agregar certificado (Base64)
         $objDSig->add509Cert($certPem, true, false, array('subjectName' => true));
@@ -388,17 +397,33 @@ class SriFacturaService
 
 
             $xml->registerXPathNamespace('ns', 'http://ec.gob.sri.ws.autorizacion');
-            $autorizacion = $xml->xpath('//ns:autorizacion')[0] ?? null;
+            // $autorizacion = $xml->xpath('//ns:autorizacion')[0] ?? null;
 
 
-            if (!$autorizacion) {
-                return [
-                    'estado' => 'NO AUTORIZADO',
-                    'mensaje' => 'No se encontró información de autorización en la respuesta del SRI.',
-                    'mensajes' => [],
-                    'xml' => null,
-                ];
-            }
+            // if (!$autorizacion) {
+            //     return [
+            //         'estado' => 'NO AUTORIZADO',
+            //         'mensaje' => 'No se encontró información de autorización en la respuesta del SRI.',
+            //         'mensajes' => [],
+            //         'xml' => null,
+            //     ];
+            // }
+
+
+$autorizaciones = $xml->xpath('//ns:autorizacion');
+
+if (empty($autorizaciones)) {
+    return [
+        'estado' => 'EN_PROCESO',
+        'mensaje' => 'El comprobante aún no ha sido procesado por el SRI.',
+        'mensajes' => [],
+        'xml' => null,
+    ];
+}
+
+$autorizacion = $autorizaciones[0];
+
+
 
 
             // Procesar mensajes

@@ -233,6 +233,8 @@ class SaleController extends Controller
         try{
             DB::beginTransaction();
 
+            $codigoNumerico = str_pad(random_int(0, 99999999), 8, '0', STR_PAD_LEFT);
+
             // Crear el pedido
             $sale = Sale::create([
                 'id_customer'   => $request->id_customer,
@@ -254,7 +256,7 @@ class SaleController extends Controller
                                         $num_establecimiento,
                                         $pointOfSale->codigo_punto_emision, // '001'    $serie 001001
                                         $numeroConCeros,                    // 000000123 
-                                        '12345678',                         // $codigoNumerico,
+                                        $codigoNumerico,                         // $codigoNumerico,
                                         '1'                                 // $tipoEmision    
                                     )
             ]);
@@ -355,14 +357,24 @@ class SaleController extends Controller
                 // 'direccionComprador'     => 'Direccion comprador',
                 'totalSinImpuestos'     => number_format($sale['subtotal'], 2, '.', ''),
                 'totalDescuento'        => number_format($sale['discount'], 2, '.', ''),
-                'totalConImpuestos'     => [
+                // 'totalConImpuestos'     => [
+                //     [
+                //         'codigo'            => '2',  // IVA
+                //         'codigoPorcentaje'  => '4',  // 15%
+                //         'baseImponible'     => number_format($subtotalMenosDescuento, 2, '.', ''),
+                //         'valor'             => number_format($sale['iva'], 2, '.', ''),    // valor de iva
+                //     ]
+                // ],
+
+                'totalConImpuestos' => [
                     [
-                        'codigo'            => '2',  // IVA
-                        'codigoPorcentaje'  => '4',  // 15%
-                        'baseImponible'     => number_format($subtotalMenosDescuento, 2, '.', ''),
-                        'valor'             => number_format($sale['iva'], 2, '.', ''),    // valor de iva
+                        'codigo'           => '2',
+                        'codigoPorcentaje' => '4',
+                        'baseImponible'    => number_format($subtotalMenosDescuento, 2, '.', ''),
+                        'valor'            => number_format($sale['iva'], 2, '.', ''),
                     ]
                 ],
+
                 
                 'propina'       => '0.00',
                 'importeTotal'  =>  number_format($sale['total'], 2, '.', ''),
@@ -442,103 +454,8 @@ class SaleController extends Controller
             // 3) Firmar XML
             // $certificadoPath = storage_path('app/certificados/firma_prueba.p12'); // Usar separador correcto
             // $claveCertificado = env('CERTIFICADO_CLAVE', '123456'); // Usar variable de entorno
-            $certificadoPath = storage_path('app/certificados/19563945_identity_1718348053.p12'); // Usar separador correcto
-            $claveCertificado = env('CERTIFICADO_CLAVE', 'Amazonas09'); // Usar variable de entorno
-
-
-
-
-
-
-
-if (!file_exists($certificadoPath)) {
-    throw new \Exception('El archivo del certificado no existe');
-}
-
-$p12 = file_get_contents($certificadoPath);
-
-if ($p12 === false) {
-    throw new \Exception('No se puede leer el archivo P12');
-}
-
-$certs = [];
-
-if (!openssl_pkcs12_read($p12, $certs, $claveCertificado)) {
-    throw new \Exception('Contraseña incorrecta o certificado corrupto');
-}
-
-if (!isset($certs['cert'])) {
-    throw new \Exception('Certificado no válido');
-}
-
-// 🔍 Parsear certificado
-$info = openssl_x509_parse($certs['cert']);
-
-if (!$info) {
-    throw new \Exception('No se pudo leer la información del certificado');
-}
-
-// ⏱ Validar vigencia
-$now = time();
-
-if ($now < $info['validFrom_time_t']) {
-    throw new \Exception('El certificado aún no es válido');
-}
-
-if ($now > $info['validTo_time_t']) {
-    throw new \Exception('El certificado ha expirado');
-}
-
-// 👤 Obtener datos del titular
-$subject = $info['subject'] ?? [];
-
-$nombre = $subject['CN'] ?? null;
-$identificacion = $subject['serialNumber'] ?? null;
-
-if (!$nombre || !$identificacion) {
-    throw new \Exception('No se pudo identificar el titular del certificado');
-}
-
-// 🧾 Detectar tipo (cédula / RUC)
-$tipo = match (strlen($identificacion)) {
-    10 => 'CEDULA',
-    13 => 'RUC',
-    default => 'DESCONOCIDO',
-};
-
-if ($tipo === 'DESCONOCIDO') {
-    throw new \Exception('Identificación no válida para SRI');
-}
-
-// 🔐 Validar uso para firma digital
-$usos = $info['extensions']['keyUsage'] ?? '';
-
-if (
-    !str_contains($usos, 'Digital Signature') &&
-    !str_contains($usos, 'Non Repudiation')
-) {
-    throw new \Exception('El certificado no está habilitado para firma digital');
-}
-
-return [
-    'nombre'          => $nombre,
-    'identificacion'  => $identificacion,
-    'tipo'            => $tipo,
-    'valido_desde'    => date('Y-m-d', $info['validFrom_time_t']),
-    'valido_hasta'    => date('Y-m-d', $info['validTo_time_t']),
-];
-
-
-
-
-
-
-
-
-
-
-
-
+            $certificadoPath = storage_path('app/certificados/firma_juel/uanataca_aes.p12'); // Usar separador correcto
+            $claveCertificado = env('CERTIFICADO_CLAVE', 'Parabrisas26'); // Usar variable de entorno
 
 
 
@@ -555,7 +472,7 @@ return [
             }
 
             // 4) Validar contra XSD
-            $resultado = $this->sri->validarContraXsd($xml);
+            $resultado = $this->sri->validarContraXsd($xmlFirmado);
             if (!$resultado['valid']) {
                 return [
                     'code' => 405,
@@ -583,17 +500,50 @@ return [
                 $this->guardarArchivo($rutaEnviados, $xmlFirmado);
                 
                 // 8) Autorizar comprobante
-                $respuestaAutorizacion = $this->sri
-                                            ->autorizarSri(
-                                                $data['infoTributaria']['claveAcceso'], 
-                                                $ambiente);
-                return [
-                    'code'      => 200,
-                    'status'    => 'success',
-                    'message'   => 'Comprobante generado y enviado correctamente',
-                    'clave_acceso' => $data['infoTributaria']['claveAcceso'],
-                    'respuesta' => $respuestaAutorizacion
-                ];
+
+
+
+$intentos = 8;
+$respuestaAutorizacion = null;
+
+for ($i = 0; $i < $intentos; $i++) {
+    sleep(5);
+
+    $respuestaAutorizacion = $this->sri->autorizarSri(
+        $data['infoTributaria']['claveAcceso'],
+        $ambiente
+    );
+
+    if (in_array($respuestaAutorizacion['estado'], ['AUTORIZADO', 'NO AUTORIZADO'])) {
+        break;
+    }
+}
+
+
+                // $respuestaAutorizacion = $this->sri
+                //                             ->autorizarSri(
+                //                                 $data['infoTributaria']['claveAcceso'], 
+                //                                 $ambiente);
+                
+                if($respuestaAutorizacion['estado'] === 'AUTORIZADO'){
+                    return [
+                        'code'      => 200,
+                        'status'    => 'success',
+                        'message'   => 'Comprobante generado y enviado correctamente',
+                        'clave_acceso' => $data['infoTributaria']['claveAcceso'],
+                        'respuesta' => $respuestaAutorizacion
+                    ];
+                }else{
+                    return [
+                        'code'      => 505,
+                        'status'    => 'error',
+                        'message'   => $respuestaAutorizacion['estado'],
+                        'clave_acceso' => $data['infoTributaria']['claveAcceso'],
+                        'respuesta' => $respuestaAutorizacion
+                    ];
+                }
+                                            
+
 
 
             } else {
