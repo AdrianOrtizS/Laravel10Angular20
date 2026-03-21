@@ -130,5 +130,35 @@ Route::middleware('auth:api')->group(function () {
 });
 
 
+// routes/api.php
+Route::get('/facturas/{claveAcceso}/estado', [SaleController::class, 'estadoSri']);
+
+
+
+
+
+
+
     Route::post('factura/generar', [FacturaController::class, 'generar']);
 
+Route::get('/test-p12', function () {
+
+    $p12Path = storage_path('app/certificados/certificado.p12');
+    $password = 'TU_PASSWORD_REAL';
+
+    $pkcs12 = file_get_contents($p12Path);
+
+    if (!$pkcs12) {
+        return 'NO SE PUEDE LEER EL ARCHIVO';
+    }
+
+    if (!openssl_pkcs12_read($pkcs12, $certs, $password)) {
+        return 'PASSWORD INCORRECTO O CERTIFICADO DAÑADO';
+    }
+
+    return [
+        'OK' => true,
+        'tiene_private_key' => isset($certs['pkey']),
+        'tiene_cert' => isset($certs['cert'])
+    ];
+});

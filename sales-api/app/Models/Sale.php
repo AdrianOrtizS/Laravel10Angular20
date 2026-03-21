@@ -30,6 +30,7 @@ class Sale extends Model
         'punto_emision',
         'secuencial',
         'numero_factura',
+        'estado_sri',
         'clave_acceso'
     ];
 

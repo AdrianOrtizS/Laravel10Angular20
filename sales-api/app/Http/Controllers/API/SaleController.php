@@ -26,15 +26,12 @@ use App\Services\SriFacturaService;
 use DOMDocument;
 use Illuminate\Support\Facades\DB;
 use Log;
-
-// use App\Http\Controllers\API\Exception;
-
 use App\Mail\FacturaCustomerPdfXmlMail;
 use Illuminate\Support\Facades\Mail;
+use App\Jobs\ConsultarAutorizacionSriJob;
 
 class SaleController extends Controller
 {
-
     protected $sri;
     protected $iva;
     protected $ruc;
@@ -140,7 +137,6 @@ class SaleController extends Controller
             ]);
     }
 
-
     public function getProducts(Request $request)
     {
         $user = auth()->user();
@@ -188,381 +184,287 @@ class SaleController extends Controller
             'code' => 200,
             'Products' => ProductCollection::make($products)
         ]);
-
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        $user = auth()->user();
-        
-        $pointOfSale = $user->pointsOfSale()->with('branch')->first();
-        $id_branch = $pointOfSale->id_branch;
-                
-        if(!$pointOfSale) {
-            return response()->json([
-                'error' => 'El usuario no tiene puntos de venta asignados'
-            ], 403);
-        }
-        if (!$id_branch) {
-            return response()->json([
-                'error' => 'Usuario no tiene sucursal asignada'
-            ], 403);
-        }
 
-        $ultimoSecuencial = $pointOfSale->secuencial_actual;
-
-        $nuevoSecuencial = $ultimoSecuencial ? $ultimoSecuencial + 1 : 1;
-        $numeroConCeros = str_pad($nuevoSecuencial, 9, '0', STR_PAD_LEFT);
-
-        $num_establecimiento = $pointOfSale?->branch?->num_establecimiento;        
-
-        $validator = Validator::make($request->all(), [
-            'id_customer'   => 'required|exists:customers,id',
-            'items'         => 'required|array|min:1',
-            'items.*.id_product' => 'required|exists:products,id',
-            'items.*.quantity'   => 'required|integer|min:1',
+public function store(Request $request)
+{
+    $user        = auth()->user();
+    $pointOfSale = $user->pointsOfSale()->with('branch')->first();
+ 
+    if (!$pointOfSale) {
+        return response()->json(['error' => 'El usuario no tiene puntos de venta asignados'], 403);
+    }
+ 
+    $id_branch = $pointOfSale->id_branch;
+    if (!$id_branch) {
+        return response()->json(['error' => 'Usuario no tiene sucursal asignada'], 403);
+    }
+ 
+    $validator = Validator::make($request->all(), [
+        'id_customer'            => 'required|exists:customers,id',
+        'items'                  => 'required|array|min:1',
+        'items.*.id_product'     => 'required|exists:products,id',
+        'items.*.quantity'       => 'required|integer|min:1',
+    ]);
+ 
+    if ($validator->fails()) {
+        return response()->json(['code' => 403, 'message' => $validator->errors()]);
+    }
+ 
+    $ultimoSecuencial    = $pointOfSale->secuencial_actual;
+    $nuevoSecuencial     = $ultimoSecuencial ? $ultimoSecuencial + 1 : 1;
+    $numeroConCeros      = str_pad($nuevoSecuencial, 9, '0', STR_PAD_LEFT);
+    $num_establecimiento = $pointOfSale?->branch?->num_establecimiento;
+ 
+    try {
+        DB::beginTransaction();
+ 
+        $sale = Sale::create([
+            'id_customer'      => $request->id_customer,
+            'id_point_of_sale' => $pointOfSale->id,
+            'type_receivable'  => $request->type_receivable,
+            'establecimiento'  => $num_establecimiento,
+            'punto_emision'    => $pointOfSale->codigo_punto_emision,
+            'secuencial'       => $numeroConCeros,
+            'numero_factura'   => $num_establecimiento . '-' . $pointOfSale->codigo_punto_emision . '-' . $numeroConCeros,
+            'iva'              => $request->iva,
+            'subtotal'         => $request->subtotal,
+            'total'            => $request->total,
+            'discount'         => $request->discount,
+            'estado_sri'       => 'PENDIENTE',
+            'clave_acceso'     => $this->sri->generarClaveAcceso(
+                date('d-m-Y'),
+                '01',
+                $this->ruc['value'],
+                env('SRI_AMBIENTE', '1'),
+                $num_establecimiento,
+                $pointOfSale->codigo_punto_emision,
+                $numeroConCeros,
+                '12345678',
+                '1'
+            ),
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['code' => 403, 'message' => $validator->errors()]);
-        }
-
-        try{
-            DB::beginTransaction();
-
-            $codigoNumerico = str_pad(random_int(0, 99999999), 8, '0', STR_PAD_LEFT);
-
-            // Crear el pedido
-            $sale = Sale::create([
-                'id_customer'   => $request->id_customer,
-                'id_point_of_sale' =>   $pointOfSale->id,
-                'type_receivable' => $request->type_receivable,
-                'establecimiento' => $num_establecimiento,  // 1er 001
-                'punto_emision'   => $pointOfSale->codigo_punto_emision, //2do 001
-                'secuencial'      => $numeroConCeros,   // 0000000023
-                'numero_factura'  => $num_establecimiento.'-'.$pointOfSale->codigo_punto_emision.'-'.$numeroConCeros, // 001-001-0000000023
-                'iva'           => $request->iva,
-                'subtotal'      => $request->subtotal,
-                'total'         => $request->total,
-                'discount'      => $request->discount,
-                'clave_acceso'  => $this->sri->generarClaveAcceso( 
-                                        date('d-m-Y'),                      // 8 digitos
-                                        '01',                               // 01 Factura 
-                                        $this->ruc['value'],                // $ruc emisor,
-                                        '1',                                // ambiente 1=pruebas, 2=produccion
-                                        $num_establecimiento,
-                                        $pointOfSale->codigo_punto_emision, // '001'    $serie 001001
-                                        $numeroConCeros,                    // 000000123 
-                                        $codigoNumerico,                         // $codigoNumerico,
-                                        '1'                                 // $tipoEmision    
-                                    )
+        sleep(2);
+        foreach ($request->items as $item) {
+            SaleDetail::create([
+                'id_sale'    => $sale->id,
+                'id_product' => $item['id_product'],
+                'cod_pro'    => $item['cod_pro'],
+                'quantity'   => $item['quantity'],
+                'price'      => $item['price'],
+                'subtotal'   => $item['subtotal'],
+                'discount'   => $item['discount'],
             ]);
-
-            // Agregar detalles del pedido
-            foreach ($request->items as $item) {
-                $product = Product::find($item['id_product']);
-
-                SaleDetail::create([
-                    'id_sale'   => $sale->id,
-                    'id_product'=> $item['id_product'],
-                    'cod_pro'   => $item['cod_pro'],
-                    'quantity'  => $item['quantity'],
-                    'price'     => $item['price'],
-                    'subtotal'  => $item['subtotal'],
-                    'discount'  => $item['discount']
-                ]);
-
-                $this->updateStockSale( $item['id_product'], 
-                                        $id_branch, 
-                                        $item['quantity']);
-
-                $this->updateSecuencialPointSale( 
-                                        $id_branch, 
-                                        $pointOfSale->codigo_punto_emision);
-            
-            }
-
-            $resp = $this->generarFirmarEnviar($sale);
-            
-            if($resp['code'] === 500 || $resp['code'] === 405){
-                DB::rollBack();
-                return response()->json([ 'resp' => $resp ]);            
-            }else{
-                DB::commit();
-                
-                return response()->json([ 'sale' => $sale, 
-                                          'resp' => $resp ]);
-            }
-
-        }catch (\Exception $e) {
+ 
+            $this->updateStockSale($item['id_product'], $id_branch, $item['quantity']);
+            $this->updateSecuencialPointSale($id_branch, $pointOfSale->codigo_punto_emision);
+        }
+        sleep(10);
+        $resp = $this->generarFirmarEnviar($sale);
+ 
+        if (in_array($resp['code'], [500, 422, 400])) {
             DB::rollBack();
-            // Log::error('Error creating sale: ' . $e->getMessage());
+            return response()->json(['resp' => $resp]);
+        }
+ 
+        DB::commit();
+        return response()->json(['sale' => $sale, 'resp' => $resp]);
+ 
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Log::error('Error creating sale: ' . $e->getMessage());
+        return response()->json([
+            'code'    => 500,
+            'status'  => 'error',
+            'message' => 'Error en el proceso',
+            'errors'  => $e->getMessage(),
+        ]);
+    }
+}
+ 
+public function generarFirmarEnviar($sale): array
+{
+    if (!$sale || !$sale->customer) {
+        return ['code' => 422, 'status' => 'error', 'message' => 'Datos de venta o cliente incompletos'];
+    }
+ 
+    $subtotalMenosDescuento = $sale['subtotal'] - $sale['discount'];
+    $fechaEmision           = \Carbon\Carbon::parse($sale['created_at'])->format('d/m/Y');
+    $ambienteCode           = env('SRI_AMBIENTE', '1');
+    $ambiente               = $ambienteCode === '1' ? 'pruebas' : 'produccion';
+ 
+    $data = [
+        'version' => '2.1.0',
+        'id'      => 'comprobante',
+        'infoTributaria' => [
+            'ambiente'           => $ambienteCode,
+            'tipoEmision'        => '1',
+            'razonSocial'        => $this->razonSocial['value']     ?? '',
+            'nombreComercial'    => $this->nombreComercial['value'] ?? '',
+            'ruc'                => $this->ruc['value']              ?? '',
+            'claveAcceso'        => $sale['clave_acceso'],
+            'codDoc'             => '01',
+            'estab'              => $sale['establecimiento'],
+            'ptoEmi'             => $sale['punto_emision'],
+            'secuencial'         => $sale['secuencial'],
+            'dirMatriz'          => 'Av. Los Libertadores Oe4-131 y pasaje Viracocha',
+            'contribuyenteRimpe' => 'CONTRIBUYENTE RÉGIMEN RIMPE',
+        ],
+        'infoFactura' => [
+            'fechaEmision'                => $fechaEmision,
+            'dirEstablecimiento'          => 'Av. Los Libertadores Oe4-131 y pasaje Viracocha',
+            'obligadoContabilidad'        => 'NO',
+            'tipoIdentificacionComprador' => $this->obtenerTipoIdentificacion($sale->customer['num_identificador']),
+            'razonSocialComprador'        => $sale->customer['name'],
+            'identificacionComprador'     => $sale->customer['num_identificador'],
+            'totalSinImpuestos'           => number_format($sale['subtotal'], 2, '.', ''),
+            'totalDescuento'              => number_format($sale['discount'], 2, '.', ''),
+            'totalConImpuestos' => [[
+                'codigo'           => '2',
+                'codigoPorcentaje' => '0',
+                'baseImponible'    => number_format($subtotalMenosDescuento, 2, '.', ''),
+                'valor'            => '0.00',
+            ]],
+            'propina'      => '0.00',
+            'importeTotal' => number_format($sale['total'], 2, '.', ''),
+            'moneda'       => 'DOLAR',
+            'pagos' => [[
+                'pago' => [
+                    'formaPago' => '01',
+                    'total'     => number_format($sale['total'], 2, '.', ''),
+                ],
+            ]],
+        ],
+        'detalles' => $sale->details->map(function ($detail) {
+            $base = $detail['subtotal'] - $detail['discount'];
             return [
-                'code'  => 405,
-                'status' => 'error',
-                'message' => 'Error en el proceso',
-                'errors' => $e->getMessage()
+                'codigoPrincipal'        => $detail['product']->cod_pro ?? '001',
+                'descripcion'            => $detail['product']->name    ?? 'Producto sin nombre',
+                'cantidad'               => number_format($detail['quantity'], 2, '.', ''),
+                'precioUnitario'         => number_format($detail['price'],    2, '.', ''),
+                'descuento'              => number_format($detail['discount'],  2, '.', ''),
+                'precioTotalSinImpuesto' => number_format($base,               2, '.', ''),
+                'impuestos' => [[
+                    'codigo'           => '2',
+                    'codigoPorcentaje' => '0',
+                    'tarifa'           => '0.00',
+                    'baseImponible'    => number_format($base, 2, '.', ''),
+                    'valor'            => '0.00',
+                ]],
+            ];
+        }),
+        'infoAdicional' => [
+            ['nombre' => 'Email',    'valor' => $sale->customer->email ?? 'cliente@correo.com'],
+            ['nombre' => 'Telefono', 'valor' => $sale->customer->phone ?? '0999999999'],
+        ],
+    ];
+ 
+    $claveAcceso   = $data['infoTributaria']['claveAcceso'];
+    $nombreArchivo = $claveAcceso . '.xml';
+ 
+    // 1) Generar XML
+    $xml = $this->sri->generarXml($data);
+    if (!$xml) {
+        return ['code' => 500, 'status' => 'error', 'message' => 'Error al generar XML'];
+    }
+    $this->guardarArchivo(storage_path('app/facturas/generados/' . $nombreArchivo), $xml);
+ 
+    // 2) Firmar XML
+    $xmlFirmado = $this->sri->firmarXml(
+        $xml,
+        storage_path('app/certificados/firma_juel/uanataca_aes.p12'),
+        env('CERTIFICADO_CLAVE')
+    );
+    if (!$xmlFirmado) {
+        return ['code' => 500, 'status' => 'error', 'message' => 'Error al firmar XML'];
+    }
+    $this->guardarArchivo(storage_path('app/facturas/firmados/' . $nombreArchivo), $xmlFirmado);
+ 
+    // 3) Validar XSD
+    $xsd = $this->sri->validarContraXsd($xmlFirmado);
+    if (!$xsd['valid']) {
+        return ['code' => 422, 'status' => 'error', 'message' => 'XML inválido contra XSD', 'errors' => $xsd['errors']];
+    }
+ 
+    // 4) Enviar al SRI
+    $recepcion = $this->sri->enviarComprobanteSri($xmlFirmado, $ambiente);
+    \Log::info('SRI recepción', ['estado' => $recepcion['estado'], 'clave' => $claveAcceso]);
+ 
+    if (!isset($recepcion['estado'])) {
+        return ['code' => 500, 'status' => 'error', 'message' => 'Respuesta inválida del SRI'];
+    }
+    
+    var_dump($recepcion['estado']);
+    var_dump($recepcion['mensajes']);
+
+    // DEVUELTA con id=70: clave en procesamiento — continuar igual que RECIBIDA
+    if ($recepcion['estado'] === 'DEVUELTA') {
+        $es70 = collect($recepcion['mensajes'])->contains(fn($m) => ($m['identificador'] ?? '') === '70');
+        if (!$es70) {
+            return [
+                'code'    => 400,
+                'status'  => 'error',
+                'message' => 'Comprobante DEVUELTO por el SRI',
+                'errores' => $recepcion['mensajes'],
             ];
         }
     }
-
-    
-    public function generarFirmarEnviar($sale)
-    {   
-        // Validación básica de datos requeridos
-        if (!$sale || !$sale->customer) {
-                return [
-                    'code' => 405,
-                    'status' => 'error',
-                    'message' => 'Datos de venta o cliente incompletos',
-                    'errors' => 'Datos de venta o cliente incompletos'
-                ];
-            throw new \Exception('Datos de venta o cliente incompletos');
-        }
-
-        // Cálculos previos para evitar repetir operaciones
-        $subtotalMenosDescuento = $sale['subtotal'] - $sale['discount'];
-        $fechaEmision = \Carbon\Carbon::parse($sale['created_at'])->format('d/m/Y');
-
-        $data = [
-            'version'   => '2.1.0',         // versión vigente del XSD
-            'id'        => 'comprobante',   // atributo requerido en el nodo <factura>
-            'infoTributaria' => [
-                'ambiente'         => '1',  // 1 = pruebas, 2 = producción
-                'tipoEmision'      => '1',  // 1 = Normal (lo habitual) -- 2 = Indisponibilidad del sistema 
-                'razonSocial'      => $this->razonSocial['value'] ?? '',
-                'nombreComercial'  => $this->nombreComercial['value'] ?? '', // opcional pero recomendado
-                'ruc'              => $this->ruc['value'] ?? '',
-                'claveAcceso'      => $sale['clave_acceso'], // 49 dígitos generados
-                'codDoc'           => '01',                  // 01 = Factura
-                'estab'            => $sale['establecimiento'],
-                'ptoEmi'           => $sale['punto_emision'],
-                'secuencial'       => $sale['secuencial'],
-                'dirMatriz'        => 'Av. Los Libertadores Oe4-131 y pasaje Viracocha',
-            ],
-            'infoFactura' => [
-                'fechaEmision'       => $fechaEmision,
-                'dirEstablecimiento' => 'Av. Los Libertadores Oe4-131 y pasaje Viracocha',
-                // 'contribuyenteEspecial' => '5368',          // opcional
-                // 'obligadoContabilidad' => 'NO',             // obligatorio en muchos casos
-
-                'tipoIdentificacionComprador' => $this->obtenerTipoIdentificacion($sale->customer['num_identificador']),      
-                                                // 05=cédula, 04=RUC, 06=pasaporte, 07=consumidorFinal, 08=ident del exterior
-                
-                'razonSocialComprador'      => $sale->customer['name'],
-                'identificacionComprador'   => $sale->customer['num_identificador'],
-                // 'direccionComprador'     => 'Direccion comprador',
-                'totalSinImpuestos'     => number_format($sale['subtotal'], 2, '.', ''),
-                'totalDescuento'        => number_format($sale['discount'], 2, '.', ''),
-                // 'totalConImpuestos'     => [
-                //     [
-                //         'codigo'            => '2',  // IVA
-                //         'codigoPorcentaje'  => '4',  // 15%
-                //         'baseImponible'     => number_format($subtotalMenosDescuento, 2, '.', ''),
-                //         'valor'             => number_format($sale['iva'], 2, '.', ''),    // valor de iva
-                //     ]
-                // ],
-
-                'totalConImpuestos' => [
-                    [
-                        'codigo'           => '2',
-                        'codigoPorcentaje' => '4',
-                        'baseImponible'    => number_format($subtotalMenosDescuento, 2, '.', ''),
-                        'valor'            => number_format($sale['iva'], 2, '.', ''),
-                    ]
-                ],
-
-                
-                'propina'       => '0.00',
-                'importeTotal'  =>  number_format($sale['total'], 2, '.', ''),
-                'moneda'        => 'DOLAR',
-                'pagos' => [
-                    [
-                        'pago' => [
-                                    //01    sin utilizar sistema financiero
-                                    //16    tarjeta de debito
-                                    //17    dinero electronico
-                                    //18    tarjeta prepago
-                                    //19    tarjeta de credito
-                                    //20    otros con utilizacion del sistema financiero
-                            'formaPago' => '01',     
-                            'total'     => number_format($sale['total'], 2, '.', ''),       // igual a importeTotal o suma de pagos
-                            'plazo'     => '0',      // opcional
-                            'unidadTiempo' => 'dias' // opcional: dias | meses | años
-                        ]
-                    ]
-                ],
-                
-            ],
-            'detalles' => $sale->details->map(function($detail){
-                
-                $baseImponible = $detail['subtotal'] - $detail['discount'];
-                $ivaCalculado = round(($baseImponible * ($this->iva['value'] ?? 15)) / 100, 2);
-
-                return [
-                    'codigoPrincipal'   => $detail['product']->cod_pro ?? '001',
-                    'descripcion'       => $detail['product']->name ?? 'Producto sin nombre',
-                    'cantidad'          => number_format($detail['quantity'], 2, '.', ''),
-                    'precioUnitario'    => number_format($detail['price'], 2, '.', ''),
-                    'descuento'         => number_format($detail['discount'], 2, '.', ''),
-                    'precioTotalSinImpuesto' => number_format($baseImponible, 2, '.', ''),
-                    'impuestos' => [
-                        [
-                            'codigo'            => '2',  //  IVA
-                            'codigoPorcentaje'  => '4',  //  4 -> 15%
-                            'tarifa'            => '15',
-                            'baseImponible'     => number_format($baseImponible, 2, '.', ''),
-                            'valor'             => number_format($ivaCalculado, 2, '.', ''),
-                        ]
-                    ]
-                ];
-            }),
-            'infoAdicional' => [
-                
-                    // 'nombre' => 'email',
-                    // 'valor' => 'cliente@correo.com'
-                    ['nombre' => 'Email',     'valor' => $sale->customer->email ?? 'cliente@correo.com'],
-                    ['nombre' => 'Telefono',  'valor' => $sale->customer->phone ?? '0999999999']
-                
-            ]
+ 
+    // Cualquier estado que no sea RECIBIDA ni DEVUELTA (con id=70) es error
+    if (!in_array($recepcion['estado'], ['RECIBIDA', 'DEVUELTA'])) {
+        return [
+            'code'    => 500,
+            'status'  => 'error',
+            'message' => 'Estado inesperado del SRI: ' . $recepcion['estado'],
+            'errores' => $recepcion['mensajes'] ?? [],
         ];
-        
-
-        try {
-            // 1) Generar XML
-            $xml = $this->sri->generarXml($data);
-            
-            if (!$xml) {
-                return [
-                    'code' => 405,
-                    'status' => 'error',
-                    'message' => 'error al generar xml',
-                    'errors' => 'Error al generar xml'
-                ];
-                throw new \Exception('Error al generar XML');
-            }
-
-            $nombreArchivo = $data['infoTributaria']['claveAcceso'] . '.xml';
-
-            // 2) Guardar XML original
-            $rutaGenerados = storage_path('app/facturas/generados/' . $nombreArchivo);
-            $this->guardarArchivo($rutaGenerados, $xml);
-
-            // 3) Firmar XML
-            // $certificadoPath = storage_path('app/certificados/firma_prueba.p12'); // Usar separador correcto
-            // $claveCertificado = env('CERTIFICADO_CLAVE', '123456'); // Usar variable de entorno
-            $certificadoPath = storage_path('app/certificados/firma_juel/uanataca_aes.p12'); // Usar separador correcto
-            $claveCertificado = env('CERTIFICADO_CLAVE', 'Parabrisas26'); // Usar variable de entorno
-
-
-
-            $xmlFirmado = $this->sri->firmarXml($xml, $certificadoPath, $claveCertificado);
-            
-            if (!$xmlFirmado) {
-                return [
-                    'code' => 405,
-                    'status' => 'error',
-                    'message' => 'error al firmar xml',
-                    'errors' => 'Error al firmar XML'
-                ];
-                throw new \Exception('Error al firmar XML');
-            }
-
-            // 4) Validar contra XSD
-            $resultado = $this->sri->validarContraXsd($xmlFirmado);
-            if (!$resultado['valid']) {
-                return [
-                    'code' => 405,
-                    'status' => 'error',
-                    'message' => 'error al validar contra xsd',
-                    'errors' => $resultado['errors']
-                ];
-            }
-
-            // 5) Guardar XML firmado
-            $rutaFirmados = storage_path('app/facturas/firmados/' . $nombreArchivo);
-            $this->guardarArchivo($rutaFirmados, $xmlFirmado);
-
-            // 6) Enviar al SRI
-            // $ambiente = 1;
-            $ambiente = env('SRI_AMBIENTE', '1') === '1' ? 'pruebas' : 'produccion';
-
-            // Enviar comprobante
-            $respuesta = $this->sri->enviarComprobanteSri($xmlFirmado, $ambiente);
-
-            if ($respuesta['estado'] === 'RECIBIDA') {
-                
-                // 7) Guardar XML enviado y recibido por el sri
-                $rutaEnviados = storage_path('app/facturas/enviados/' . $nombreArchivo);
-                $this->guardarArchivo($rutaEnviados, $xmlFirmado);
-                
-                // 8) Autorizar comprobante
-
-
-
-$intentos = 8;
-$respuestaAutorizacion = null;
-
-for ($i = 0; $i < $intentos; $i++) {
-    sleep(5);
-
-    $respuestaAutorizacion = $this->sri->autorizarSri(
-        $data['infoTributaria']['claveAcceso'],
-        $ambiente
-    );
-
-    if (in_array($respuestaAutorizacion['estado'], ['AUTORIZADO', 'NO AUTORIZADO'])) {
-        break;
     }
+ 
+    // 5) Encolar Job de autorización en background
+    $ahora = now()->timestamp;
+     
+    Sale::where('id', $sale->id)->update(['estado_sri' => 'PENDIENTE']);
+     
+    \App\Jobs\ConsultarAutorizacionSriJob::dispatch(
+        $claveAcceso,   // clave de acceso
+        $ambiente,      // 'pruebas' o 'produccion'
+        $sale->id,      // id de la venta
+        $ahora,         // creadoEn  — timestamp del primer despacho
+        0,              // reenvios  — contador de reenvíos (empieza en 0)
+        $ahora          // ultimoEnvio — timestamp del envío inicial al SRI
+    )->delay(now()->addSeconds(10));
+
+    return [
+        'code'         => 202,
+        'status'       => 'processing',
+        'message'      => 'Comprobante enviado al SRI, procesando en background',
+        'clave_acceso' => $claveAcceso,
+    ];
+}
+ 
+public function estadoSri(string $claveAcceso): \Illuminate\Http\JsonResponse
+{
+    $sale = Sale::where('clave_acceso', $claveAcceso)->first();
+ 
+    if (!$sale) {
+        return response()->json(['code' => 404, 'message' => 'No encontrada'], 404);
+    }
+ 
+    return response()->json([
+        'code'                => 200,
+        'estado_sri'          => $sale->estado_sri,
+        'numero_autorizacion' => $sale->numero_autorizacion,
+        'fecha_autorizacion'  => $sale->fecha_autorizacion_sri,
+        'clave_acceso'        => $claveAcceso,
+    ]);
 }
 
 
-                // $respuestaAutorizacion = $this->sri
-                //                             ->autorizarSri(
-                //                                 $data['infoTributaria']['claveAcceso'], 
-                //                                 $ambiente);
-                
-                if($respuestaAutorizacion['estado'] === 'AUTORIZADO'){
-                    return [
-                        'code'      => 200,
-                        'status'    => 'success',
-                        'message'   => 'Comprobante generado y enviado correctamente',
-                        'clave_acceso' => $data['infoTributaria']['claveAcceso'],
-                        'respuesta' => $respuestaAutorizacion
-                    ];
-                }else{
-                    return [
-                        'code'      => 505,
-                        'status'    => 'error',
-                        'message'   => $respuestaAutorizacion['estado'],
-                        'clave_acceso' => $data['infoTributaria']['claveAcceso'],
-                        'respuesta' => $respuestaAutorizacion
-                    ];
-                }
-                                            
-
-
-
-            } else {
-                return [
-                    'code'      => 405,
-                    'status'    => 'error',
-                    'message'   => 'SRI no recibió el XML firmado',
-                    'respuesta' => $respuesta
-                ];
-            }
-
-        } catch (\Exception $e) {
-            return [
-                'code'  => 500,
-                'status' => 'error',
-                'message' => 'Error en el proceso: ' . $e->getMessage()
-            ];
-        }
-    }
 
     /**
      * Guarda un archivo asegurándose de que el directorio existe
@@ -613,11 +515,9 @@ for ($i = 0; $i < $intentos; $i++) {
         return $pointOfSale->fresh();
     }
 
-    
-
-    public function sendFacturaPdfXml(Request $request, $clave, $mailCustomerSale)
+    public function sendFacturaPdfXml($clave, $mailCustomerSale)
     {
-        $numero_factura = $request->numero_factura;
+        $numero_factura = $clave;
 
         // rutas de tus archivos ya generados
         $pdfPath = storage_path("app/facturas/pdfs/{$clave}.pdf");
@@ -634,7 +534,6 @@ for ($i = 0; $i < $intentos; $i++) {
 
         return response()->json(['code'=>200, 'message'=>'Factura enviada con éxito.']);
     }
-
 
     public function pdf($id)
     {
@@ -661,7 +560,6 @@ for ($i = 0; $i < $intentos; $i++) {
         return response()->download($path, $filename, [
             'Content-Type' => 'application/pdf',
         ]); 
-
     }
 
     public function rePrintFacturaPdf($id)
@@ -675,7 +573,6 @@ for ($i = 0; $i < $intentos; $i++) {
 
         // Mostrar en el navegador (abre el PDF directamente)
         return $pdf->stream($sale->clave_acceso . '.pdf');
-
     }
 
     /**
@@ -714,8 +611,6 @@ for ($i = 0; $i < $intentos; $i++) {
         }
         return response()->json([$data['code'], 
                                  $data['message']]);
-
     }
-
     
 }
