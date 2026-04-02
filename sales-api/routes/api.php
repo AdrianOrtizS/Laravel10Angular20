@@ -80,6 +80,7 @@ Route::middleware('auth:api')->group(function () {
     Route::resource("products", ProductController::class);
     Route::post("products/{id}",    [ProductController::class, 'update']);
     Route::get("getCategories",     [ProductController::class, 'getCategories']);
+    Route::get("getTarifasIva",     [ProductController::class, 'getTarifasIva']);
 
     Route::resource("branches", BranchController::class);
     

@@ -19,7 +19,8 @@ class Product extends Model
         'price',
         'imagen',
         'state',
-        'id_categorie'
+        'id_categorie',
+        'id_tarifa_iva'
     ];
 
     public function setCreatedAtAttribute($value)
@@ -37,6 +38,11 @@ class Product extends Model
     public function categorie()
     {                                            //table products
         return $this->belongsTo(Categorie::class, 'id_categorie');
+    }
+
+    public function tarifa_iva()
+    {                                            //table tarifas_iva
+        return $this->belongsTo(Tarifa_iva::class, 'id_tarifa_iva');
     }
 
 

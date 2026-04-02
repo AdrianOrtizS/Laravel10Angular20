@@ -21,6 +21,7 @@ class Sale extends Model
         'id_customer', 
         'subtotal',
         'iva',
+        'iva0',
         'total',
         'discount',
         'type_receivable',
@@ -31,7 +32,10 @@ class Sale extends Model
         'secuencial',
         'numero_factura',
         'estado_sri',
-        'clave_acceso'
+        'clave_acceso',
+        'numero_autorizacion',
+        'fecha_autorizacion_sri',
+        'ambiente'
     ];
 
     public function setCreatedAtAttribute($value){

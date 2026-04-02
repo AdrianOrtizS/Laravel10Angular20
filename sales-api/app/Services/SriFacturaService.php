@@ -372,7 +372,6 @@ class SriFacturaService
                 'curl'    => [CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => false],
             ]);
             sleep(3);
- 
             $body = (string) $response->getBody();
             $dom  = new DOMDocument();
             if (!@$dom->loadXML($body)) {
@@ -430,7 +429,8 @@ class SriFacturaService
                 'timeout' => 15,
                 'curl'    => [CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => false],
             ]);
- 
+
+            sleep(3);
             $body = (string) $response->getBody();
             $dom  = new DOMDocument();
             if (!@$dom->loadXML($body)) {
@@ -531,4 +531,27 @@ class SriFacturaService
  
         return implode(',', $parts);
     }
+
+    // public function sendFacturaPdfXml($clave, $mailCustomerSale)
+    // {
+    //     $numero_factura = $clave;
+
+    //     // rutas de tus archivos ya generados
+    //     $pdfPath = storage_path("app/facturas/pdfs/{$clave}.pdf");
+    //     $xmlPath = storage_path("app/facturas/autorizados/{$clave}.xml");
+
+    //     if (!file_exists($pdfPath)) {
+    //         error_log("No existe: " . $pdfPath);
+    //         return false;
+    //     }
+    //     if (!file_exists($xmlPath)) {
+    //         error_log("No existe: " . $xmlPath);
+    //         return false;
+    //     }
+
+    //     Mail::to("adrian-2222@hotmail.com")->send(new FacturaCustomerPdfXmlMail($pdfPath, $xmlPath, $numero_factura));
+
+    //     return true;
+    // }
+
 }

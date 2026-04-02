@@ -4,12 +4,14 @@ namespace App\Jobs;
 
 use App\Models\Sale;
 use App\Services\SriFacturaService;
+use App\Services\FacturaService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class ConsultarAutorizacionSriJob implements ShouldQueue
 {
@@ -18,211 +20,224 @@ class ConsultarAutorizacionSriJob implements ShouldQueue
     public int $tries   = 1;
     public int $timeout = 60;
 
-    // Tiempos en segundos
-    private const LIMITE_REENVIO  = 10 * 60;  // 10 min sin respuesta → reenviar
-    private const LIMITE_ABANDONO = 120 * 60; // 120 min total → abandonar
-
-    private const MAX_REENVIOS    = 3;         // máximo 3 reenvíos antes de abandonar
+    private const LIMITE_REENVIO  = 20 * 60;
+    private const LIMITE_ABANDONO = 6 * 60 * 60;
+    private const MAX_REENVIOS    = 3;
 
     public function __construct(
         private readonly string $claveAcceso,
         private readonly string $ambiente,
         private readonly int    $saleId,
-        private readonly int    $creadoEn    = 0,  // timestamp del primer despacho
-        private readonly int    $reenvios    = 0,  // cuántas veces se ha reenviado al SRI
-        private readonly int    $ultimoEnvio = 0,  // timestamp del último envío al SRI
+        private readonly int    $creadoEn    = 0,
+        private readonly int    $reenvios    = 0,
+        private readonly int    $ultimoEnvio = 0,
     ) {}
 
     public function handle(SriFacturaService $sri): void
     {
-        $sale = Sale::find($this->saleId);
+        $sale = Sale::with('customer')->find($this->saleId);
+
         if (!$sale) {
             Log::error('SRI Job: Sale no encontrada', ['id' => $this->saleId]);
             return;
         }
 
-        $respuesta          = $sri->autorizarSri($this->claveAcceso, $this->ambiente);
-        $transcurridos      = now()->timestamp - $this->creadoEn;
-        $desdeUltimoEnvio   = now()->timestamp - $this->ultimoEnvio;
+        $ahora = now()->timestamp;
+
+        $creadoEn    = $this->creadoEn    ?: $ahora;
+        $ultimoEnvio = $this->ultimoEnvio ?: $ahora;
+
+        $transcurridos    = $ahora - $creadoEn;
+        $desdeUltimoEnvio = $ahora - $ultimoEnvio;
+
+        $respuesta = $sri->autorizarSri($this->claveAcceso, $this->ambiente);
+
+        // 🔥 VALIDACIÓN RESPONSE
+        if (!isset($respuesta['estado'])) {
+            Log::error('Respuesta inválida SRI', $respuesta);
+
+            $this->redespachar(60, $creadoEn, $ultimoEnvio);
+            return;
+        }
 
         Log::info('SRI Job', [
-            'clave'         => $this->claveAcceso,
-            'estado'        => $respuesta['estado'],
-            'tiempo_total'  => $transcurridos . 's',
-            'desde_envio'   => $desdeUltimoEnvio . 's',
-            'reenvios'      => $this->reenvios,
+            'clave'        => $this->claveAcceso,
+            'estado'       => $respuesta['estado'],
+            'tiempo_total' => $transcurridos . 's',
+            'desde_envio'  => $desdeUltimoEnvio . 's',
+            'reenvios'     => $this->reenvios,
         ]);
 
-        // ------------------------------------------------------------------
-        // AUTORIZADO — estado final exitoso
-        // ------------------------------------------------------------------
+        // ================= AUTORIZADO =================
         if ($respuesta['estado'] === 'AUTORIZADO') {
             $this->procesarAutorizado($respuesta, $sale);
             return;
         }
 
-        // ------------------------------------------------------------------
-        // NO AUTORIZADO — estado final, el SRI rechazó el comprobante
-        // ------------------------------------------------------------------
+        // ================= NO AUTORIZADO =================
         if ($respuesta['estado'] === 'NO AUTORIZADO') {
             $this->procesarNoAutorizado($respuesta, $sale);
             return;
         }
 
-        // ------------------------------------------------------------------
-        // ERROR de red/conexión — reintentar pronto, no contar como reenvío
-        // ------------------------------------------------------------------
+        // ================= ERROR SRI =================
         if ($respuesta['estado'] === 'ERROR') {
-            Log::warning('SRI Job: error de conexión, reintentando en 30s', [
-                'clave'   => $this->claveAcceso,
-                'mensaje' => $respuesta['mensaje'] ?? null,
-            ]);
 
             if ($transcurridos >= self::LIMITE_ABANDONO) {
                 $sale->update(['estado_sri' => 'ERROR']);
-                Log::error('SRI Job: abandonado por error de conexión persistente', ['clave' => $this->claveAcceso]);
                 return;
             }
 
-            $this->redespachar(30, $sale);
+            Log::warning('SRI Job: error conexión, retry 30s');
+
+            $this->redespachar(30, $creadoEn, $ultimoEnvio);
             return;
         }
 
-        // ------------------------------------------------------------------
-        // EN_PROCESO — SRI aún no tiene la clave o está procesando
-        // ------------------------------------------------------------------
-
-        // Límite total absoluto
+        // ================= TIEMPO MÁXIMO =================
         if ($transcurridos >= self::LIMITE_ABANDONO) {
-            Log::error('SRI Job: tiempo límite absoluto alcanzado', [
-                'clave'    => $this->claveAcceso,
-                'reenvios' => $this->reenvios,
+
+            Log::error('Tiempo máximo alcanzado', [
+                'clave' => $this->claveAcceso
             ]);
-            $sale->update(['estado_sri' => 'PENDIENTE']);
+
+            $sale->update(['estado_sri' => 'EXPIRADO']);
             return;
         }
 
-        // ¿Han pasado 10 minutos desde el último envío sin respuesta? → REENVIAR
+        // ================= REENVÍO =================
         if ($desdeUltimoEnvio >= self::LIMITE_REENVIO && $this->reenvios < self::MAX_REENVIOS) {
 
             $xmlPath = storage_path('app/facturas/firmados/' . $this->claveAcceso . '.xml');
 
             if (!file_exists($xmlPath)) {
-                Log::error('SRI Job: XML firmado no encontrado para reenvío', [
-                    'clave' => $this->claveAcceso,
-                    'path'  => $xmlPath,
-                ]);
+                Log::error('XML no encontrado', ['clave' => $this->claveAcceso]);
                 $sale->update(['estado_sri' => 'ERROR']);
                 return;
             }
 
-            Log::warning('SRI Job: reenviando comprobante al SRI', [
-                'clave'         => $this->claveAcceso,
-                'reenvio_num'   => $this->reenvios + 1,
-                'desde_envio'   => $desdeUltimoEnvio . 's',
+            Log::warning('Reenviando al SRI', [
+                'reenvio' => $this->reenvios + 1
             ]);
 
-            $xmlFirmado = file_get_contents($xmlPath);
-            $recepcion  = $sri->enviarComprobanteSri($xmlFirmado, $this->ambiente);
-
-            Log::info('SRI Job: resultado reenvío', [
-                'clave'  => $this->claveAcceso,
-                'estado' => $recepcion['estado'],
-            ]);
+            $xml = file_get_contents($xmlPath);
+            $recepcion = $sri->enviarComprobanteSri($xml, $this->ambiente);
 
             $ahora = now()->timestamp;
 
+            // 🔥 VALIDAR RESPUESTA
+            if (!isset($recepcion['estado'])) {
+                Log::error('Respuesta inválida en reenvío', $recepcion);
+
+                $this->redespachar(60, $creadoEn, $ultimoEnvio);
+                return;
+            }
+
+            // 🔥 VALIDAR DEVUELTA 70
+            if ($recepcion['estado'] === 'DEVUELTA') {
+
+                $mensajes = $recepcion['mensajes'] ?? [];
+
+                $es70 = collect($mensajes)
+                    ->contains(fn($m) => ($m['identificador'] ?? '') === '70');
+
+                if (!$es70) {
+                    Log::error('DEVUELTA inválida', $mensajes);
+
+                    $sale->update(['estado_sri' => 'NO AUTORIZADO']);
+                    return;
+                }
+            }
+
             if (in_array($recepcion['estado'], ['RECIBIDA', 'DEVUELTA'])) {
-                // Reenvío exitoso — reiniciar ciclo de consulta
+
                 $sale->update(['estado_sri' => 'PENDIENTE']);
+
                 self::dispatch(
                     $this->claveAcceso,
                     $this->ambiente,
                     $this->saleId,
-                    $this->creadoEn,
+                    $creadoEn,
                     $this->reenvios + 1,
-                    $ahora  // resetear timestamp de último envío
+                    $ahora
                 )->delay(now()->addSeconds(20));
+
                 return;
             }
 
-            // Reenvío falló — reintentar reenvío más tarde
-            Log::error('SRI Job: reenvío fallido', [
-                'clave'   => $this->claveAcceso,
-                'estado'  => $recepcion['estado'],
-                'mensajes' => $recepcion['mensajes'] ?? [],
-            ]);
+            Log::error('Reenvío fallido', $recepcion);
 
-            // Esperar 2 minutos y volver a intentar el reenvío
             self::dispatch(
                 $this->claveAcceso,
                 $this->ambiente,
                 $this->saleId,
-                $this->creadoEn,
-                $this->reenvios,    // NO incrementar — el reenvío no fue exitoso
-                $this->ultimoEnvio  // mantener timestamp para volver a intentar pronto
+                $creadoEn,
+                $this->reenvios,
+                $ahora
             )->delay(now()->addSeconds(120));
+
             return;
         }
 
-        // Si ya se alcanzó el máximo de reenvíos sin éxito
+        // ================= MÁXIMO REENVÍOS =================
         if ($this->reenvios >= self::MAX_REENVIOS && $desdeUltimoEnvio >= self::LIMITE_REENVIO) {
-            Log::error('SRI Job: máximo de reenvíos alcanzado sin autorización', [
-                'clave'    => $this->claveAcceso,
-                'reenvios' => $this->reenvios,
-            ]);
-            $sale->update(['estado_sri' => 'PENDIENTE']);
+
+            Log::error('Máximo de reenvíos alcanzado');
+
+            $sale->update(['estado_sri' => 'EXPIRADO']);
             return;
         }
 
-        // Delay progresivo normal mientras espera la autorización
+        // ================= RETRY PROGRESIVO =================
         $delay = match (true) {
-            $transcurridos < 60  => 15,
-            $transcurridos < 180 => 25,
-            $transcurridos < 600 => 40,
-            default              => 60,
+            $transcurridos < 300    => 20,
+            $transcurridos < 1800   => 60,
+            $transcurridos < 7200   => 120,
+            $transcurridos < 14400  => 300,
+            default                 => 600,
         };
 
-        Log::warning('SRI Job: reintentando consulta', [
-            'clave'  => $this->claveAcceso,
-            'delay'  => $delay . 's',
-            'tiempo' => $transcurridos . 's',
-        ]);
+        Log::info("Reintentando en {$delay}s");
 
-        $this->redespachar($delay, $sale);
+        $this->redespachar($delay, $creadoEn, $ultimoEnvio);
     }
 
     public function failed(\Throwable $e): void
     {
-        Log::error('SRI Job: excepción no capturada', [
-            'clave' => $this->claveAcceso,
-            'error' => $e->getMessage(),
+        Log::error('SRI Job fallo', [
+            'error' => $e->getMessage()
         ]);
-        Sale::where('id', $this->saleId)->update(['estado_sri' => 'ERROR']);
+
+        Sale::where('id', $this->saleId)
+            ->update(['estado_sri' => 'ERROR']);
     }
 
-    // ------------------------------------------------------------------
-    // HELPERS
-    // ------------------------------------------------------------------
-
-    private function redespachar(int $delay, Sale $sale): void
+    private function redespachar(int $delay, int $creadoEn, int $ultimoEnvio): void
     {
         self::dispatch(
             $this->claveAcceso,
             $this->ambiente,
             $this->saleId,
-            $this->creadoEn,
+            $creadoEn,
             $this->reenvios,
-            $this->ultimoEnvio
+            $ultimoEnvio
         )->delay(now()->addSeconds($delay));
     }
 
     private function procesarAutorizado(array $respuesta, Sale $sale): void
     {
+
+        $fechaAutorizacionRaw = $respuesta['fechaAutorizacion'] ?? null;
+
+        $fechaAutorizacion = $fechaAutorizacionRaw
+            ? Carbon::parse($fechaAutorizacionRaw)->format('Y-m-d H:i:s')
+            : now()->format('Y-m-d H:i:s');
+
+
         $sale->update([
             'estado_sri'             => 'AUTORIZADO',
-            'numero_autorizacion'    => $respuesta['numeroAutorizacion'] ?? null,
-            'fecha_autorizacion_sri' => $respuesta['fechaAutorizacion']  ?? null,
+            'numero_autorizacion'    => $respuesta['numeroAutorizacion'],
+            'fecha_autorizacion_sri' => $fechaAutorizacion,
         ]);
 
         if (!empty($respuesta['xml'])) {
@@ -231,32 +246,31 @@ class ConsultarAutorizacionSriJob implements ShouldQueue
             file_put_contents($ruta, $respuesta['xml']);
         }
 
-        Log::info('SRI Job: AUTORIZADO', [
-            'clave'            => $this->claveAcceso,
-            'num_autorizacion' => $respuesta['numeroAutorizacion'] ?? null,
-            'fecha'            => $respuesta['fechaAutorizacion']  ?? null,
-            'reenvios'         => $this->reenvios,
-        ]);
+        Log::info('AUTORIZADO', ['clave' => $this->claveAcceso]);
 
-        // Descomentar cuando estén listos:
-        // try {
-        //     app(\App\Http\Controllers\API\SaleController::class)->pdf($this->saleId);
-        //     app(\App\Http\Controllers\API\SaleController::class)->sendFacturaPdfXml(
-        //         $this->claveAcceso,
-        //         $sale->customer->email ?? ''
-        //     );
-        // } catch (\Throwable $e) {
-        //     Log::warning('PDF/Email falló: ' . $e->getMessage());
-        // }
+        try {
+            $email = $sale->customer->email ?? null;
+
+            if (!$email) {
+                Log::warning('Cliente sin email', ['sale_id' => $sale->id]);
+                return;
+            }
+
+            app(FacturaService::class)->sendFacturaPdfXml(
+                $this->claveAcceso,
+                $email
+            );
+
+        } catch (\Throwable $e) {
+            Log::error('Error enviando factura', [
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     private function procesarNoAutorizado(array $respuesta, Sale $sale): void
     {
         $sale->update(['estado_sri' => 'NO AUTORIZADO']);
-
-        Log::warning('SRI Job: NO AUTORIZADO', [
-            'clave'    => $this->claveAcceso,
-            'mensajes' => $respuesta['mensajes'] ?? [],
-        ]);
+        Log::warning('NO AUTORIZADO', $respuesta);
     }
 }
