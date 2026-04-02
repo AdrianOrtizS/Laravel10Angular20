@@ -1,8 +1,3 @@
-
-
-
-
-
 <c-card class="mb-4">
   <c-card-header>
     <strong>DATOS DEL CLIENTE</strong>
@@ -245,7 +240,7 @@
           </c-modal-footer>
         </c-modal>
       </div>
-      <div class="col-md-3 mb-3 mt-3">
+      <div class="col-md-2 mb-3 mt-3">
         <div class="col-md-12">
           <label>PROD.</label>
           <input cFormControl id="name" placeholder="Producto" type="text" [value]="producto().name" (input)="updateProductName($event)" readonly/>    
@@ -269,8 +264,14 @@
           <input cFormControl id="discount" placeholder="10" type="number" [value]="producto().discount" (input)="updateProductDiscount($event)" required/>    
         </div>
       </div>
-
       <div class="col-md-2 mb-3 mt-3">
+        <div class="col-md-12">
+          <label>TAR. %</label>
+          <input readonly cFormControl id="iva" placeholder="15" type="number" [value]="producto().iva" (input)="updateIva($event)" required/>    
+        </div>
+      </div>      
+
+      <div class="col-md-1 mb-3 mt-3">
         <div class="col-md-12" style="margin: inherit;">
           <label></label>
           <button cButton color="success" (click)="agregarProducto()" [disabled]="!isAddProductValid()" >
@@ -300,7 +301,7 @@
           <td>{{ item.quantity }}</td>
           <td>{{ item.subtotal | currency:'USD' }}</td>
           <td>{{ item.discount | currency:'USD' }}</td>
-          <td>{{ item.iva | currency:'USD' }}</td>
+          <td>{{ item.iva  }}</td>
 
           <td>
             <button cButton color="danger" size="sm" (click)="eliminarProducto(item)">
@@ -320,19 +321,23 @@
   <c-card-body>
     <div class="d-flex justify-content-between">
       <div><strong>Subtotal:</strong></div>
-      <div>{{ calcularSubtotal() | currency:'USD' }}</div>
+      <div>{{ subtotal | currency:'USD' }}</div>
     </div>
     <div class="d-flex justify-content-between">
       <div><strong>Descuento:</strong></div>
-      <div>{{ calcularDescuentoTotal() | currency:'USD' }}</div>
+      <div>{{ descuentoTotal | currency:'USD' }}</div>
     </div>
     <div class="d-flex justify-content-between">
-      <div><strong>Iva:</strong></div>
-      <div>{{ calcularIva() | currency:'USD' }}</div>
+      <div><strong>Iva 0:</strong></div>
+      <div>{{ iva0 | currency:'USD' }}</div>
+    </div>
+    <div class="d-flex justify-content-between">
+      <div><strong>Iva 15:</strong></div>
+      <div>{{ iva | currency:'USD' }}</div>
     </div>
     <div class="d-flex justify-content-between">
       <div><strong>Total:</strong></div>
-      <div><h5> {{ calcularTotal() | currency:'USD' }} </h5></div>    
+      <div><h5> {{ total | currency:'USD' }} </h5></div>    
     </div>
   </c-card-body>
   <c-card-footer class="text-end">

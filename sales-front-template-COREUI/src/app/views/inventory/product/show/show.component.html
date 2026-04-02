@@ -26,6 +26,7 @@
           <li><strong>Precio:</strong> ${{ PRODUCT().price | number:'1.2-2' }}</li>
           <li><strong>Stock:</strong> {{ PRODUCT().stock }}</li>
           <li><strong>Stock mínimo:</strong> {{ PRODUCT().stock_min }}</li>
+          <li><strong>Tarifa iva:</strong> {{ PRODUCT().tarifa_iva.porcentaje }} %</li>
         </ul>
 
         <small class="text-medium-emphasis mb-3">

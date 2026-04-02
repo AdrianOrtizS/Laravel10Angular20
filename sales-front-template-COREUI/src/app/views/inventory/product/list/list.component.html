@@ -19,6 +19,7 @@
         <th scope="col">Nombre</th>
         <th scope="col">Precio</th>
         <th scope="col">Stock</th>
+        <th scope="col">Tarifa iva</th>
         <th scope="col">Imagen</th>
         <th scope="col">Estado</th>
         <th scope="col">Accion</th>
@@ -32,6 +33,7 @@
           <td style="width: 200px;">{{item.name}}</td>
           <td style="width: 100px; text-align: center;">{{item.price}}</td>
           <td style="width: 100px; text-align: center;">{{item.stock}}</td>
+          <td style="width: 100px; text-align: center;">{{item.tarifa_iva.porcentaje}} %</td>
           <td style="width: 40px;">
             <div class="d-flex justify-content-center align-items-center" >
               <img *ngIf="item.imagen"  [src]="(item.imagen)" width="50px" height="50px !important">
@@ -44,20 +46,6 @@
                 <svg [cIcon]="icons.cilToggleOn" size="xl"></svg>
               </button>
 
-              <!-- Modal controlado por [visible] -->
-              <!-- <c-modal [visible]="modalId() === item.id" title="Desactivar {{item.name}}" (close)="closerModalState()">
-                <c-modal-header>
-                  <h5 cModalTitle>Desactivar producto</h5>
-                  <button (click)="closerModalState()" cButtonClose></button>
-                </c-modal-header>
-                <c-modal-body>
-                  ¿Deseas desactivar producto: <strong> {{item.name}} </strong>?
-                </c-modal-body>
-                <c-modal-footer>
-                  <button cButton color="secondary" (click)="closerModalState()">Cerrar</button>
-                  <button cButton color="danger" (click)="changeState(item.id)">Desactivar</button>
-                </c-modal-footer>
-              </c-modal> -->
             }
             @if(item.state == 0){
               
@@ -66,20 +54,6 @@
                 <svg [cIcon]="icons.cilToggleOff" size="xl"></svg>
               </button>
 
-              <!-- Modal controlado por [visible] -->
-              <!-- <c-modal [visible]="modalId() === item.id" title="Desactivar {{item.name}}" (close)="closerModalState()">
-                <c-modal-header>
-                  <h5 cModalTitle>Activar producto</h5>
-                  <button (click)="closerModalState()" cButtonClose></button>
-                </c-modal-header>
-                <c-modal-body>
-                  ¿Deseas activar producto: <strong> {{item.name}} </strong>?
-                </c-modal-body>
-                <c-modal-footer>
-                  <button cButton color="secondary" (click)="closerModalState()">Cerrar</button>
-                  <button cButton color="success" (click)="changeState(item.id)">Activar</button>
-                </c-modal-footer>
-              </c-modal> -->
             }
           </td>
           <td style="width: 60px;"> 
@@ -144,12 +118,6 @@
     </c-modal-footer>
 
   </c-modal>
-<!-- }@else{
-  <div class="loading-overlay text-center p-5">
-      <div class="spinner-border" role="status" aria-hidden="true"></div>
-   
-  </div>
-} -->
 
 }@else if(verifData == 0){
           <div class="loading-overlay text-center p-5">

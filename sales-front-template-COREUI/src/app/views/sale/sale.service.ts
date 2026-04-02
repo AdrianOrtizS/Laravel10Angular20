@@ -107,12 +107,12 @@ export class SaleService {
     .pipe();
   }
 
-  sendFacturaPdfXml(clave: string, mailCustomerSale: string, sale:any) {
-    let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
-    let URL = URL_SERVICIOS+'/sale/sendFacturaPdfXml/'+clave+'/'+mailCustomerSale;
-    return this.http.post(URL, sale, {headers: headers})
-    .pipe();
-  }
+  // sendFacturaPdfXml(clave: string, mailCustomerSale: string, sale:any) {
+  //   let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
+  //   let URL = URL_SERVICIOS+'/sale/sendFacturaPdfXml/'+clave+'/'+mailCustomerSale;
+  //   return this.http.post(URL, sale, {headers: headers})
+  //   .pipe();
+  // }
 
   getConfigurations(){
     let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});

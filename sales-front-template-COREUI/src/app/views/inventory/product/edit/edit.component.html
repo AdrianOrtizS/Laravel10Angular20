@@ -9,7 +9,7 @@
         <c-card-body>
             <!-- CATEGORÍA -->
             <div class="row">
-                <div class="col-md-10 mb-3">
+                <div class="col-md-8 mb-3">
                     <label cLabel>Categoría (*)</label>
                     <select
                         cSelect
@@ -18,17 +18,36 @@
                         (ngModelChange)="updateId_categorie($event); id_categorieTouched = true"
                         [class.is-invalid]="id_categorieTouched && PRODUCT().id_categorie === 0"
                         (blur)="id_categorieTouched = true">
-
                         <option [ngValue]="0">— Seleccione categoría —</option>
-
                         @for (item of Categories; track item.id) {
                             <option [ngValue]="item.id">
                             {{ item.name }}
                             </option>
                         }
                     </select>
-
                     <small class="text-danger" *ngIf="id_categorieTouched && PRODUCT().id_categorie === 0">
+                        La categoría es obligatoria
+                    </small>
+                </div>
+               
+                <div class="col-md-3 mb-3">
+                    <label cLabel>Tarifa (*)</label>
+                    <!-- {{PRODUCT().tarifa_iva}} -->
+                    <select
+                        cSelect
+                        [ngModelOptions]="{ standalone: true }"
+                        [ngModel]="PRODUCT().id_tarifa_iva"
+                        (ngModelChange)="updateId_tarifa_iva($event); id_tarifa_ivaTouched = true"
+                        [class.is-invalid]="id_tarifa_ivaTouched && PRODUCT().id_tarifa_iva === 0"
+                        (blur)="id_tarifa_ivaTouched = true">
+                        <!-- <option [ngValue]="0">— Seleccione tarifa —</option> -->
+                        @for (item of Tarifas_iva; track item.id) {
+                            <option [ngValue]="item.id">
+                            {{ item.porcentaje }}%
+                            </option>
+                        }
+                    </select>
+                    <small class="text-danger" *ngIf="id_tarifa_ivaTouched && PRODUCT().id_categorie === 0">
                         La categoría es obligatoria
                     </small>
                 </div>

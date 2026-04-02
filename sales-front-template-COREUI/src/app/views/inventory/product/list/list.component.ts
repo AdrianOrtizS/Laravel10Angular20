@@ -5,10 +5,6 @@ import { ProductService } from '../product.service';
 import { Router } from '@angular/router';
 import { SharedModule } from '../../../../shared/shared.module';
 import { URL_BACKEND } from '../../../../config/config';
-// import { SharedModule } from 'src/app/shared/shared.module';
-// import { URL_BACKEND } from 'src/app/config/config';
-// import { URL_BACKEND } from '../../../config/config';
-// import { SharedModule } from '../../../shared/shared.module';
 
 @Component({
   selector: 'app-list',
@@ -33,6 +29,7 @@ export class ListComponent {
   id_categorie: number=0;
   cod_pro: string='';
   imagen_previsualiza:any = '../../../../assets/images/sin_imagen.jpg';
+  tarifa_iva:any;
 
   products:   any = signal<any[]>([]);
   search:     string ='';
@@ -71,10 +68,9 @@ export class ListComponent {
 
   verifData = 0;
   listarProducts(page = 1){
-    // console.log(this.search);
-    // console.log(this.id_categorie);
     this.productService.listProducts(page, this.search, this.id_categorie, this.pageSize)
     .subscribe((resp:any) => {
+      console.log(resp);
       this.verifData = 0;
       if(resp.total == 0 && this.verifData == 0){
         this.verifData ++;
@@ -83,7 +79,6 @@ export class ListComponent {
       }
       this.totalPages = resp.total;
       this.currentPage = page;
-      // console.log(resp);
       return this.products.set(resp.Products.data) ;
     });
   }

@@ -19,7 +19,7 @@ interface ProductI {
   stock_min: number,
   imagen: string,
   id_categorie: number,
-  // state: any
+  id_tarifa_iva: number
 }
 
 @Component({
@@ -41,6 +41,7 @@ export class EditComponent {
     stockTouched   = false;
     stock_minTouched = false;
     imagenTouched  = false;
+    id_tarifa_ivaTouched = false;
 
     public favoriteColor = '#26ab3c';
     icons   = freeSet;
@@ -49,16 +50,6 @@ export class EditComponent {
     productService = inject(ProductService);
     activatedRoute = inject(ActivatedRoute);
 
-    /**
-     *
-     */
-    // constructor() {
-    //   effect(() => {
-    //     console.log('Producto:', this.PRODUCT());
-    //   });
-    // }
-    // PRODUCT:any = signal<any>({});
-    
     PRODUCT:any = signal<ProductI>({
       cod_pro: '',
       name:    '',
@@ -67,12 +58,14 @@ export class EditComponent {
       stock:  0,
       stock_min: 0,
       imagen: '',
-      id_categorie: 0
+      id_categorie: 0,
+      id_tarifa_iva: 0
     });
 
     PRODUCT_ID:any  = null;
-
     Categories:any = [];
+    Tarifas_iva:any = [];
+
     imagen_previsualiza:any = '../../../../assets/images/sin_imagen.jpg';
     file_imagen:any =null;
     isEmpty:boolean = true;
@@ -82,6 +75,10 @@ export class EditComponent {
       .subscribe((resp:any)=>{
         this.Categories = resp.Categories;
       });
+      this.productService.getTarifasIva()
+      .subscribe((resp:any)=>{
+        this.Tarifas_iva = resp.Tarifas_iva;
+      });
       this.activatedRoute.params.subscribe((resp:any)=>{
         this.PRODUCT_ID = resp.id;
       });
@@ -89,14 +86,19 @@ export class EditComponent {
       .subscribe((resp:any)=>{
         
         this.isEmpty = Object.keys(this.PRODUCT()).length === 0;
-        this.PRODUCT.set(resp.Product);
-        
-        // console.log(this.PRODUCT());
-        
 
-        if(this.PRODUCT().imagen){
-          this.imagen_previsualiza = this.PRODUCT().imagen;
+        const product = resp.Product;
+
+        this.PRODUCT.set({
+          ...product,
+          id_tarifa_iva: Number(product.id_tarifa_iva), // 🔥 IMPORTANTE
+          id_categorie: Number(product.id_categorie)
+        });
+
+        if(product.imagen){
+          this.imagen_previsualiza = product.imagen;
         }
+
       });
     }
 
@@ -154,6 +156,12 @@ export class EditComponent {
         id_categorie: Number(value)
       }));
     }
+    updateId_tarifa_iva(value: number) {
+      this.PRODUCT.update((c:any) => ({
+        ...c,
+        id_tarifa_iva: Number(value)
+      }));
+    }
 
     // Validar si todos los campos son obligatorios y válidos
     isFormValid = computed(() => {
@@ -162,7 +170,7 @@ export class EditComponent {
         c.cod_pro.trim().length > 0 &&
         c.name.trim().length > 0 &&
         c.description.trim().length > 0 &&
-        
+        c.id_tarifa_iva > 0 &&
         (c.price != '' && c.price >= 0) && 
         c.stock != '' &&
         c.stock_min != '' &&
@@ -185,6 +193,7 @@ export class EditComponent {
       formData.append('stock',       parseInt(this.PRODUCT().stock).toString());
       formData.append('stock_min',    parseInt(this.PRODUCT().stock_min).toString());
       formData.append('id_categorie', this.PRODUCT().id_categorie);
+      formData.append('id_tarifa_iva', this.PRODUCT().id_tarifa_iva);
 
       if(this.file_imagen){
         formData.append('producto', this.file_imagen);

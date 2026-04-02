@@ -9,7 +9,7 @@
 
         <!-- CATEGORÍA -->
         <div class="row">
-          <div class="col-md-10 mb-3">
+          <div class="col-md-8 mb-3">
             <label cLabel>Categoría (*)</label>
             <select
                 cSelect
@@ -24,6 +24,24 @@
             </select>
             <small class="text-danger" *ngIf="id_categorieTouched && PRODUCT().id_categorie === '0'">
                 La categoría es obligatoria
+            </small>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label cLabel>Tarifa (*)</label>
+            <select
+                class="text-center"
+                cSelect
+                [class.is-invalid]="id_tarifa_ivaTouched && PRODUCT().id_tarifa_iva === '0'"
+                (blur) ="id_tarifa_ivaTouched = true"
+                [value]="PRODUCT().id_tarifa_iva"
+                (change)="updateId_tarifa_iva($event); id_tarifa_ivaTouched = true">
+                <option value="0">— Seleccione tarifa iva —</option>
+                @for(item of Tarifas_iva; track item.id) {
+                    <option [value]="item.id">{{ item.porcentaje }}%</option>
+                }
+            </select>
+            <small class="text-danger" *ngIf="id_tarifa_ivaTouched && PRODUCT().tarifa === '0'">
+                La tarifa es obligatoria
             </small>
           </div>
         </div>
@@ -127,6 +145,7 @@
                     rows="4"
                     placeholder="Descripción del producto..."
                     (input)="updateDescription($event)"
+                    [value]="PRODUCT().description"
                     [class.is-invalid]="descriptionTouched && !PRODUCT().description?.trim()"
                     (blur)="descriptionTouched = true"
                     (change)="updateDescription($event); descriptionTouched = true">
