@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Configuration;
+use App\Models\Tarifa_iva;
+use App\Models\Product;
 use Illuminate\Support\Facades\Storage;
 // use App\Http\Resources\ConfigurationCollection;
 // use App\Http\Resources\ConfigurationResource;
@@ -36,6 +38,16 @@ class ConfigurationController extends Controller
             ]);
     }
 
+    // public function getTarifas(Request $request)
+    // {
+    //     $tarifas = Tarifa_iva::orderBy('id')->where('state',1)->get();  
+           
+    //     return response()->json(
+    //         [   'code'  => 200,
+    //             'tarifas' => ($tarifas)
+    //         ]);
+    // }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -56,6 +68,23 @@ class ConfigurationController extends Controller
 
     }
 
+    // /**
+    //  * Display the specified resource.
+    //  */
+    // public function getTarifas(string $id)
+    // {
+    //     $configuration = Configuration::where('id','=',$id)->first();
+
+    //     if(!$configuration){
+    //         $data = ['code'=> 404,
+    //                  'message' => 'Configuration not found'];
+    //     }else{
+    //         $data = ['code'=> 200,
+    //                  'message' => ($configuration )];
+    //     }
+    //     return response()->json(['code' => $data['code'], 
+    //                              'configuration' => $data['message']]);
+    // }
     /**
      * Display the specified resource.
      */
@@ -93,7 +122,23 @@ class ConfigurationController extends Controller
             $data = ['code'=> 404,
                      'message' => 'Configuration not found'];
         }else{
+            if($configuration->name == 'iva'){
+                $valueOld = $configuration->value;
+                $valueNew = $request->value;
+
+                // Obtener IDs reales
+                $id_tarifa_old = Tarifa_iva::where('porcentaje', $valueOld)->value('id');
+                $id_tarifa_new = Tarifa_iva::where('porcentaje', $valueNew)->value('id');
+
+                // Actualizar productos
+                Product::where('id_tarifa_iva', $id_tarifa_old)
+                        ->where('iva', 1)
+                        ->update([
+                            'id_tarifa_iva' => $id_tarifa_new
+                        ]);            
+            }
             $configuration->update($request->all());
+            
             $data = ['code'=> 200, 'message' => 'Configuration updated'];
         }
 

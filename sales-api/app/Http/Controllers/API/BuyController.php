@@ -166,9 +166,7 @@ class BuyController extends Controller
             'code' => 200,
             'Products' => ProductCollection::make($products)
         ]);
-
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -302,8 +300,7 @@ class BuyController extends Controller
         try {
             foreach ($buy->details as $item) {
                 // Buscar el registro de inventario del producto
-                $inventory = Inventory::where('id_product', $item->product->id)
-                                        ->first();
+                $inventory = Inventory::where('id_product', $item->product->id)->first();
 
                 if ($inventory) {
                     // Devolver el stock eliminado por esta compra

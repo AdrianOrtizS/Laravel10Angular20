@@ -24,7 +24,7 @@ class Sale extends Model
         'iva0',
         'total',
         'discount',
-        'type_receivable',
+        // 'type_receivable',
         'state',
         'id_point_of_sale',
         'establecimiento',
@@ -32,9 +32,13 @@ class Sale extends Model
         'secuencial',
         'numero_factura',
         'estado_sri',
+        'form_pay',
         'clave_acceso',
+        'error_no_autorizada',
         'numero_autorizacion',
         'fecha_autorizacion_sri',
+        'plazo',
+        'unidadTiempo',
         'ambiente'
     ];
 
@@ -111,8 +115,6 @@ class Sale extends Model
                      ->orWhere('num_identificador', 'like', "%{$search}%");
               });
         });
-
-
         return $query;
     }
 

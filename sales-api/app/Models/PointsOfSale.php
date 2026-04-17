@@ -16,6 +16,7 @@ class PointsOfSale extends Model
         'id_branch',
         'codigo_punto_emision',
         'secuencial_actual',
+        'secuencial_actual_receivable',
         'descripcion',
     ];
 

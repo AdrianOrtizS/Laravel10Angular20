@@ -104,6 +104,10 @@ Route::middleware('auth:api')->group(function () {
     Route::get('sale/getByStatus',  [SaleController::class, 'getByStatus']);
     Route::get('sale/factura/{id}/pdf', [SaleController::class, 'pdf']);
     Route::get('sale/factura/{id}/rePrintFacturaPdf', [SaleController::class, 'rePrintFacturaPdf']);
+    
+Route::get('sale/factura/reconsultar/{id}', [SaleController::class, 'reconsultarSri']);
+    
+
     Route::post('sale/sendFacturaPdfXml/{clave}/{mailCustomerSale}', [SaleController::class, 'sendFacturaPdfXml']);
 
     Route::resource("receivables", ReceivableController::class);

@@ -9,46 +9,59 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\PointsOfSale;
 
 class ReceivableController extends Controller
 {
      /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
-    {   
-        // $search = $request->input('search');
-        // $pageSize = $request->input('pageSize', 10); // valor por defecto
+    // public function index(Request $request)
+    // {   
+    //     // $search = $request->input('search');
+    //     // $pageSize = $request->input('pageSize', 10); // valor por defecto
 
-        // $query = Pay::query();
+    //     // $query = Pay::query();
 
-        // if ($search) {
-        //     $query->where('num_comprobante_abono', 'like', "%{$search}%");
-        // }
+    //     // if ($search) {
+    //     //     $query->where('num_comprobante_abono', 'like', "%{$search}%");
+    //     // }
 
-        // $pays = $query->orderBy('id', 'desc')->paginate($pageSize);
+    //     // $pays = $query->orderBy('id', 'desc')->paginate($pageSize);
 
-        // return response()->json([
-        //     'code'  => 200,
-        //     'total' => $pays->total(),
-        //     'page'  => $pays->currentPage(),
-        //     'pays'  => $pays->items(),
-        //     'pagination' => [
-        //         'current_page' => $pays->currentPage(),
-        //         'last_page' => $pays->lastPage(),
-        //         'per_page' => $pays->perPage(),
-        //     ],
-        // ]);
-    }
+    //     // return response()->json([
+    //     //     'code'  => 200,
+    //     //     'total' => $pays->total(),
+    //     //     'page'  => $pays->currentPage(),
+    //     //     'pays'  => $pays->items(),
+    //     //     'pagination' => [
+    //     //         'current_page' => $pays->currentPage(),
+    //     //         'last_page' => $pays->lastPage(),
+    //     //         'per_page' => $pays->perPage(),
+    //     //     ],
+    //     // ]);
+    // }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
+        $user        = auth()->user();
+        $pointOfSale = $user->pointsOfSale()->with('branch')->first();
+     
+        if (!$pointOfSale) {
+            return response()->json(['error' => 'El usuario no tiene puntos de venta asignados'], 403);
+        }
+     
+        $id_branch = $pointOfSale->id_branch;
+        if (!$id_branch) {
+            return response()->json(['error' => 'Usuario no tiene sucursal asignada'], 403);
+        }
+     
         $validator = Validator::make($request->all(), [
-            'id_sale'                   => 'required|exists:sales,id',
-            'valor_abono'               => 'required|numeric|min:0.01',
+            'id_sale'     =>    'required|exists:sales,id',
+            'valor_abono' =>    'required|numeric|min:0.01',
         ]);
 
         if ($validator->fails()) {
@@ -58,22 +71,45 @@ class ReceivableController extends Controller
             ], 422);
         }
 
-        $num_receivable = Receivable::generarNumeroReceived();
-        
+    
+        $ultimoSecuencial    = $pointOfSale->secuencial_actual_receivable;
+        $nuevoSecuencial     = $ultimoSecuencial ? $ultimoSecuencial + 1 : 1;
+        $numeroConCeros      = str_pad($nuevoSecuencial, 9, '0', STR_PAD_LEFT);
+        $num_establecimiento = $pointOfSale?->branch?->num_establecimiento;
+     
+
+        $num_receivable = $num_establecimiento.'-'.$pointOfSale->codigo_punto_emision.'-'.$numeroConCeros;
+       
+
         $receivable = Receivable::create([
             'id_sale'               => $request->id_sale,
-            'secuencial'            => $num_receivable['secuencial'],
-            'num_comprobante_abono' => $num_receivable['numero_cobro'],
+            'secuencial'            => $nuevoSecuencial,
+            'num_comprobante_abono' => $num_receivable,
             'valor_abono'           => $request->valor_abono,
             'observacion'           => $request->observacion
         ]);
 
+        $this->updateSecuencialReceivablePointSale($id_branch, $pointOfSale->codigo_punto_emision);
+            
         return response()->json([
             'code' => 201,
             'message' => 'Receivable created successfully',
             'receivable' => $receivable
         ], 201);
 
+    }
+
+    public function updateSecuencialReceivablePointSale($id_branch, 
+                                              $codigo_punto_emision)
+    {
+        $pointOfSale = PointsOfSale::where('id_branch', $id_branch)
+                                    ->where('codigo_punto_emision', $codigo_punto_emision)
+                                    ->first();
+
+        $secuencial_actual_receivable = $pointOfSale->secuencial_actual_receivable;
+
+        $pointOfSale->update(['secuencial_actual_receivable' => $secuencial_actual_receivable +1]);
+        return $pointOfSale->fresh();
     }
 
     /**

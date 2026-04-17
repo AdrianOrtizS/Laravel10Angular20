@@ -33,13 +33,15 @@ class ProductResource extends JsonResource
             ]: NULL, 
             'stock' => $this->resource->stock.'', // Stock directo desde el join
             'stock_min' => $this->resource->stock_min.'',
+            
+            'tarifa_iva' => $this->resource->tarifa_iva
 
-            'id_tarifa_iva' => $this->resource->id_tarifa_iva,
-            'tarifa_iva' => $this->resource->tarifa_iva ? [
-                'id' => $this->resource->tarifa_iva->id,
-                'codigo' => $this->resource->tarifa_iva->codigo,
-                'porcentaje' => $this->resource->tarifa_iva->porcentaje,
-            ]: NULL, 
+            // 'id_tarifa_iva' => $this->resource->id_tarifa_iva,
+            // 'tarifa_iva' => $this->resource->tarifa_iva ? [
+            //     'id' => $this->resource->tarifa_iva->id,
+            //     'codigo' => $this->resource->tarifa_iva->codigo,
+            //     'porcentaje' => $this->resource->tarifa_iva->porcentaje,
+            // ]: NULL, 
         ];
     }
 }

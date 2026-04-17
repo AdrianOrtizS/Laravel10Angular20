@@ -15,12 +15,12 @@
   }
 
   .logo {
-    width: 50%;
+    width: 35%;
     float: left;
   }
 
   .empresa-info {
-    width: 60%;
+    width: 55%;
     float: right;
     border: 1px solid #000;
     padding: 20px;
@@ -69,37 +69,31 @@
   .no-border td {
     border: none;
   }
-
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
 <div class="header">
-
   <div class="logo">
     <img src="{{ public_path('logo.png') }}" height="80">
     <p>
-      <strong>MI EMPRESA S.A..........</strong><br>
-      RUC: 0999999999001<br>
-      Dir: Av. Siempre Viva<br>
-      Obligado a llevar contabilidad: SI
+      <strong>{{$nombreComercial}}</strong><br>
+      RUC: {{$ruc}}<br>
+      DIRECCION: {{$dirMatriz}}<br>
+      OBLIGADO A LLEVAR CONTABILIDAD: {{$obligadoContabilidad}}
     </p>
   </div>
 
   <div class="empresa-info">
-    <strong>RUC: 0999999999001</strong><br><br>
-
+    <strong>RUC: {{$ruc}}</strong><br><br>
     <strong>FACTURA</strong><br>
     No: {{ $sale->numero_factura }}<br><br>
-
     <strong>NÚMERO DE AUTORIZACIÓN</strong><br>
     {{ $sale->clave_acceso }}<br><br>
-
-    <strong>FECHA Y HORA DE AUTORIZACIÓN</strong><br>
-    {{ $sale->fecha_autorizacion ?? '-' }}<br><br>
-
-    <strong>AMBIENTE:</strong> PRODUCCIÓN<br>
+    <!-- <strong>FECHA Y HORA DE AUTORIZACIÓN</strong><br>
+    {{ $sale->fecha_autorizacion_sri ?? '-' }}<br><br> -->
+    <strong>AMBIENTE:</strong> {{$ambiente == '1' ? 'PRUEBAS' : 'NORMAL'}}<br>
     <strong>EMISIÓN:</strong> NORMAL
   </div>
 
@@ -110,15 +104,15 @@
 <div class="box">
   <table class="no-border">
     <tr>
-      <td><strong>Razón Social:</strong> {{ $sale->customer->name }}</td>
+      <td><strong>RAZON SOCIAL:</strong> {{ $sale->customer->name }}</td>
       <td><strong>RUC/CI:</strong> {{ $sale->customer->num_identificador }}</td>
     </tr>
     <tr>
-      <td><strong>Fecha Emisión:</strong> {{ $sale->created_at->format('d/m/Y') }}</td>
-      <td><strong>Teléfono:</strong> {{ $sale->customer->phone }}</td>
+      <td><strong>FECHA EMISION:</strong> {{ $sale->created_at->format('d/m/Y') }}</td>
+      <td><strong>TELEFONO:</strong> {{ $sale->customer->phone }}</td>
     </tr>
     <tr>
-      <td colspan="2"><strong>Dirección:</strong> {{ $sale->customer->address }}</td>
+      <td colspan="2"><strong>DIRECCION:</strong> {{ $sale->customer->address }}</td>
     </tr>
   </table>
 </div>
@@ -127,12 +121,12 @@
 <table>
   <thead>
     <tr>
-      <th>Código</th>
-      <th>Descripción</th>
-      <th class="center">Cantidad</th>
-      <th class="right">Precio Unit.</th>
-      <th class="right">Descuento</th>
-      <th class="right">Total</th>
+      <th>CODIGO</th>
+      <th>DESCRIPCION</th>
+      <th class="center">CANTIDAD</th>
+      <th class="right">PRECIO UNIT.</th>
+      <th class="right">DESCUENTO</th>
+      <th class="right">TOTAL</th>
     </tr>
   </thead>
   <tbody>
@@ -148,7 +142,6 @@
     @endforeach
   </tbody>
 </table>
-
 <!-- TOTALES -->
 <table style="margin-top:15px;">
   <tr>
@@ -156,15 +149,18 @@
     <td>
       <table>
         <tr>
-          <td>Subtotal 0%</td>
+          <td>SUBTOTAL 0%</td>
           <td class="right">{{ number_format($sale->subtotal, 2) }}</td>
         </tr>
         <tr>
-          <td>Descuento</td>
+          <td>DESCUENTO</td>
           <td class="right">{{ number_format($sale->discount, 2) }}</td>
         </tr>
         <tr>
-          <td>IVA 15%</td>
+          <td>IVA 0%</td>
+          <td class="right">{{ number_format($sale->iva0, 2) }}</td>
+        </tr>        <tr>
+          <td>IVA {{$iva}}%</td>
           <td class="right">{{ number_format($sale->iva, 2) }}</td>
         </tr>
         <tr>
@@ -184,7 +180,22 @@
       <th>Valor</th>
     </tr>
     <tr>
-      <td>CONTADO</td>
+      <td>
+        @php
+        $formasPago = [
+          '01' => 'SIN UTILIZACIÓN DEL SISTEMA FINANCIERO',
+          '15' => 'COMPENSACIÓN DE DEUDAS',
+          '16' => 'TARJETA DE DÉBITO',
+          '17' => 'DINERO ELECTRÓNICO',
+          '18' => 'TARJETA PREPAGO',
+          '19' => 'TARJETA DE CRÉDITO',
+          '20' => 'OTROS CON UTILIZACIÓN DEL SISTEMA FINANCIERO',
+          '21' => 'ENDOSO DE TÍTULOS',
+        ];
+        @endphp
+
+        {{ $formasPago[$sale->form_pay] ?? 'NO DEFINIDO' }}
+      </td>
       <td class="right">{{ number_format($sale->total, 2) }}</td>
     </tr>
   </table>

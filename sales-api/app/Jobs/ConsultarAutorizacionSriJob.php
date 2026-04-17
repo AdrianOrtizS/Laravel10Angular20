@@ -270,7 +270,15 @@ class ConsultarAutorizacionSriJob implements ShouldQueue
 
     private function procesarNoAutorizado(array $respuesta, Sale $sale): void
     {
-        $sale->update(['estado_sri' => 'NO AUTORIZADO']);
-        Log::warning('NO AUTORIZADO', $respuesta);
+        $sale->update(['estado_sri'         => 'NO AUTORIZADO',
+                       'error_no_autorizada'=> $respuesta['mensajes']  
+                      ]);
+
+        $ruta = storage_path('app/facturas/no_autorizados/' . $this->claveAcceso . '.xml');
+        @mkdir(dirname($ruta), 0755, true);
+        file_put_contents($ruta, $respuesta['xml']);
+        Log::warning('NO AUTORIZADO', $respuesta['mensajes']);
     }
+
+
 }

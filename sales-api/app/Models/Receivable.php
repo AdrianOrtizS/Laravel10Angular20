@@ -35,26 +35,26 @@ class Receivable extends Model
     }
 
 
-    public static function generarNumeroReceived()
-    {
-        $establecimiento = '001';
-        $punto = '001';
+    // public static function generarNumeroReceived()
+    // {
+    //     $establecimiento = '001';
+    //     $punto = '001';
 
-        // Obtener último secuencial
-        $ultimo = static::query()->max('secuencial') ?? 0;
-        // $ultimo = self::max('secuencial');
+    //     // Obtener último secuencial
+    //     $ultimo = static::query()->max('secuencial') ?? 0;
+    //     // $ultimo = self::max('secuencial');
         
-        $nuevoSecuencial = $ultimo ? $ultimo + 1 : 1;
+    //     $nuevoSecuencial = $ultimo ? $ultimo + 1 : 1;
         
-        // Formato con ceros a la izquierda
-        $numero = str_pad($nuevoSecuencial, 9, '0', STR_PAD_LEFT);
+    //     // Formato con ceros a la izquierda
+    //     $numero = str_pad($nuevoSecuencial, 9, '0', STR_PAD_LEFT);
         
-        return [
-            'secuencial'    => $nuevoSecuencial,
-            'numero_ceros'  => $numero,
-            'numero_cobro' => "$establecimiento-$punto-$numero"
-        ];
-    }
+    //     return [
+    //         'secuencial'    => $nuevoSecuencial,
+    //         'numero_ceros'  => $numero,
+    //         'numero_cobro' => "$establecimiento-$punto-$numero"
+    //     ];
+    // }
 
 
     // public function products(){                                        

@@ -55,7 +55,9 @@ class ProductController extends Controller
                 $join->on('products.id', '=', 'inventories.id_product')
                      ->where('inventories.id_branch', $id_branch);
             })
-            ->with(['categorie','tarifa_iva']);
+            ->with(['categorie'
+                // ,'tarifa_iva'
+            ]);
             // ->with(['categorie','tarifa_iva' => function($q){
             //     $q->withTrashed();
             // }]);
@@ -94,21 +96,22 @@ class ProductController extends Controller
                 'Categories' => ($categories)
             ]);
     }
-    public function getTarifasIva(Request $request)
-    {
-        $tarifas_iva = Tarifa_iva::select( 'tarifa_ivas.id',
-                                           'tarifa_ivas.codigo',
-                                           'tarifa_ivas.porcentaje'
-                                       )
-                                ->orderBy('id') 
-                                ->get();
+    // public function getTarifasIva(Request $request)
+    // {
+    //     $tarifas_iva = Tarifa_iva::select( 'tarifa_ivas.id',
+    //                                        'tarifa_ivas.codigo',
+    //                                        'tarifa_ivas.porcentaje'
+    //                                    )
+    //                             // ->where('state',1)
+    //                             ->orderBy('id') 
+    //                             ->get();
         
-        return response()->json(
-            [   
-                'code'       => 200,
-                'Tarifas_iva' => ($tarifas_iva)
-            ]);
-    }
+    //     return response()->json(
+    //         [   
+    //             'code'       => 200,
+    //             'Tarifas_iva' => ($tarifas_iva)
+    //         ]);
+    // }
 
     /**
      * Store a newly created resource in storage.
@@ -123,7 +126,7 @@ class ProductController extends Controller
                   'id_categorie'=> 'required|exists:categories,id',
                   'stock'       => 'required',
                   'stock_min'   => 'required',
-                  'id_tarifa_iva'  => 'required',
+                  'tarifa_iva'  => 'required',
         ]);
 
 
@@ -152,7 +155,8 @@ class ProductController extends Controller
             DB::beginTransaction();
 
             $product = Product::create($request->only([
-                'cod_pro', 'name', 'description', 'price', 'id_categorie', 'imagen', 'id_tarifa_iva' 
+                'cod_pro', 'name', 'description', 'price', 
+                'id_categorie', 'imagen', 'tarifa_iva' 
             ]));
 
             // Asignar stock a la sucursal del usuario
@@ -250,7 +254,7 @@ class ProductController extends Controller
             'stock'         => 'required|integer',
             'stock_min'     => 'required|integer',
             'producto'      => 'sometimes|image|max:2048',
-            'id_tarifa_iva'    => 'required'
+            'tarifa_iva'    => 'required'
         ]);
         
 
@@ -297,7 +301,7 @@ class ProductController extends Controller
 
             // Actualizar campos del producto
             $updateData = $request->only([
-                'cod_pro', 'name', 'description', 'price', 'id_categorie', 'imagen', 'id_tarifa_iva'
+                'cod_pro', 'name', 'description', 'price', 'id_categorie', 'imagen', 'tarifa_iva'
             ]);
             
             // Agregar stock y stock_min al update del producto

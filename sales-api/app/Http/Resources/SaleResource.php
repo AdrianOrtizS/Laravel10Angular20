@@ -63,15 +63,15 @@ class SaleResource extends JsonResource
                     'precioUnitario'    => $details->price,
                     'descuento'         => $details->discount,
                     'precioTotalSinImpuesto' => $details->subtotal - $details->discount,
-                    'impuestos' => [
-                        [
-                            'codigo'            => '2',  //  IVA
-                            'codigoPorcentaje'  => '4',  //  4 -> 15%
-                            'tarifa'            => '15',
-                            'baseImponible'     => $details->subtotal - $details->discount,
-                            'valor'             => round((($details->subtotal - $details->discount)*15)/100, 2) ,
-                        ]
-                    ]
+                    // 'impuestos' => [
+                    //     [
+                    //         'codigo'            => '2',  //  IVA
+                    //         'codigoPorcentaje'  => '4',  //  4 -> 15%
+                    //         'tarifa'            => '15',
+                    //         'baseImponible'     => $details->subtotal - $details->discount,
+                    //         'valor'             => round((($details->subtotal - $details->discount)*15)/100, 2) ,
+                    //     ]
+                    // ]
                 ];
             }),
             'infoAdicional' => [
@@ -87,7 +87,8 @@ class SaleResource extends JsonResource
                             'address' => $this->resource->customer->address,
                             'phone' => $this->resource->customer->phone,
             ]:NULL,
-            'type_receivable'          => $this->resource->type_receivable,
+            // 'type_receivable'          => $this->resource->type_receivable,
+            'form_pay'   => $this->resource->form_pay,
             'receivables' => $this->resource->receivables->map(function($receivables){
                 return [
                     'id'  => $receivables->id,
@@ -98,49 +99,18 @@ class SaleResource extends JsonResource
                     'fecha' => $receivables->created_at
                 ];
             }),
+            'discount' => $this->resource->discount,
+            'iva0' => $this->resource->iva0,
+            'iva' => $this->resource->iva,
             'numero_factura' => $this->resource->numero_factura,
             // 'total_factura' => round($this->resource->total, 2),
             'total_abonos' => round($this->resource->receivables->sum('valor_abono'), 2),
             'cantidad_abonos' => $this->resource->receivables->count(),
-            'saldo' => round($this->resource->total - $this->resource->receivables->sum('valor_abono'), 2)
+            'saldo' => round($this->resource->total - $this->resource->receivables->sum('valor_abono'), 2),
+            'estado_sri' => $this->resource->estado_sri,
+            'error_no_autorizada' => $this->resource->error_no_autorizada
         ];
 
-
-        // return [
-        //     'id'                => $this->resource->id,
-        //     'establecimiento'   => $this->resource->establecimiento,
-        //     'punto_emision'     => $this->resource->punto_emision,
-        //     'secuencial'        => $this->resource->secuencial,
-        //     'numero_factura'    => $this->resource->numero_factura,
-            
-        //     'subtotal'          => $this->resource->subtotal,
-        //     'discount'          => $this->resource->discount,
-        //     'total'             => $this->resource->total,
-        //     'created_at'        => $this->resource->created_at->format('Y-m-d h:i A'),
-        //     'customer'  => $this->resource->customer ? [
-        //                     'id_customer'   => $this->resource->customer->id,
-        //                     'name'     => $this->resource->customer->name,
-        //                     'num_identificador' => $this->resource->customer->num_identificador,
-        //                     'address' => $this->resource->customer->address,
-        //                     'phone' => $this->resource->customer->phone,
-        //     ]:NULL,
-        //     'details' => $this->resource->details->map(function($details){
-        //         return [
-        //             'id'          => $details->id,
-        //             'product'     => [
-        //                 'id_product'    => $details->product->id,
-        //                 'name'          => $details->product->name
-        //             ],
-
-        //             'quantity'  => $details->quantity,
-        //             'price'     => $details->price,
-        //             'subtotal'  => $details->subtotal,
-        //             'discount'  => $details->discount
-        //         ];
-        //     })
-        // ];
-
     }
-
 
 }
