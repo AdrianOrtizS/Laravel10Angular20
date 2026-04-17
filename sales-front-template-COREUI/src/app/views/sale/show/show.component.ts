@@ -36,6 +36,8 @@ export class ShowComponent {
     // total_abonos:any = signal<any>(0);
     // saldo:any = signal<any>(0);
     
+
+
     ngOnInit(){
       // Obtener ID de la ruta
       this.activatedRoute.params.subscribe((resp:any)=>{
@@ -45,13 +47,32 @@ export class ShowComponent {
 
     }
 
+    formPays:any = [
+      {id:1, code: '01', description:'SIN UTILIZACION DEL SISTEMA FINANCIERO'},
+      {id:2, code: '15', description:'COMPENSACIÓN DE DEUDAS'},
+      {id:3, code: '16', description:'TARJETA DE DÉBITO'},
+      {id:4, code: '17', description:'DINERO ELECTRÓNICO'},
+      {id:5, code: '18', description:'TARJETA PREPAGO'},
+      {id:6, code: '19', description:'TARJETA DE CRÉDITO'},
+      {id:7, code: '20', description:'OTROS CON UTILIZACIÓN DEL SISTEMA FINANCIERO'},
+      {id:8, code: '21', description:'ENDOSO DE TÍTULOS'}
+    ];
+
+    formPay:any ='';
+
     /** Cargar información de la compra */
     private loadSale() {
       this.isLoading.set(true);
       this.saleService.showSale(this.SALE_ID).subscribe({
         next: (resp: any) => {
-          // console.log(resp);
           this.SALE.set(resp);
+          console.log(this.SALE());
+
+            this.formPays.forEach((element:any) => {
+              if(element.code == this.SALE().form_pay){
+                this.formPay = element.description;
+              }
+            });
           this.isLoading.set(false);
         },
         error: (err) => {

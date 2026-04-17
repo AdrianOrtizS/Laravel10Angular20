@@ -10,30 +10,30 @@
       <div class="row">
         <!-- 🧍 Datos del Proveedor -->
         <div class="col-md-6 mb-3">
-          <p><strong>NOMBRE:</strong> {{ BUY().supplier.name }}</p>
-          <p><strong>CEDULA:</strong> {{ BUY().supplier.num_identificador }}</p>
-          <p><strong>DIRECCION:</strong> {{ BUY().supplier.address }}</p>
+          <p><strong>Nombre:</strong> {{ BUY().supplier.name }}</p>
+          <p><strong>Cedula:</strong> {{ BUY().supplier.num_identificador }}</p>
+          <p><strong>Direccion:</strong> {{ BUY().supplier.address }}</p>
         </div>
 
         <!-- 📅 Datos de Factura -->
         <div class="col-md-6 mb-3">
-          <p><strong>FECHA:</strong> {{ BUY().fecha_ingreso | date: 'dd/MM/yyyy' }}</p>
-          <p><strong>TELEFONO:</strong> {{ BUY().supplier.phone }}</p>
+          <p><strong>Fecha:</strong> {{ BUY().fecha_ingreso | date: 'dd/MM/yyyy' }}</p>
+          <p><strong>Telefono:</strong> {{ BUY().supplier.phone }}</p>
           <p>
             
-            <strong>TIPO DOC.:</strong>
+            <strong>Tipo doc.:</strong>
             <span class="">
-              @if (BUY().type_doc == '1') { FACTURA } @else { NOTA DE VENTA }
+              @if (BUY().type_doc == '1') { Factura } @else { Nota de venta }
             </span>
 
-            <strong style="margin-left: 20px;">PAGO:</strong>
+            <strong style="margin-left: 20px;">Pago:</strong>
                     @if (BUY().type_pay == '1') 
                     { 
-                        <h6 style="display:inline; margin-left: 5px; color: blue;">CONTADO</h6> 
+                        <h6 style="display:inline; margin-left: 5px; color: blue;">Contado</h6> 
                     } 
                     @else 
                     { 
-                        <h6 style="display:inline; margin-left: 5px; color: brown;">CREDITO</h6>
+                        <h6 style="display:inline; margin-left: 5px; color: brown;">Credito</h6>
                     }
           </p>
           <!-- <p>
@@ -53,10 +53,10 @@
         <table class="table table-striped align-middle mb-0">
           <thead class="table-light">
             <tr>
-              <th>DESCRIPCION</th>
-              <th class="text-end">PRECIO UNITARIO</th>
-              <th class="text-center">CANTIDAD</th>
-              <th class="text-end">SUBTOTAL</th>
+              <th>Descripcion</th>
+              <th class="text-end">Precio unitario</th>
+              <th class="text-center">Cantidad</th>
+              <th class="text-end">Subtotal</th>
             </tr>
           </thead>
           <tbody>
@@ -79,16 +79,16 @@
     </c-card-header>
     <c-card-body>
       <div class="d-flex justify-content-between py-1">
-        <div>SUBTOTAL:</div>
+        <div>Subtotal:</div>
         <div>{{ BUY().subtotal | currency:'USD' }}</div>
       </div>
       <div class="d-flex justify-content-between py-1">
-        <div>IVA:</div>
+        <div>Iva:</div>
         <div>{{ BUY().iva | currency:'USD' }}</div>
       </div>
       <hr class="my-2">
       <div class="d-flex justify-content-between align-items-center">
-        <h6 class="mb-0 fw-bold">TOTAL:</h6>
+        <h6 class="mb-0 fw-bold">Total:</h6>
         <h5 class="mb-0 fw-bold text-success">{{ BUY().total | currency:'USD' }}</h5>
       </div>
     </c-card-body>

@@ -1,4 +1,3 @@
-     
 @if(!isLoading()){
     <!-- Datos del Cliente -->
     <c-card class="mb-3">
@@ -11,27 +10,20 @@
         <c-card-body>
         <div class="row">
             <div class="col-md-6">
-                <p><strong>Nombre:</strong> {{ SALE().customer.name }}</p>
-                <p><strong>Cédula:</strong> {{ SALE().customer.num_identificador }}</p>
+                <p><strong>Ruc / cédula:</strong> {{ SALE().customer.num_identificador }}</p>
+                <p><strong>Razon social:</strong> {{ SALE().customer.name }}</p>
                 <p><strong>Teléfono:</strong> {{ SALE().customer.phone }}</p>
+                <p><strong>Dirección:</strong> {{ SALE().customer.address }}</p>
             </div>
+
             <div class="col-md-6">
                 <p><strong>Fecha:</strong> {{ SALE().infoFactura.fechaEmision}}</p>
-                <strong>Pago:</strong>
-                <!-- <span class="ms-1"> -->
-                    @if(SALE().form_pay == '01' || SALE().form_pay == '16'|| SALE().form_pay == '17'
-                    || SALE().form_pay == '18' || SALE().form_pay == '19') 
-                    { 
-                        <h6 style="display:inline; margin-left: 5px; color: blue;">Contado</h6> 
-                    } 
-                    @if(SALE().form_pay == '15' || SALE().form_pay == '20'|| SALE().form_pay == '21')
-                    { 
-                        <h6 style="display:inline; margin-left: 5px; color: brown;">Crédito</h6>
-                    }
-                <!-- </span> -->
+                <p><strong>Pago:</strong>  {{formPay}}</p>
+                @if(SALE().plazo > 0){
+                    <p><strong>Plazo:</strong> {{SALE().plazo}} {{SALE().unidadTiempo}}  </p>
+                }
+                <p><strong>Clave de acceso:</strong> {{ SALE().infoTributaria.claveAcceso }}</p>
             </div>
-            <p><strong>Dirección:</strong> {{ SALE().customer.address }}</p>
-            <p><strong>Clave de acceso:</strong> {{ SALE().infoTributaria.claveAcceso }}</p>
         </div>
         </c-card-body>
     </c-card>

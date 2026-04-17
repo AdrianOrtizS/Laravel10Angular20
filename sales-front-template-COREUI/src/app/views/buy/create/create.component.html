@@ -6,24 +6,24 @@
     
     <div class="row">
       <div class="col-md-4 mb-3 mt-3">
-        <label  class="text-center d-block">NUMERO COMPROBANTE</label>
+        <label  class="text-center d-block">Numero comprobante</label>
         <input cInput type="text" class="form-control" (keyup)="formatSerie()" maxlength="17" [(ngModel)]="numero_factura" 
         placeholder="Ej: 001-001-0000021377">
       </div>
       <div class="col-md-4 mb-3 mt-3">
-        <label  class="text-center d-block">FECHA</label>
+        <label  class="text-center d-block">Fecha</label>
         <input cInput type="date" class="form-control" [(ngModel)]="fecha_ingreso" >
       </div>
       <div class="col-md-4 mb-3 mt-3">
-        <label  class="text-center d-block">TIPO PAGO</label>
+        <label  class="text-center d-block">Tipo pago</label>
         <div class="text-center d-block">
           <c-form-check inline>
             <input cFormCheckInput [(ngModel)]="selectedTypeBuy" (click)="onTypeBuyChange()" value="1" id="radioinline1" name="radioinline" type="radio" />
-            <label cFormCheckLabel for="radioinline1">CONTADO</label>
+            <label cFormCheckLabel for="radioinline1">Contado</label>
           </c-form-check>
           <c-form-check inline>
             <input cFormCheckInput [(ngModel)]="selectedTypeBuy" (click)="onTypeBuyChange()" value="2" id="radioinline2" name="radioinline" type="radio" />
-            <label cFormCheckLabel for="radioinline2">CREDITO</label>
+            <label cFormCheckLabel for="radioinline2">Credito</label>
           </c-form-check>
         </div>
 
@@ -40,7 +40,7 @@
                     <button [cModalToggle]="ModalOne.id" cButtonClose ></button>
                 </c-modal-header>
                 <c-modal-body>
-                    <label>INGRESA NOMBRE Y/O IDENTIFICADOR </label>    
+                    <label>Ingresa nombre y/o identificador </label>    
                     <div class="d-flex align-items-center gap-2 m-2">
                         <input cFormControl id="buscarInput" [(ngModel)]="search_ngModelSupplier"  placeholder="Ej: Simon Bolivar   /   1711122234" type="text"/>
                         <button cButton color="primary" shape="rounded-pill" title="Buscar" (click)="searchToSupplier()">
@@ -53,10 +53,10 @@
                     <div *ngIf="suppliers().length > 0">
                         <div class="d-flex align-items-center gap-2 m-2" >
                             <div style="width: 40%;">
-                                <label for=""><strong>NOMBRE </strong></label>
+                                <label for=""><strong>Nombre </strong></label>
                             </div>
                             <div style="width: 40%;">
-                                <label for=""><strong># IDENTIFICADOR</strong></label>
+                                <label for=""><strong># Identificador</strong></label>
                             </div>
                             <div style="width: 20%;">
                                 <label for=""></label>
@@ -84,12 +84,12 @@
                         </ul>
                     </div>      
                     <div *ngIf="suppliers().length == 0 && searchSupplierNull == true" class="d-flex align-items-center gap-2 m-2">
-                        <label style="color: red;">! NO HAY PROVEEDOR CON LA INFORMACION INGRESADA !</label>
+                        <label style="color: red;">! No hay proveedor con la informacion ingresada !</label>
                     </div>
                 </c-modal-body>
                 <c-modal-footer>
                     <button [cModalToggle]="ModalOne.id" cButton color="secondary" >
-                    CERRAR
+                    Cerrar
                     </button>
                 </c-modal-footer>
             </c-modal>
@@ -103,7 +103,7 @@
                         <div class="tab-pane active show p-3 preview fade">
                             <div>
                                 <div class="mb-3">
-                                    <label cLabel for="name">NOMBRE (*)</label>
+                                    <label cLabel for="name">Nombre (*)</label>
                                     <input cFormControl id="name" placeholder="Ej: Simón Bolívar" type="text" [value]="supplierNew().name" (input)="updateName($event)" required/>    
                                     <div *ngIf="!supplierNew().name.trim() && supplierNew().name !== ''" class="text-danger mt-1">
                                         El nombre es obligatorio
@@ -112,21 +112,21 @@
                                 <div class="mb-3">
                                     <div class="row">
                                         <div class="col-md-4">
-                                            <label cLabel for="num_identificador"># IDENTIFICADOR (*)</label>
+                                            <label cLabel for="num_identificador"># Identificador (*)</label>
                                             <input cFormControl id="num_identificador" placeholder="Ej: 1718192021" type="text" [value]="supplierNew().num_identificador" (input)="updateNumIdentificador($event)" required />
                                             <div *ngIf="!supplierNew().num_identificador.trim() && supplierNew().num_identificador !== ''" class="text-danger mt-1">
                                                 El #Identificador es obligatorio
                                             </div>
                                         </div>
                                         <div class="col-md-4">
-                                            <label cLabel for="email">CORREO (*)</label>
+                                            <label cLabel for="email">Correo (*)</label>
                                             <input cFormControl id="email" placeholder="Ej: email@gmail.com" type="email" [value]="supplierNew().email" (input)="updateEmail($event)" required />
                                             <div *ngIf="!supplierNew().num_identificador.trim() && supplierNew().num_identificador !== ''" class="text-danger mt-1">
                                                 El email es obligatorio
                                             </div>
                                         </div>
                                         <div class="col-md-4">
-                                          <label cLabel for="phome">TELEFONO (*)</label>
+                                          <label cLabel for="phome">Telefono (*)</label>
                                           <input cFormControl id="phone" placeholder="Ej: 0987654321" type="tel" [value]="supplierNew().phone" (input)="updatePhone($event)"/>
                                           <!-- <input cFormControl id="phome" [ngModelOptions]="{standalone: true}" [(ngModel)]="supplier().phone" placeholder="Ej: 0982223471" type="text" /> -->
                                           <div *ngIf="!supplierNew().phone.trim() && supplierNew().phone !== ''" class="text-danger mt-1">
@@ -136,7 +136,7 @@
                                   </div>
                               </div>
                               <div class="mb-3">
-                                  <label cLabel for="address">DIRECCION (*)</label>
+                                  <label cLabel for="address">Direccion (*)</label>
                                   <input cFormControl id="address" placeholder="Ej: Av siempre viva" type="text" [value]="supplierNew().address" (input)="updateAddress($event)"/>
                                   <div *ngIf="!supplierNew().address.trim() && supplierNew().address !== ''" class="text-danger mt-1">
                                       La direccion es obligatorio
@@ -165,23 +165,23 @@
             </c-modal>
         </div>
         <div class="col-md-3 mb-3">
-            <label>RUC / CEDULA</label>
+            <label>Ruc / Cedula</label>
             <input cInput type="text" readonly class="form-control" [(ngModel)]="supplierSelect.num_identificador">
         </div>
         <div class="col-md-4 mb-3">
-            <label>NOMBRE / RAZON SOCIAL</label>
+            <label>Nombre / Razon social</label>
             <input cInput type="text" readonly class="form-control" [(ngModel)]="supplierSelect.name">
         </div>
         <div class="col-md-4 mb-3 mt-3">
-          <label  class="text-center d-block">TIPO COMPROBANTE</label>
+          <label  class="text-center d-block">Tipo comprobante</label>
           <div class="text-center d-block">
             <c-form-check inline>
               <input cFormCheckInput [(ngModel)]="selectedTypeDoc" (click)="onTypeDocChange()" value="1" id="radioinlinetype1" name="radioinlinetype" type="radio" />
-              <label cFormCheckLabel for="radioinlinetype1">FACT.</label>
+              <label cFormCheckLabel for="radioinlinetype1">Fact.</label>
             </c-form-check>
             <c-form-check inline>
               <input cFormCheckInput [(ngModel)]="selectedTypeDoc" (click)="onTypeDocChange()" value="2" id="radioinlinetype2" name="radioinlinetype" type="radio" />
-              <label cFormCheckLabel for="radioinlinetype2">NOTA DE V.</label>
+              <label cFormCheckLabel for="radioinlinetype2">Nota de v.</label>
             </c-form-check>
           </div>
 
@@ -207,7 +207,7 @@
             <button (click)="toggleLiveDemo()" cButtonClose></button>
           </c-modal-header>
           <c-modal-body>
-            <label>INGRESE NOMBRE DE PRODUCTO Y SELECCIONA</label>    
+            <label>Ingresa nombre de producto y selecciona</label>    
             <div class="d-flex align-items-center gap-2 m-2">
                 <input cFormControl id="buscarInputProduct" [(ngModel)]="search_ngModelProduct"  placeholder="Ej: producto A   /   1711122234" type="text"/>
                 <button cButton color="primary" shape="rounded-pill" title="Buscar" (click)="searchToProduct()">
@@ -217,13 +217,13 @@
             <div *ngIf="products().length > 0">
                 <div class="d-flex align-items-center gap-2 m-2" >
                     <div style="width: 20%;">
-                        <label for=""><strong> CODIGO </strong></label>
+                        <label for=""><strong> Codigo </strong></label>
                     </div>
                     <div style="width: 35%;">
-                        <label for=""><strong> NOMBRE </strong></label>
+                        <label for=""><strong> Nombre </strong></label>
                     </div>
                     <div style="width: 35%; text-align: center;">
-                        <label for=""><strong> PRECIO </strong></label>
+                        <label for=""><strong> Precio </strong></label>
                     </div>
                     <div style="width: 20%;">
                         <label for=""></label>
@@ -254,13 +254,13 @@
                 </ul>
             </div>      
             <div *ngIf="products().length == 0 && searchProductNull == true" class="d-flex align-items-center gap-2 m-2">
-                <label style="color: red;">! AUN NO HAY COMPRAS INGRESADAS !</label>
+                <label style="color: red;">! No hay compras ingresadas !</label>
             </div>
 
           </c-modal-body>
           <c-modal-footer>
             <button (click)="toggleLiveDemo()" cButton color="secondary">
-              CERRAR
+              Cerrar
             </button>
             <!-- <button cButton color="primary">Save changes</button> -->
           </c-modal-footer>
@@ -284,12 +284,22 @@
           <input cFormControl id="quantity" placeholder="7" type="number" [value]="producto().quantity" (input)="updateProductQuantity($event)" required/>    
         </div>
       </div>
-      <!-- <div class="col-md-2 mb-3 mt-3">
-        <div class="col-md-12">
-          <label>DESC. %</label>
-          <input cFormControl id="discount" placeholder="10" type="number" [value]="producto().discount" (input)="updateProductDiscount($event)" required/>    
-        </div>
-      </div> -->
+      <div class="col-md-2 mb-3 mt-3 ml-3">
+          <label class="form-label">IVA</label>
+          <c-form-check class="mt-2">
+            <input 
+              cFormCheckInput 
+              type="checkbox" 
+              id="ivaCheck" 
+              style="margin-top: 25%; margin-left: -20px;"
+              class="check-lg"
+              [(ngModel)]="isCheckedIva"
+            />
+            <!-- <label cFormCheckLabel for="ivaCheck">
+              Aplicar IVA
+            </label> -->
+          </c-form-check>
+      </div>
 
       <div class="col-md-2 mb-3 mt-3">
         <div class="col-md-12" style="margin: inherit;">
@@ -341,19 +351,19 @@
   <c-card-body>
     @if(selectedTypeDoc == '1' || selectedTypeDoc == '2'){
       <div class="d-flex justify-content-between">
-        <div><strong>SUBTOTAL:</strong></div>
+        <div><strong>Subtotal:</strong></div>
         <div>{{ calcularSubtotal() | currency:'USD' }}</div>
       </div>
     }
     @if(selectedTypeDoc == '1'){
       <div class="d-flex justify-content-between">
-        <div><strong>IVA:</strong></div>
+        <div><strong>Iva:</strong></div>
         <div>{{ calcularIva() | currency:'USD' }}</div>
       </div>
     }
     @if(selectedTypeDoc == '1' || selectedTypeDoc == '2'){
       <div class="d-flex justify-content-between">
-        <div><strong>TOTAL:</strong></div>
+        <div><strong>Total:</strong></div>
         <div><h5> {{ calcularTotal() | currency:'USD' }} </h5></div>    
       </div>
     }  

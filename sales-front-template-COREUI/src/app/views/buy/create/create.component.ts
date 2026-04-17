@@ -5,7 +5,7 @@ import { freeSet } from '@coreui/icons';
 import { Component, computed, inject, signal } from '@angular/core';
 import { SharedModule } from '../../../shared/shared.module';
 import { Router } from '@angular/router';
-import { ButtonDirective, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective, ListGroupDirective, ListGroupItemDirective, ModalBodyComponent, ModalComponent, ModalHeaderComponent, ModalTitleDirective, ModalToggleDirective } from '@coreui/angular';
+import { ButtonDirective, FormCheckComponent, FormCheckInputDirective, ListGroupDirective, ListGroupItemDirective, ModalBodyComponent, ModalComponent, ModalHeaderComponent, ModalTitleDirective, ModalToggleDirective } from '@coreui/angular';
 import { BuyService } from '../buy.service';
 import { ProductService } from '../../inventory/product/product.service';
 
@@ -39,7 +39,7 @@ interface BuyDetalleI {
 
 @Component({
   selector: 'app-create',
-  imports: [SharedModule, ListGroupDirective, ListGroupItemDirective, ButtonDirective, ModalToggleDirective, ModalComponent, ModalHeaderComponent, ModalTitleDirective, ModalBodyComponent, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective],
+  imports: [SharedModule, ListGroupDirective, ListGroupItemDirective, ButtonDirective, ModalToggleDirective, ModalComponent, ModalHeaderComponent, ModalTitleDirective, ModalBodyComponent, FormCheckComponent, FormCheckInputDirective],
   templateUrl: './create.component.html',
   styleUrl: './create.component.scss'
 })
@@ -50,6 +50,8 @@ export class CreateComponent {
   router  = inject(Router);
   toastr  = inject(ToastrService);
   
+  isCheckedIva:any;
+
   supplierService = inject(SupplierService);
   productService  = inject(ProductService);
   buyService     = inject(BuyService);

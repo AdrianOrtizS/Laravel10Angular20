@@ -142,21 +142,21 @@
         <div class="col-md-5 mb-3 mt-3 p-3 border rounded ">
             <div class="input-group shadow-sm">
               <span class="input-group-text bg-light">
-                <label cLabel class="fw-semibold" style="font-size: 16px; width: 100px;">RUC / CEDULA</label>
+                <label cLabel class="" style="font-size: 16px; width: 100px;">Ruc / cedula:</label>
                 <!-- <i class="bi bi-credit-card"></i> -->
               </span>
               <input cInput type="text" readonly class="form-control border-start-0" [(ngModel)]="customerSelect.num_identificador">
             </div>
             <div class="input-group shadow-sm">
               <span class="input-group-text bg-light">
-                <label cLabel class="fw-semibold" style="font-size: 16px; width: 100px;">RAZON SOCIAL</label>
+                <label cLabel class="" style="font-size: 16px; width: 100px;">Razon social:</label>
                 <!-- <i class="bi bi-credit-card"></i> -->
               </span>
               <input cInput type="text" readonly class="form-control border-start-0" [(ngModel)]="customerSelect.name">
             </div>
             <div class="input-group shadow-sm">
               <span class="input-group-text bg-light">
-                <label cLabel class="fw-semibold" style="font-size: 16px; width: 100px;">TELEFONO</label>
+                <label cLabel class="" style="font-size: 16px; width: 100px;">Telefono:</label>
                 <!-- <i class="bi bi-credit-card"></i> -->
               </span>
               <input cInput type="text" readonly class="form-control border-start-0" [(ngModel)]="customerSelect.phone">
@@ -165,14 +165,14 @@
         <div class="col-md-5 mb-3 mt-3 p-3 border rounded ">
             <div class="input-group shadow-sm">
               <span class="input-group-text bg-light">
-                <label cLabel class="fw-semibold" style="font-size: 16px; width: 100px;">CORREO</label>
+                <label cLabel class="" style="font-size: 16px; width: 100px;">Correo:</label>
                 <!-- <i class="bi bi-credit-card"></i> -->
               </span>
               <input cInput type="text" readonly class="form-control border-start-0" [(ngModel)]="customerSelect.email">
             </div>
             <div class="input-group shadow-sm">
               <span class="input-group-text bg-light">
-                <label cLabel class="fw-semibold" style="font-size: 16px; width: 100px;">DIRECCION</label>
+                <label cLabel class="" style="font-size: 16px; width: 100px;">Direccion:</label>
                 <!-- <i class="bi bi-credit-card"></i> -->
               </span>
               <textarea cFormControl rows="3" readonly class="form-control border-start-0" [(ngModel)]="customerSelect.address">
@@ -199,7 +199,7 @@
             <button (click)="toggleLiveDemo()" cButtonClose></button>
           </c-modal-header>
           <c-modal-body>
-            <label>INGRESA NOMBRE DE PRODUCTO Y SELECCIONA</label>    
+            <label>Ingresa nombre de producto y selecciona</label>    
             <div class="d-flex align-items-center gap-2 m-2">
                 <input cFormControl id="buscarInputProduct" [(ngModel)]="search_ngModelProduct"  placeholder="Ej: producto A   /   1711122234" type="text"/>
                 <button cButton color="primary" shape="rounded-pill" title="Buscar" (click)="searchToProduct()">
@@ -260,7 +260,7 @@
       </div>
 
       <div class="col-md-2 mb-3 mt-3">
-        <label class="form-label fw-semibold">PROD.</label>
+        <label class="form-label ">PROD.</label>
         <div class="border rounded shadow-sm overflow-hidden">
           <input 
             cFormControl
@@ -276,7 +276,7 @@
         </div>
       </div>
       <div class="col-md-2 mb-3 mt-3">
-        <label class="form-label fw-semibold">PREC.</label>
+        <label class="form-label ">PREC.</label>
 
         <div class="border rounded shadow-sm overflow-hidden">
           <input 
@@ -295,7 +295,7 @@
         </div>
       </div>
       <div class="col-md-2 mb-3 mt-3">
-        <label class="form-label fw-semibold">CANT.</label>
+        <label class="form-label ">CANT.</label>
         <div class="d-flex align-items-center border rounded shadow-sm overflow-hidden">
           <!-- Botón - -->
           <button 
@@ -326,7 +326,7 @@
         </div>
       </div>
       <div class="col-md-2 mb-3 mt-3">
-        <label class="form-label fw-semibold">DESC. %</label>
+        <label class="form-label ">DESC. %</label>
         <div class="d-flex align-items-center border rounded shadow-sm overflow-hidden">
           <!-- Botón - -->
           <button 
@@ -358,7 +358,7 @@
       </div>
 
       <div class="col-md-2 mb-3 mt-3">
-        <label class="form-label fw-semibold">TAR. %</label>
+        <label class="form-label ">TAR. %</label>
 
         <div class="d-flex align-items-center border rounded shadow-sm overflow-hidden">
           <!-- Input -->
@@ -426,23 +426,23 @@
       </c-card-header>
       <c-card-body>
         <div class="d-flex justify-content-between">
-          <div><strong><h6>SUBTOTAL:</h6></strong></div>
+          <div><strong><h6>Subtotal:</h6></strong></div>
           <div>{{ subtotal | currency:'USD' }}</div>
         </div>
         <div class="d-flex justify-content-between">
-          <div><strong><h6>DESCUENTO:</h6></strong></div>
+          <div><strong><h6>Descuento:</h6></strong></div>
           <div>{{ descuentoTotal | currency:'USD' }}</div>
         </div>
         <div class="d-flex justify-content-between">
-          <div><strong><h6>IVA 0:</h6></strong></div>
+          <div><strong><h6>Iva 0:</h6></strong></div>
           <div>{{ iva0 | currency:'USD' }}</div>
         </div>
         <div class="d-flex justify-content-between" *ngIf="ivaValor">
-          <div><strong><h6>IVA {{ivaValor.value}}:</h6></strong></div>
+          <div><strong><h6>Iva {{ivaValor.value}}:</h6></strong></div>
           <div>{{ iva | currency:'USD' }}</div>
         </div>
         <div class="d-flex justify-content-between">
-          <div><strong><h5>TOTAL:</h5></strong></div>
+          <div><strong><h5>Total:</h5></strong></div>
           <div><h5> {{ total | currency:'USD' }} </h5></div>    
         </div>
       </c-card-body>

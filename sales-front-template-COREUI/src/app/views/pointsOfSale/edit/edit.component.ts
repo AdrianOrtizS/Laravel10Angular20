@@ -11,6 +11,7 @@ interface PointsOfSaleI {
   id_branch: number,
   codigo_punto_emision: string,
   secuencial_actual: number,
+  secuencial_actual_receivable:  number,
   descripcion: string,
 }
 
@@ -45,6 +46,7 @@ export class EditComponent {
       id_branch: 0,
       codigo_punto_emision: '',
       secuencial_actual: 0,
+      secuencial_actual_receivable:  0,
       descripcion: '',
     });
 
@@ -55,8 +57,9 @@ export class EditComponent {
     ngOnInit(){
       this.pointsOfSaleService.getBranches()
       .subscribe((resp:any)=>{
-        this.Branches = resp.Branches;
-        console.log(this.Branches);
+        console.log(resp);
+        this.Branches = resp.branches;
+        // console.log(this.Branches);
       });
       this.activatedRoute.params.subscribe((resp:any)=>{
         this.POINTSOFSALE_ID = resp.id;
@@ -84,6 +87,10 @@ export class EditComponent {
       const valor = (event.target as HTMLInputElement).value;
       this.POINTSOFSALE.update((c:any) => ({ ...c, secuencial_actual: valor }));
     }
+    updateSecuencialActualReceivable(event: Event) {
+      const valor = (event.target as HTMLInputElement).value;
+      this.POINTSOFSALE.update((c:any) => ({ ...c, secuencial_actual_receivable: valor }));
+    }
 
     updateDescripcion(event: Event) {
       const valor = (event.target as HTMLInputElement).value;
@@ -97,6 +104,7 @@ export class EditComponent {
         c.id_branch > 0 &&
         c.codigo_punto_emision.trim().length > 0 && 
         c.secuencial_actual >= 0 &&
+        c.secuencial_actual_receivable >= 0 &&
         c.descripcion.trim().length > 0
       );
     });
@@ -113,6 +121,7 @@ export class EditComponent {
         'id_branch': this.POINTSOFSALE().id_branch,
         'codigo_punto_emision': this.POINTSOFSALE().codigo_punto_emision,
         'secuencial_actual': this.POINTSOFSALE().secuencial_actual,
+        'secuencial_actual_receivable': this.POINTSOFSALE().secuencial_actual_receivable,
         'descripcion':this.POINTSOFSALE().descripcion
       };
 
