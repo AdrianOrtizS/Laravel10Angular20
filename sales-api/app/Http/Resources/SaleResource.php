@@ -89,6 +89,8 @@ class SaleResource extends JsonResource
             ]:NULL,
             // 'type_receivable'          => $this->resource->type_receivable,
             'form_pay'   => $this->resource->form_pay,
+            'plazo'=> $this->resource->plazo,
+            'unidadTiempo'=> $this->resource->unidadTiempo,
             'receivables' => $this->resource->receivables->map(function($receivables){
                 return [
                     'id'  => $receivables->id,

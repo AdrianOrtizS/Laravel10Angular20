@@ -97,6 +97,12 @@ class BuyController extends Controller
         ]);
     }
 
+//cdfdddjhkjhkj
+    public function guardarCambio(){
+        return response()->json([
+            'id' => '123'
+        ]);
+    }
     public function getSuppliers(Request $request)
     {
         $searchSupplier   = $request->searchSupplier;
