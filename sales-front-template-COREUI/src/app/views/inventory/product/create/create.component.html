@@ -27,22 +27,28 @@
             </small>
           </div>
           <div class="col-md-3 mb-3">
-            <label cLabel>Tarifa (*)</label>
-            <select
-                class="text-center"
-                cSelect
-                [class.is-invalid]="id_tarifa_ivaTouched && PRODUCT().id_tarifa_iva === '0'"
-                (blur) ="id_tarifa_ivaTouched = true"
-                [value]="PRODUCT().id_tarifa_iva"
-                (change)="updateId_tarifa_iva($event); id_tarifa_ivaTouched = true">
-                <option value="0">— Seleccione tarifa iva —</option>
-                @for(item of Tarifas_iva; track item.id) {
-                    <option [value]="item.id">{{ item.porcentaje }}%</option>
-                }
-            </select>
-            <small class="text-danger" *ngIf="id_tarifa_ivaTouched && PRODUCT().tarifa === '0'">
-                La tarifa es obligatoria
-            </small>
+            <label cLabel>Tarifa Iva(*)</label>
+            <div class="d-flex gap-3">
+              <c-form-check inline>
+                <input 
+                  cFormCheckInput
+                  type="radio"
+                  name="tarifa_iva"
+                  [value]="1"
+                  [(ngModel)]="PRODUCT().tarifa_iva">
+                <label cFormCheckLabel>SI</label>
+              </c-form-check>
+
+              <c-form-check inline>
+                <input 
+                  cFormCheckInput
+                  type="radio"
+                  name="tarifa_iva"
+                  [value]="0"
+                  [(ngModel)]="PRODUCT().tarifa_iva">
+                <label cFormCheckLabel>NO</label>
+              </c-form-check>
+            </div>
           </div>
         </div>
 

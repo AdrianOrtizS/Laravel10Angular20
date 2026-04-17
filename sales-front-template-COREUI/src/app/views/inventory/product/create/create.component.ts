@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { freeSet } from '@coreui/icons';
 import { Component, computed, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { FormSelectDirective } from '@coreui/angular';
+import { FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective, FormSelectDirective } from '@coreui/angular';
 
 interface ProductI {
   cod_pro:string,
@@ -16,62 +16,64 @@ interface ProductI {
   stock_min:  string,
   imagen: string,
   id_categorie: number,
-  id_tarifa_iva: number
+  // id_tarifa_iva: number,
+  tarifa_iva:  any
 }
         
 @Component({
   selector: 'app-create',
-  imports: [  SharedModule, FormSelectDirective, ReactiveFormsModule  ],
+  imports: [  SharedModule, FormSelectDirective, ReactiveFormsModule, FormCheckComponent,FormCheckInputDirective,FormCheckLabelDirective  ],
   templateUrl: './create.component.html',
   styleUrl: './create.component.scss'
 })
 export class CreateComponent {
 
-    id_categorieTouched  = false;
-    cod_proTouched = false;
-    nameTouched    = false;
-    descriptionTouched = false;
-    priceTouched   = false;
-    stockTouched   = false;
-    stock_minTouched = false;
-    imagenTouched  = false;
-    id_tarifa_ivaTouched  = false;
+    id_categorieTouched   = false;
+    cod_proTouched        = false;
+    nameTouched           = false;
+    descriptionTouched    = false;
+    priceTouched          = false;
+    stockTouched          = false;
+    stock_minTouched      = false;
+    imagenTouched         = false;
+    tarifa_ivaTouched     = false;
+    // id_tarifa_ivaTouched  = false;
 
 
     public favoriteColor = '#26ab3c';
-    icons = freeSet;
-    router = inject(Router);
-    toastr  = inject(ToastrService);
+    icons     = freeSet;
+    router    = inject(Router);
+    toastr    = inject(ToastrService);
     productService = inject(ProductService);
     
     PRODUCT:any = signal<ProductI>({
       cod_pro:  '',
       name:     '',
       description:  '',
-      price:  '',
-      stock:  '',
+      price:    '',
+      stock:    '',
       stock_min:'',
-      imagen: '',
+      imagen:   '',
       id_categorie: 0,
-      id_tarifa_iva: 0
+      // id_tarifa_iva: 0,
+      tarifa_iva: 0
     });
 
     imagen_previsualiza:any = '../../../../assets/images/sin_imagen.jpg';
-    
     file_imagen:any = null;
     Categories:any  = [];
-    Tarifas_iva:any  = [];
+    // Tarifas_iva:any  = [];
 
     ngOnInit(){
       this.productService.getCategories()
       .subscribe((resp:any)=>{
         this.Categories = resp.Categories;
       });
-      this.productService.getTarifasIva()
-      .subscribe((resp:any)=>{
-        this.Tarifas_iva = resp.Tarifas_iva;
-        console.log(this.Tarifas_iva);
-      });
+      // this.productService.getTarifasIva()
+      // .subscribe((resp:any)=>{
+      //   this.Tarifas_iva = resp.Tarifas_iva;
+      //   console.log(this.Tarifas_iva);
+      // });
     }
 
     // Métodos para update cada campo (evita parser error)
@@ -109,9 +111,13 @@ export class CreateComponent {
       this.PRODUCT.update((c:any) => ({ ...c, id_categorie: valor }));
     }
 
-    updateId_tarifa_iva(event: Event) {
+    // updateId_tarifa_iva(event: Event) {
+    //   const valor = (event.target as HTMLInputElement).value;
+    //   this.PRODUCT.update((c:any) => ({ ...c, id_tarifa_iva: valor }));
+    // }
+    updateTarifa_iva(event: Event) {
       const valor = (event.target as HTMLInputElement).value;
-      this.PRODUCT.update((c:any) => ({ ...c, id_tarifa_iva: valor }));
+      this.PRODUCT.update((c:any) => ({ ...c, tarifa_iva: valor }));
     }
 
     // Validar si todos los campos son obligatorios y válidos
@@ -121,11 +127,12 @@ export class CreateComponent {
         c.cod_pro.trim().length > 0 &&
         c.name.trim().length > 0 &&
         c.description.trim().length > 0 &&
-        (c.price >=0 && c.price.trim().length > 0) &&
+        (c.price >= 0 && c.price.trim().length > 0) &&
         c.stock.trim().length > 0 &&
         c.stock_min.trim().length > 0 && 
-        c.id_tarifa_iva > 0 && 
-        c.id_categorie > 0
+        // c.id_tarifa_iva > 0 && 
+        c.id_categorie > 0 &&
+        c.tarifa_iva != null
       );
     });
 
@@ -147,6 +154,8 @@ export class CreateComponent {
 
     save(){
 
+      console.log(this.PRODUCT());
+
       if(this.PRODUCT.id_categorie == 0){
         this.toastr.error('Validacion', 'Seleccione categoria');
         return;
@@ -161,6 +170,7 @@ export class CreateComponent {
       formData.append('stock_min', this.PRODUCT().stock_min);
       formData.append('id_tarifa_iva', this.PRODUCT().id_tarifa_iva);
       formData.append('id_categorie', this.PRODUCT().id_categorie);
+      formData.append('tarifa_iva', this.PRODUCT().tarifa_iva);
 
       if(this.file_imagen){
         formData.append('producto', this.file_imagen);
@@ -188,17 +198,19 @@ export class CreateComponent {
       this.stockTouched   = false;
       this.stock_minTouched = false;
       this.imagenTouched  = false;
-      this.id_tarifa_ivaTouched  = false;
+      // this.id_tarifa_ivaTouched  = false;
+      this.tarifa_ivaTouched  = false;
 
       this.PRODUCT.set({ 
-        cod_pro:'',
-        name:   '', 
+        cod_pro:  '',
+        name:     '', 
         description: '',
         id_categorie:  0, 
-        price:  '',
-        stock:'',
+        price:    '',
+        stock:    '',
         stock_min:'',
-        id_tarifa_iva: 0
+        // id_tarifa_iva: 0,
+        tarifa_iva:0
       });
       this.file_imagen = null;
       this.imagen_previsualiza = '../../../../assets/images/sin_imagen.jpg';        

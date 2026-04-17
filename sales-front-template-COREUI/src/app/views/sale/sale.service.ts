@@ -76,6 +76,13 @@ export class SaleService {
     .pipe();
   }
 
+  reconsultarSri(id:any){
+    let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
+    let URL = URL_SERVICIOS+'/sale/factura/reconsultar/'+id;
+    return this.http.get(URL, {headers: headers})
+    .pipe();
+  }
+
   rePrintFacturaPDF(id: number) {
     // console.log(id);
     let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});

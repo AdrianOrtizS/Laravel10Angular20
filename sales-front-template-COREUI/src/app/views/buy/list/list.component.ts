@@ -150,20 +150,24 @@ export class ListComponent {
         return false;
       }
     }
-    
 
     removeBuy(id: any): void {
       this.buyService.removeBuy(id).subscribe({
         next: (resp: any) => {
-          if (resp.code === 400) {
+         if (resp.code === 400) {
             this.toastr.warning('Aviso', 'No se puede eliminar, tiene pagos asociados');
             return;
           }
           if (resp.code === 200) {
             this.cerrarModalDelete();
-            this.buys.update((buys: any[]) => buys.filter((b: any) => b.id !== id));
-            this.toastr.success('Éxito', 'El comprobante se eliminó correctamente');
-            this.listarBuys();
+            setTimeout(() => {
+              this.buys.update((buys: any[]) => 
+                buys.filter((b: any) => b.id !== id)
+              );
+              this.toastr.success('Éxito', 'El comprobante se eliminó correctamente');
+              this.listarBuys();
+
+            }, 200);
             return;
           }
         },
@@ -172,7 +176,7 @@ export class ListComponent {
         }
       });
     }
-
+    
     savePay(id:any, buy:any){
       let formData = new FormData();
       formData.append('id_buy', id);

@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { freeSet } from '@coreui/icons';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { FormSelectDirective } from '@coreui/angular';
+import { FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective, FormSelectDirective } from '@coreui/angular';
 import { SharedModule } from '../../../../shared/shared.module';
 // import { SharedModule } from 'src/app/shared/shared.module';
 // import { error } from 'console';
@@ -19,12 +19,14 @@ interface ProductI {
   stock_min: number,
   imagen: string,
   id_categorie: number,
-  id_tarifa_iva: number
+  tarifa_iva: number
 }
 
 @Component({
   selector: 'app-edit',
-  imports: [ SharedModule, FormSelectDirective, ReactiveFormsModule ],
+  imports: [ SharedModule, FormSelectDirective, ReactiveFormsModule , FormCheckComponent,
+    FormCheckInputDirective,
+    FormCheckLabelDirective ],
   templateUrl: './edit.component.html',
   styleUrl: './edit.component.scss',
   host: {
@@ -41,7 +43,7 @@ export class EditComponent {
     stockTouched   = false;
     stock_minTouched = false;
     imagenTouched  = false;
-    id_tarifa_ivaTouched = false;
+    tarifa_ivaTouched = false;
 
     public favoriteColor = '#26ab3c';
     icons   = freeSet;
@@ -59,12 +61,12 @@ export class EditComponent {
       stock_min: 0,
       imagen: '',
       id_categorie: 0,
-      id_tarifa_iva: 0
+      tarifa_iva: 0
     });
 
     PRODUCT_ID:any  = null;
     Categories:any = [];
-    Tarifas_iva:any = [];
+    // Tarifas_iva:any = [];
 
     imagen_previsualiza:any = '../../../../assets/images/sin_imagen.jpg';
     file_imagen:any =null;
@@ -75,10 +77,10 @@ export class EditComponent {
       .subscribe((resp:any)=>{
         this.Categories = resp.Categories;
       });
-      this.productService.getTarifasIva()
-      .subscribe((resp:any)=>{
-        this.Tarifas_iva = resp.Tarifas_iva;
-      });
+      // this.productService.getTarifasIva()
+      // .subscribe((resp:any)=>{
+      //   this.Tarifas_iva = resp.Tarifas_iva;
+      // });
       this.activatedRoute.params.subscribe((resp:any)=>{
         this.PRODUCT_ID = resp.id;
       });
@@ -91,14 +93,14 @@ export class EditComponent {
 
         this.PRODUCT.set({
           ...product,
-          id_tarifa_iva: Number(product.id_tarifa_iva), // 🔥 IMPORTANTE
+          tarifa_iva: Number(product.tarifa_iva), // 🔥 IMPORTANTE
           id_categorie: Number(product.id_categorie)
         });
 
         if(product.imagen){
           this.imagen_previsualiza = product.imagen;
         }
-
+        console.log(this.PRODUCT());
       });
     }
 
@@ -156,10 +158,10 @@ export class EditComponent {
         id_categorie: Number(value)
       }));
     }
-    updateId_tarifa_iva(value: number) {
+    updateTarifa_iva(value: number) {
       this.PRODUCT.update((c:any) => ({
         ...c,
-        id_tarifa_iva: Number(value)
+        tarifa_iva: Number(value)
       }));
     }
 
@@ -170,11 +172,13 @@ export class EditComponent {
         c.cod_pro.trim().length > 0 &&
         c.name.trim().length > 0 &&
         c.description.trim().length > 0 &&
-        c.id_tarifa_iva > 0 &&
+        // c.id_tarifa_iva > 0 &&
         (c.price != '' && c.price >= 0) && 
         c.stock != '' &&
         c.stock_min != '' &&
-        c.id_categorie > 0
+        c.id_categorie > 0 &&
+        c.tarifa_iva != null 
+        
       );
     });
 
@@ -193,7 +197,7 @@ export class EditComponent {
       formData.append('stock',       parseInt(this.PRODUCT().stock).toString());
       formData.append('stock_min',    parseInt(this.PRODUCT().stock_min).toString());
       formData.append('id_categorie', this.PRODUCT().id_categorie);
-      formData.append('id_tarifa_iva', this.PRODUCT().id_tarifa_iva);
+      formData.append('tarifa_iva', this.PRODUCT().tarifa_iva);
 
       if(this.file_imagen){
         formData.append('producto', this.file_imagen);

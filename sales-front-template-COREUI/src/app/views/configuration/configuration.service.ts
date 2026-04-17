@@ -48,4 +48,10 @@ export class ConfigurationService {
     .pipe();
   }
 
+  getTarifasIva(){
+    let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
+    let URL = URL_SERVICIOS+'/getTarifasIva';
+    return this.http.get(URL, {headers: headers})
+    .pipe();
+  }
 }

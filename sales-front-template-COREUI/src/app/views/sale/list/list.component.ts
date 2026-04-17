@@ -40,6 +40,7 @@ export class ListComponent {
       {'id': 20,'val': 20}];
   
     modalId = signal<number | null>(null);
+    modalIdErr = signal<number | null>(null);
   
     num_comprobante_abono:any;
     // num_comprobante_documento:any;
@@ -125,6 +126,35 @@ export class ListComponent {
       );
     }
 
+    selectedItem: any = null;
+    abrirModalErrores(item: any) {
+      this.selectedItem = item;
+      this.modalIdErr.set(item.idx);
+    }
+
+    cerrarModalErrores() {
+      this.modalIdErr.set(null);
+      this.selectedItem = null;
+    }
+
+    // 🔥 Getter PRO (evita problemas string/array)
+    get errores() {
+      if (!this.selectedItem) return [];
+
+      const data = this.selectedItem.error_no_autorizada;
+
+      try {
+        return typeof data === 'string' ? JSON.parse(data) : data;
+      } catch (e) {
+        return [];
+      }
+    }
+
+    parseErrores(data: any) {
+      if (!data) return [];
+      return typeof data === 'string' ? JSON.parse(data) : data;
+    }
+
     verifData = 0;
     listarSales(page = 1){
       this.saleService.listSales(page, this.search, this.pageSize, this.filterFrom, this.filterTo)
@@ -138,10 +168,30 @@ export class ListComponent {
         this.totalPages = resp.total;
         this.currentPage = page;
         // console.log(resp.Sales.data);
+
         return this.sales.set(resp.Sales.data) ;
       });
     }
+
+
+    reconsultarSri(item:any){
+      this.saleService.reconsultarSri(item.idx)
+      .subscribe((resp:any)=>{
+
+        if(resp.estado == 'AUTORIZADO'){
+          this.sales.update((currentSales:any) => 
+            currentSales.map((sale:any) => 
+              sale.idx === item.idx 
+                ? { ...sale, estado_sri: 'AUTORIZADO' } 
+                : sale // 👈 IMPORTANTE
+            )
+          );
+          this.toastr.success('Exito', 'Factura: '+item.numero_factura+' fue autorizada');
+        }
+      })
+    }
   
+
     mostrarFiltros(){
       // console.log('mostrar filtros');
       this.seeFilter = true;

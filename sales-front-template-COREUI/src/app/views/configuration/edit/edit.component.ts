@@ -35,6 +35,8 @@ export class EditComponent {
     value:string = '';
     state:boolean = true;
     
+    tarifas_iva:any =[];
+
     ngOnInit(){
       this.activatedRoute.params.subscribe((resp:any)=>{
         this.CONFIGURATION_ID = resp.id;
@@ -45,6 +47,11 @@ export class EditComponent {
         this.name = this.CONFIGURATION.name;
         this.value = this.CONFIGURATION.value;
         this.state = this.CONFIGURATION.state;
+      });
+      this.configurationService.getTarifasIva()
+      .subscribe((resp:any)=>{
+        this.tarifas_iva = resp.Tarifas_iva;
+        console.log(this.tarifas_iva);
       });
     }
 

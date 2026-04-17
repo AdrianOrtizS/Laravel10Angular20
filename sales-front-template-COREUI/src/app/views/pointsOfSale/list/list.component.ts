@@ -72,7 +72,7 @@ export class ListComponent {
       }
       this.totalPages = resp.total;
       this.currentPage = page;
-      // console.log(resp);
+      console.log(resp);
       return this.pointsOfSale.set(resp.PointsOfSale.data) ;
     });
   }

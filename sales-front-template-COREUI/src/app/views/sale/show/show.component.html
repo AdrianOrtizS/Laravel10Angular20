@@ -19,11 +19,12 @@
                 <p><strong>Fecha:</strong> {{ SALE().infoFactura.fechaEmision}}</p>
                 <strong>Pago:</strong>
                 <!-- <span class="ms-1"> -->
-                    @if (SALE().type_receivable == '1') 
+                    @if(SALE().form_pay == '01' || SALE().form_pay == '16'|| SALE().form_pay == '17'
+                    || SALE().form_pay == '18' || SALE().form_pay == '19') 
                     { 
                         <h6 style="display:inline; margin-left: 5px; color: blue;">Contado</h6> 
                     } 
-                    @else 
+                    @if(SALE().form_pay == '15' || SALE().form_pay == '20'|| SALE().form_pay == '21')
                     { 
                         <h6 style="display:inline; margin-left: 5px; color: brown;">Crédito</h6>
                     }
@@ -45,7 +46,8 @@
             <table class="table table-striped table-hover ">
             <thead class="">
                 <tr>
-                    <th style="width: 35%;">Descripción</th>
+                    <th style="width: 15%;">Codigo</th>
+                    <th style="width: 15%;">Descripción</th>
                     <th style="width: 16%;">Precio Unitario</th>
                     <th style="width: 16%;">Cantidad</th>
                     <th style="width: 16%;">Subtotal</th>
@@ -54,6 +56,7 @@
             </thead>
             <tbody>
                 <tr *ngFor="let p of SALE().detalles">
+                <td>{{ p.codigoPrincipal }}</td>
                 <td>{{ p.descripcion }}</td>
                 <td >{{ p.precioUnitario | currency:'USD' }}</td>
                 <td >{{ p.cantidad }}</td>
@@ -79,12 +82,17 @@
             </div>
             <div class="d-flex justify-content-between">
             <div><strong>Descuento:</strong></div>
-            <div>{{ SALE().infoFactura.totalDescuento | currency:'USD' }}</div>
+            <div>{{ SALE().discount | currency:'USD' }}</div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+            <div><strong>Iva 0:</strong></div>
+            <div>{{ SALE().iva0 | currency:'USD' }}</div>
             </div>
 
             <div class="d-flex justify-content-between">
             <div><strong>Iva:</strong></div>
-            <div>{{ SALE().infoFactura.totalConImpuestos[0].valor | currency:'USD' }}</div>
+            <div>{{ SALE().iva | currency:'USD' }}</div>
             </div>
 
             <div class="d-flex justify-content-between">
@@ -95,7 +103,7 @@
     </c-card>
 
 
-    <c-card *ngIf="SALE().type_receivable == 2" class="mb-4 shadow-sm border-0">
+    <c-card *ngIf="SALE().form_pay == '15' || SALE().form_pay == '20' || SALE().form_pay == '21'" class="mb-4 shadow-sm border-0">
         <c-card-header class="bg-light">
             <h6 class="mb-0 fw-semibold">🧾 Resumen de cobros</h6>
         </c-card-header>

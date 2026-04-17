@@ -74,9 +74,11 @@
   
     
   
-  <div class="div-fijo-abajo" style="display: flex;">
-    
-    <ngb-pagination
+  <div class="div-fijo-abajo bg-white border-top shadow-sm px-3 py-2">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <!-- PAGINACIÓN -->
+      <ngb-pagination
+        class="mb-0"
         [collectionSize]="totalPages"
         [ellipses]="true"
         [maxSize]="5"
@@ -85,14 +87,26 @@
         [rotate]="true"
         [boundaryLinks]="true"
         (pageChange)="loadPage($event)">
-    </ngb-pagination>
-    <select [(ngModel)]="pageSize" (change)="listarUsers()">
-      @for (item of itemForPage; track item.id) {
-        <option  value="{{item.val}}">{{item.val}}</option>
-      }
-    </select>
-  </div>
+      </ngb-pagination>
+      <!-- SELECT PAGE SIZE -->
+      <div class="d-flex align-items-center gap-2">
+        <small class="text-muted">Filas:</small>
+        <select 
+          cFormControl
+          class="form-select form-select-sm w-auto"
+          [(ngModel)]="pageSize" 
+          (change)="listarUsers()">
 
+          @for (item of itemForPage; track item.id) {
+            <option [value]="item.val">
+              {{ item.val }}
+            </option>
+          }
+
+        </select>
+      </div>
+    </div>
+  </div>
   <c-modal [visible]="!!selectedUser()" (close)="cerrarModal()">
 <!-- {{ selectedUser()?.state}} -->
     <c-modal-header>

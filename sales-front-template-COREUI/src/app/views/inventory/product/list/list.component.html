@@ -33,7 +33,13 @@
           <td style="width: 200px;">{{item.name}}</td>
           <td style="width: 100px; text-align: center;">{{item.price}}</td>
           <td style="width: 100px; text-align: center;">{{item.stock}}</td>
-          <td style="width: 100px; text-align: center;">{{item.tarifa_iva.porcentaje}} %</td>
+         
+          @if(item.tarifa_iva == 0){
+            <td style="width: 100px; text-align: center;">NO</td>
+          }@else{
+            <td style="width: 100px; text-align: center;">SI</td>
+          }
+          
           <td style="width: 40px;">
             <div class="d-flex justify-content-center align-items-center" >
               <img *ngIf="item.imagen"  [src]="(item.imagen)" width="50px" height="50px !important">
@@ -71,9 +77,12 @@
     </tbody>
   </table>
   
-  <div class="div-fijo-abajo" style="display: flex;">
-    
-    <ngb-pagination
+
+    <div class="div-fijo-abajo bg-white border-top shadow-sm px-3 py-2">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <!-- PAGINACIÓN -->
+      <ngb-pagination
+        class="mb-0"
         [collectionSize]="totalPages"
         [ellipses]="true"
         [maxSize]="5"
@@ -82,12 +91,25 @@
         [rotate]="true"
         [boundaryLinks]="true"
         (pageChange)="loadPage($event)">
-    </ngb-pagination>
-    <select [(ngModel)]="pageSize" (change)="listarProducts()">
-      @for (item of itemForPage; track item.id) {
-        <option  value="{{item.val}}">{{item.val}}</option>
-      }
-    </select>
+      </ngb-pagination>
+      <!-- SELECT PAGE SIZE -->
+      <div class="d-flex align-items-center gap-2">
+        <small class="text-muted">Filas:</small>
+        <select 
+          cFormControl
+          class="form-select form-select-sm w-auto"
+          [(ngModel)]="pageSize" 
+          (change)="listarProducts()">
+
+          @for (item of itemForPage; track item.id) {
+            <option [value]="item.val">
+              {{ item.val }}
+            </option>
+          }
+
+        </select>
+      </div>
+    </div>
   </div>
 
 

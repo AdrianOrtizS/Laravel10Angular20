@@ -83,7 +83,7 @@ export class LoginComponent implements OnInit {
           console.log(resp);
 
           if(resp != true){
-            this.toastr.error('Validacion', resp);
+            this.toastr.error('Validacion', 'Error al intentar ingresar');
             this.disableBtn = false;
             this.loadingRegister = false;
             return;
@@ -100,7 +100,7 @@ export class LoginComponent implements OnInit {
           }
       },
       error:(err:any) =>{
-
+        console.log(err);
       }
     });
       

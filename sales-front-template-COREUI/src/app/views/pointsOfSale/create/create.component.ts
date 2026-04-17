@@ -37,6 +37,7 @@ export class CreateComponent {
       id_branch: 0,
       codigo_punto_emision:  '',
       secuencial_actual:  '',
+      secuencial_actual_receivable:  '',
       descripcion:     '',
     });
 
@@ -46,7 +47,7 @@ export class CreateComponent {
       this.pointsOfSaleService.getBranches()
       .subscribe((resp:any)=>{
         console.log(resp);
-        this.Branches = resp.Branches;
+        this.Branches = resp.branches;
       });
     }
 
@@ -66,6 +67,11 @@ export class CreateComponent {
       this.POINTSOFSALE.update((c:any) => ({ ...c, secuencial_actual: valor }));
     }
 
+    updateSecuencialActualReceivable(event: Event) {
+      const valor = (event.target as HTMLInputElement).value;
+      this.POINTSOFSALE.update((c:any) => ({ ...c, secuencial_actual_receivable: valor }));
+    }
+
     updateDescripcion(event: Event) {
       const valor = (event.target as HTMLInputElement).value;
       this.POINTSOFSALE.update((c:any) => ({ ...c, descripcion: valor }));
@@ -77,6 +83,7 @@ export class CreateComponent {
       return (
         c.codigo_punto_emision.trim().length > 0 &&
         c.secuencial_actual.trim().length > 0 &&
+        c.secuencial_actual_receivable.trim().length > 0 &&
         c.descripcion.trim().length > 0 &&
         c.id_branch > 0
       );
@@ -91,6 +98,7 @@ export class CreateComponent {
       let pointsOfSale = {
         'codigo_punto_emision': this.POINTSOFSALE().codigo_punto_emision,
         'secuencial_actual':    this.POINTSOFSALE().secuencial_actual,
+        'secuencial_actual_receivable':    this.POINTSOFSALE().secuencial_actual_receivable,
         'descripcion':          this.POINTSOFSALE().descripcion,
         'id_branch':            this.POINTSOFSALE().id_branch
       };
@@ -112,6 +120,7 @@ export class CreateComponent {
       this.POINTSOFSALE.set({ 
         codigo_punto_emision:'',
         secuencial_actual:'',
+        secuencial_actual_receivable:'',
         descripcion:'',
         id_branch:0
       });

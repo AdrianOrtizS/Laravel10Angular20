@@ -14,13 +14,13 @@
   <table bordered  cTable>
     <thead cTableColor="light">
       <tr>
-        <th scope="col">#</th>
-        <th scope="col">Sucursal</th>
-        <th scope="col">Codigo punto emision</th>
-        <th scope="col">Ultimo secuencial</th>
-        <th scope="col">Descripcion</th>
-        <!-- <th scope="col">Estado</th> -->
-        <th scope="col">Accion</th>
+        <th scope="col" style="text-align: center;">#</th>
+        <th scope="col" style="text-align: center;">SUCURSAL</th>
+        <th scope="col" style="text-align: center;">CODIGO PUNTO EMISION</th>
+        <th scope="col" style="text-align: center;">ULTIMO SECUENCIAL FACTURA</th>
+        <th scope="col" style="text-align: center;">ULTIMO SECUENCIAL RECIBO</th>
+        <th scope="col" style="text-align: center;">DESCRIPCION</th>
+        <th scope="col"style="text-align: center;">ACCION</th>
       </tr>
     </thead>
     <tbody>
@@ -30,6 +30,7 @@
           <td style="width: 200px;">{{item.branch.name}}</td>
           <td style="width: 100px;">{{item.codigo_punto_emision}}</td>
           <td style="width: 100px; text-align: center;">{{item.secuencial_actual}}</td>
+          <td style="width: 100px; text-align: center;">{{item.secuencial_actual_receivable}}</td>
           <td style="width: 200px; text-align: center;">{{item.descripcion}}</td>
           <td style="width: 60px;"> 
             <c-button-group aria-label="Basic mixed styles example" role="group">
@@ -46,9 +47,11 @@
     </tbody>
   </table>
   
-  <div class="div-fijo-abajo" style="display: flex;">
-    
-    <ngb-pagination
+  <div class="div-fijo-abajo bg-white border-top shadow-sm px-3 py-2">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <!-- PAGINACIÓN -->
+      <ngb-pagination
+        class="mb-0"
         [collectionSize]="totalPages"
         [ellipses]="true"
         [maxSize]="5"
@@ -57,12 +60,25 @@
         [rotate]="true"
         [boundaryLinks]="true"
         (pageChange)="loadPage($event)">
-    </ngb-pagination>
-    <select [(ngModel)]="pageSize" (change)="listarPointsOfSale()">
-      @for (item of itemForPage; track item.id) {
-        <option  value="{{item.val}}">{{item.val}}</option>
-      }
-    </select>
+      </ngb-pagination>
+      <!-- SELECT PAGE SIZE -->
+      <div class="d-flex align-items-center gap-2">
+        <small class="text-muted">Filas:</small>
+        <select 
+          cFormControl
+          class="form-select form-select-sm w-auto"
+          [(ngModel)]="pageSize" 
+          (change)="listarPointsOfSale()">
+
+          @for (item of itemForPage; track item.id) {
+            <option [value]="item.val">
+              {{ item.val }}
+            </option>
+          }
+
+        </select>
+      </div>
+    </div>
   </div>
 <!-- }@else{
   <div class="loading-overlay text-center p-5">

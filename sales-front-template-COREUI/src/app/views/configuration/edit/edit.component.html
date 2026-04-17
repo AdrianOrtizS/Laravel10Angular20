@@ -8,7 +8,7 @@
         <c-card-body>
             <div class="tab-content rounded-bottom">
                 <div class="tab-pane active show p-3 preview fade">
-                    <div>
+                    <div *ngIf="name != 'iva'">
                         <div class="mb-3">
                             <label cLabel for="name">Nombre configuracion (*)</label>
                             <input cFormControl id="name" [ngModelOptions]="{standalone: true}" [(ngModel)]="name" placeholder="Ej: version xml..." type="text" />
@@ -18,6 +18,33 @@
                             <input cFormControl id="value" [ngModelOptions]="{standalone: true}" [(ngModel)]="value" placeholder="Ej: 2.1.0 ..." type="text" />
                         </div>
                     </div>
+
+                    <div *ngIf="name == 'iva'">
+                        <div class="mb-3">
+                            <label cLabel for="name">Nombre configuracion (*)</label>
+                            <input cFormControl id="name" [ngModelOptions]="{standalone: true}" [(ngModel)]="name" placeholder="Ej: version xml..." type="text" />
+                        </div>
+                        <div class="mb-3">
+                            <label cLabel for="value">Valor (*)</label>
+                            <!-- <input cFormControl id="value" [ngModelOptions]="{standalone: true}" 
+                            [(ngModel)]="value" placeholder="Ej: 2.1.0 ..." type="text" />
+                             -->
+                            <select 
+                                cFormControl
+                                id="value"
+                                class="form-select"
+                                [ngModelOptions]="{standalone: true}"
+                                [(ngModel)]="value">
+                                                            
+                                <option *ngFor="let item of tarifas_iva" [ngValue]="item.porcentaje">
+                                    {{ item.porcentaje }} % (cod: {{ item.codigo }})
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+
+
                     
                     <div class="d-grid gap-2">
                         <button cButton color="primary" title="Actualizar" (click)="save()">

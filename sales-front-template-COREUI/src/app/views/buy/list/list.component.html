@@ -29,14 +29,14 @@
     <div class="row">
       <div class="col-md-10">
         <div class="d-flex align-items-center gap-2">
-          <label class="fw-semibold text-secondary">Inicio:</label>
+          <label class="fw-semibold text-secondary">INICIO:</label>
           <input cFormControl type="date" [(ngModel)]="filterFrom" class="form-control-sm"/>
-          <label class="fw-semibold text-secondary">Fin:</label>
+          <label class="fw-semibold text-secondary">FIN:</label>
           <input cFormControl type="date" [(ngModel)]="filterTo" class="form-control-sm"/>
         </div>
         <!-- <div class="d-flex align-items-center gap-2"></div> -->
         <div class="d-flex m-3 ">
-          <label class="fw-semibold text-secondary">Tipo pago:</label>
+          <label class="fw-semibold text-secondary">TIPO PAGO:</label>
           <div class="d-flex gap-2 " style="margin-inline-start: 10px;">
             <c-form-check inline>
               <input cFormCheckInput [(ngModel)]="selectedTypePay" (change)="onTypePayChange()" value=1 id="radioContado" name="typePay" type="radio"/>
@@ -65,11 +65,11 @@
   <table bordered  cTable>
     <thead cTableColor="light">
       <tr>
-        <th scope="col">Compra #</th>
-        <th scope="col">Proveedor</th>
-        <th scope="col">Fecha</th>
-        <th scope="col">Total</th>
-        <th scope="col">Accion</th>
+        <th scope="col">COMPRA #</th>
+        <th scope="col">PROVEEDOR</th>
+        <th scope="col">FECHA</th>
+        <th scope="col">TOTAL</th>
+        <th scope="col">ACCION</th>
       </tr>
     </thead>
     <tbody>
@@ -98,7 +98,7 @@
 
               <c-modal [visible]="modalId() === item.id" title="Abonar documento # {{item.numero_factura}}" (close)="cerrarModal()">
                 <c-modal-header>
-                  <h5 cModalTitle>Abono a factura #{{item.numero_factura}}</h5>
+                  <h5 cModalTitle>ABONO A FACTURA #{{item.numero_factura}}</h5>
                   <button (click)="cerrarModal()" cButtonClose></button>
                 </c-modal-header>
                 <c-modal-body>
@@ -107,18 +107,18 @@
                       
                       <div class="row">
                           <div class="col-md-12 mb-3 text-center">
-                              <label class="h5"> Saldo: {{item.saldo}}</label>
+                              <label class="h5"> SALDO: {{item.saldo}}</label>
                           </div>
                           <div class="col-md-12 mb-3">
-                              <label>Comprobante #</label>
+                              <label>COMPROBANTE #</label>
                               <input cInput type="text" class="form-control" required placeholder="0001230345" [(ngModel)]="num_comprobante_abono">
                           </div>
                           <div class="col-md-12 mb-3">
-                              <label>Monto </label>
+                              <label>MONTO </label>
                               <input cInput type="number" class="form-control" required placeholder="9,87" [(ngModel)]="valor_abono" >
                           </div>
                           <div class="col-md-12 mb-3">
-                              <label cLabel for="imagen">Imagen: </label>
+                              <label cLabel for="imagen">IMAGEN: </label>
                               <div>
                                   <input cFormControl type="file" style="display: none;" id="categorieImage" accept=".jpeg, .bmp, .jpg, .png, .gif, .webp" (change)="processFile($event)">
                               </div>
@@ -133,8 +133,8 @@
                   </c-card>
                 </c-modal-body>
                 <c-modal-footer>
-                  <button cButton color="success" [disabled]="disabledPay(item)" (click)="savePay(item.id, item)">Guardar abono</button>
-                  <button cButton color="secondary" (click)="cerrarModal()">Cancelar</button>
+                  <button cButton color="success" [disabled]="disabledPay(item)" (click)="savePay(item.id, item)">GUARDAR abono</button>
+                  <button cButton color="secondary" (click)="cerrarModal()">CANCELAR</button>
                 </c-modal-footer>
               </c-modal>
 
@@ -151,9 +151,12 @@
     </tbody>
   </table>
   
-  <div class="div-fijo-abajo" style="display: flex;">
-    
-    <ngb-pagination
+
+  <div class="div-fijo-abajo bg-white border-top shadow-sm px-3 py-2">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <!-- PAGINACIÓN -->
+      <ngb-pagination
+        class="mb-0"
         [collectionSize]="totalPages"
         [ellipses]="true"
         [maxSize]="5"
@@ -162,17 +165,32 @@
         [rotate]="true"
         [boundaryLinks]="true"
         (pageChange)="loadPage($event)">
-    </ngb-pagination>
-    <select [(ngModel)]="pageSize" (change)="listarBuys()">
-      @for (item of itemForPage; track item.id) {
-        <option  value="{{item.val}}">{{item.val}}</option>
-      }
-    </select>
+      </ngb-pagination>
+      <!-- SELECT PAGE SIZE -->
+      <div class="d-flex align-items-center gap-2">
+        <small class="text-muted">Filas:</small>
+        <select 
+          cFormControl
+          class="form-select form-select-sm w-auto"
+          [(ngModel)]="pageSize" 
+          (change)="listarBuys()">
+
+          @for (item of itemForPage; track item.id) {
+            <option [value]="item.val">
+              {{ item.val }}
+            </option>
+          }
+
+        </select>
+      </div>
+    </div>
   </div>
 
-  <c-modal [visible]="!!modalIdDelete()" (close)="cerrarModal()">
+
+
+  <c-modal [visible]="!!modalIdDelete()"  (close)="cerrarModalDelete()">
     <c-modal-header>
-      <h5 cModalTitle>Eliminar compra <strong>#{{modalIdDelete()?.numero_factura}}</strong></h5>
+      <h5 cModalTitle>ELIMINAR COMPRA <strong>#{{modalIdDelete()?.numero_factura}}</strong></h5>
       <button (click)="cerrarModalDelete()" cButtonClose></button>
     </c-modal-header>
     <c-modal-body>
@@ -180,8 +198,8 @@
       ¿Desea eliminar compra?
     </c-modal-body>
     <c-modal-footer>
-      <button cButton color="danger"  (click)="removeBuy(modalIdDelete().id)">Eliminar compra</button>
-      <button cButton color="secondary" (click)="cerrarModalDelete()">Cancelar</button>
+      <button cButton color="danger"  (click)="removeBuy(modalIdDelete().id)">ELIMINAR COMPRA</button>
+      <button cButton color="secondary" (click)="cerrarModalDelete()">CANCELAR</button>
     </c-modal-footer>
   </c-modal>
 
@@ -215,7 +233,7 @@
                         <path d="M7 9h10M7 13h10M7 17h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                         <path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12.5a1.5 1.5 0 0 1-2.33 1.24L12 16l-5.67 3.74A1.5 1.5 0 0 1 4 18.5V6Z" stroke="currentColor" stroke-width="1.5" />
                       </svg>
-                      <h1>No hay datos para mostrar</h1>
+                      <h1>NO HAY DATOS PARA MOSTRAR</h1>
                       <p>
                         Aún no se encontraron registros. Intenta ajustar los filtros, crear un nuevo elemento
                         o recargar la página.
