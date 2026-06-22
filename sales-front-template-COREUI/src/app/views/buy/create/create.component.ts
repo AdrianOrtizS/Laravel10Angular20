@@ -26,6 +26,7 @@ interface BuyI {
   type_doc:any,
   subtotal:     any,
   iva:          any,
+  iva0:          any,
   total:        any,
   items:        BuyDetalleI[]
 }
@@ -35,6 +36,7 @@ interface BuyDetalleI {
   quantity:   any,
   price:      any,
   subtotal:   any,
+  iva:        any
 }
 
 @Component({
@@ -239,17 +241,18 @@ export class CreateComponent {
     const valor = (event.target as HTMLInputElement).value;
     this.producto.update((c:any) => ({ ...c, quantity: valor }));
   }
-  updateProductDiscount(event: Event) {
-    const valor = (event.target as HTMLInputElement).value;
-    this.producto.update((c:any) => ({ ...c, discount: valor }));
-  }
+  // updateProductDiscount(event: Event) {
+  //   const valor = (event.target as HTMLInputElement).value;
+  //   this.producto.update((c:any) => ({ ...c, discount: valor }));
+  // }
 
   // Validar si los campos cantidad y precio son válidos
   isAddProductValid = computed(() => {
     const p = this.producto();
     return (
       p.quantity > 0 &&
-      p.price > 0
+      p.price > 0 &&
+      p.iva >= 0
     );
   });
 
@@ -278,6 +281,7 @@ export class CreateComponent {
     type_doc: 1,
     // discount:     0,
     iva:          0,
+    iva0:          0,
     total:        0,
     items:        []
   };
@@ -290,15 +294,25 @@ export class CreateComponent {
     price:      0,
     subtotal:   0,
     iva:        0,
+    iva0:        0,
     // discount:   0
   });
   items: any[] = [];
 
 
   agregarProducto() {
+    
     this.producto().subtotal = this.producto().price * this.producto().quantity;
-    this.producto().iva = Number(((this.producto().subtotal*this.ivaValor.value)/100).toFixed(2));
+    if(this.isCheckedIva){
+      this.producto().iva = Number(((this.producto().subtotal*this.ivaValor.value)/100).toFixed(2));
+    }else{
+      this.producto().iva0 = Number(this.producto().subtotal);
+    }
+
     this.items.push({ ...this.producto() });
+    
+    console.log(this.items);
+
     this.producto.set({ 
       id_product: '',
       cod_pro:    '', 
@@ -307,8 +321,10 @@ export class CreateComponent {
       price:      0, 
       subtotal:   0, 
       iva:        0,
+      iva0:       0,
       // discount:   0 
     });
+    this.calcularTotales();
   }
 
   selectedTypeBuy: string = '1'; // Valor por defecto
@@ -322,10 +338,7 @@ export class CreateComponent {
   }
 
   save(){
-    let iva = 0;
-    if(this.selectedTypeDoc == '1'){  //1 contado - 2 credito
-      iva = this.ivaFac;              //1 fact - 2 not. venta   
-    }                                  
+
     this.buy = {
       id_supplier:    this.supplierSelect.id,
       fecha_ingreso:  this.fecha_ingreso, 
@@ -333,7 +346,8 @@ export class CreateComponent {
       type_pay:     this.selectedTypeBuy, //1 contado - 2 credito
       type_doc:     this.selectedTypeDoc, //1 fact - 2 not. venta
       subtotal:     this.subtotal,
-      iva:          iva,
+      iva:          this.iva,
+      iva0:         this.iva0,
       total:        this.total,
       items:        this.items
     };
@@ -364,6 +378,8 @@ export class CreateComponent {
         setTimeout(() => {
           this.supplierSelect = {};
           this.subtotal = 0;
+          this.iva = 0;
+          this.iva0 = 0;
           this.total = 0;
           this.selectedTypeBuy = '1';   //1 contado - 2 credito
           this.selectedTypeDoc = '1';   //1 fact - 2 not. venta
@@ -380,32 +396,47 @@ export class CreateComponent {
   eliminarProducto(item: any) {
     this.items = this.items.filter(p => p !== item);
   }
+/////////////////////
+
 
   subtotal:any  = 0;
-  ivaFac:any       = 0;
+  descuentoTotal:any = 0;
+  iva0:any      = 0;
+  iva:any       = 0;
   total:any     = 0;
   
-  calcularSubtotal() {
-    this.subtotal = 0;
-    this.subtotal = this.items.reduce((subtotal, p) => subtotal + (p.quantity * p.price), 0);
-    return this.subtotal;
+  calcularTotales() {
+    let subtotal = 0;
+    let descuento = 0;
+    let iva0 = 0;
+    let iva = 0;
+
+    this.items.forEach(p => {
+      const price = Number(p.price) || 0;
+      const quantity = Number(p.quantity) || 0;
+      const discount = Number(p.discount) || 0;
+      const tarifa = Number(p.iva) || 0;
+      const base = (price * quantity) - discount;
+
+      subtotal += price * quantity;
+      descuento += discount;
+
+      if (tarifa === 0) {
+        iva0 += base;
+      } else {
+        // console.log(this.ivaValor);
+        iva += base * (+(this.ivaValor.value)/100);
+        // console.log(iva);
+      }
+    });
+
+    this.subtotal = subtotal;
+    this.descuentoTotal = descuento;
+    this.iva0 = iva0;
+    this.iva = iva;
+    this.total = (subtotal - descuento) + iva;
   }
-  calcularIva() {
-    if(this.ivaValor){
-      this.ivaFac = (this.subtotal * this.ivaValor.value)/100;
-      return this.ivaFac;
-    }
-  }
-  calcularTotal() {
-    if(this.selectedTypeDoc == '1'){
-      this.total = this.subtotal + this.ivaFac;
-      return this.total;
-    }
-    if(this.selectedTypeDoc == '2'){
-      this.total = this.subtotal ;
-      return this.total;
-    }
-  }
+
 
   goList(){
     this.router.navigateByUrl("/buy/list");

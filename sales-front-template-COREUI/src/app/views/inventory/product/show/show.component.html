@@ -1,5 +1,5 @@
 @if (isFull) {
-  <c-card class="mb-4 shadow-sm" style="max-width: 620px">
+  <c-card class="mb-4 shadow-sm" style="max-width: 700px">
     <c-row class="g-0">
 
       <!-- IMAGEN -->
@@ -20,13 +20,14 @@
         </h4>
 
         <ul class="list-unstyled mb-3 small">
-          <li><strong>Código:</strong> {{ PRODUCT().cod_pro || '—' }}</li>
-          <li><strong>Descripción:</strong> {{ PRODUCT().description || '—' }}</li>
-          <li><strong>Categoría:</strong> {{ PRODUCT().categorie?.name || '—' }}</li>
-          <li><strong>Precio:</strong> ${{ PRODUCT().price | number:'1.2-2' }}</li>
-          <li><strong>Stock:</strong> {{ PRODUCT().stock }}</li>
-          <li><strong>Stock mínimo:</strong> {{ PRODUCT().stock_min }}</li>
-          <li><strong>Tarifa iva:</strong> {{ PRODUCT().tarifa_iva.porcentaje }} %</li>
+          <li><h5><strong>Código:</strong> {{ PRODUCT().cod_pro || '—' }}</h5></li>
+          <li><h5><strong>Descripción:</strong> {{ PRODUCT().description || '—' }}</h5></li>
+          <li><h5><strong>Categoría:</strong> {{ PRODUCT().categorie?.name || '—' }}</h5></li>
+          <li><h5><strong>Precio:</strong> ${{ PRODUCT().price | number:'1.2-2' }}</h5></li>
+          <li><h5><strong>Stock:</strong> {{ PRODUCT().stock }}</h5></li>
+          <li><h5><strong>Stock mínimo:</strong> {{ PRODUCT().stock_min }}</h5></li>
+          <li><h5><strong>Tarifa iva:</strong> {{ ivaValor.value }} %</h5></li>
+          <li *ngIf="PRODUCT().tarifa_ice"><h5><strong>Tarifa ice:</strong> Cod: {{ PRODUCT().tarifa_ice.codigo_porcentaje }} -- Tar: {{ PRODUCT().tarifa_ice.tarifa }} % -- Tar: {{ PRODUCT().tarifa_ice.tipo }}</h5></li>
         </ul>
 
         <small class="text-medium-emphasis mb-3">

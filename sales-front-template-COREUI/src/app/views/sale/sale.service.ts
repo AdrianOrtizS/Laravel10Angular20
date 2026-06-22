@@ -68,18 +68,19 @@ export class SaleService {
     .pipe();
   }
 
-  getFacturaPDF(id: number) {
-    // console.log(id);
-    let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
-    let URL = URL_SERVICIOS+'/sale/factura/'+id+'/pdf';
-    return this.http.get(URL, {headers: headers, responseType: 'blob'})
-    .pipe();
-  }
 
   reconsultarSri(id:any){
     let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
     let URL = URL_SERVICIOS+'/sale/factura/reconsultar/'+id;
     return this.http.get(URL, {headers: headers})
+    .pipe();
+  }
+
+  getFacturaPDF(id: number) {
+    // console.log(id);
+    let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
+    let URL = URL_SERVICIOS+'/sale/factura/'+id+'/pdf';
+    return this.http.get(URL, {headers: headers, responseType: 'blob'})
     .pipe();
   }
 
@@ -90,6 +91,7 @@ export class SaleService {
     return this.http.get(URL, {headers: headers, responseType: 'blob'})
     .pipe();
   }
+
 
   getReceivablePDF(id: number) {
     // console.log(id);
@@ -113,13 +115,6 @@ export class SaleService {
     return this.http.delete(URL, {headers: headers})
     .pipe();
   }
-
-  // sendFacturaPdfXml(clave: string, mailCustomerSale: string, sale:any) {
-  //   let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
-  //   let URL = URL_SERVICIOS+'/sale/sendFacturaPdfXml/'+clave+'/'+mailCustomerSale;
-  //   return this.http.post(URL, sale, {headers: headers})
-  //   .pipe();
-  // }
 
   getConfigurations(){
     let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});

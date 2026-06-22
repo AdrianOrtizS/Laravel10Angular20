@@ -11,14 +11,14 @@
                     <div class="mb-3">
                         <select aria-label="Default select example" cSelect name="id_branch" 
                                 [value]="POINTSOFSALE().id_branch" (input)="updateId_branch($event)">
-                            <option value="0">- SELECCIONE SUCURSAL(*) -</option>
+                            <option value="0">- Selecciona sucursal(*) -</option>
                             @for(item of Branches; track item.id){
                                 <option [value]="item.id">{{item.name}}</option>
                             }    
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label cLabel for="codigo_punto_emision">CODIGO PUNTO EMISION (*)</label>
+                        <label cLabel for="codigo_punto_emision">Codigo punto emision (*)</label>
                         <input cFormControl id="codigo_punto_emision" placeholder="Ej: 001..." type="text" [value]="POINTSOFSALE().codigo_punto_emision" (input)="updateCodigoPuntoEmision($event)" required/>    
                         <div *ngIf="!POINTSOFSALE().codigo_punto_emision.trim() && POINTSOFSALE().codigo_punto_emision !== ''" class="text-danger mt-1">
                             Codigo punto emision es obligatorio
@@ -26,7 +26,7 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label cLabel for="secuencial_actual">SECUANCIAL ACTUAL FACTURA(*)</label>
+                        <label cLabel for="secuencial_actual">Secuencial actual factura(*)</label>
                         <input cFormControl id="secuencial_actual" placeholder="Ej: 143..." type="text" [value]="POINTSOFSALE().secuencial_actual" (input)="updateSecuencialActual($event)" required/>    
                         <div *ngIf="!POINTSOFSALE().secuencial_actual.trim() && POINTSOFSALE().secuencial_actual !== ''" class="text-danger mt-1">
                             Secuencial actual es obligatorio
@@ -34,7 +34,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label cLabel for="secuencial_actual">SECUENCIAL ACTUAL RECIBO(*)</label>
+                        <label cLabel for="secuencial_actual">Secuencial actual recibo(*)</label>
                         <input cFormControl id="secuencial_actual_receivable" placeholder="Ej: 143..." type="text" [value]="POINTSOFSALE().secuencial_actual_receivable" (input)="updateSecuencialActualReceivable($event)" required/>    
                         <div *ngIf="!POINTSOFSALE().secuencial_actual_receivable.trim() && POINTSOFSALE().secuencial_actual_receivable !== ''" class="text-danger mt-1">
                             Secuencial actual recibo es obligatorio
@@ -42,7 +42,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label cLabel for="descripcion">DESCRIPCION (*)</label>
+                        <label cLabel for="descripcion">Descripcion (*)</label>
                         <input cFormControl id="descripcion" placeholder="Ej: Punto ABC es ..." type="text" [value]="POINTSOFSALE().descripcion" (input)="updateDescripcion($event)" required/>    
                         <div *ngIf="!POINTSOFSALE().descripcion.trim() && POINTSOFSALE().descripcion !== ''" class="text-danger mt-1">
                             Descripcion es obligatorio

@@ -1,57 +1,50 @@
-import { AuthService } from '../services/auth.service';
-import { URL_SERVICIOS } from '../../config/config';
 import { Injectable, signal  } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-
+import { AuthService } from '../../services/auth.service';
+import { URL_SERVICIOS } from '../../../config/config';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ConfigurationService {
-
+export class IceTarifaService {
+  
   constructor(public http: HttpClient,
     public authService: AuthService
   ) { }
 
-  listConfigurations(page:number=1, search:string, pageSize:number){
+  listIceTarifas(page:number=1, search:string, pageSize:number){
     let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
-    let URL = URL_SERVICIOS+'/configurations?page='+page+'&search='+search+'&pageSize='+pageSize;
+    let URL = URL_SERVICIOS+'/ice_tarifas?page='+page+'&search='+search+'&pageSize='+pageSize;
     return this.http.get(URL, {headers: headers})
             .pipe();
   }
 
-  createConfiguration(data:any){
+  createIceTarifa(data:any){
     let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
-    let URL = URL_SERVICIOS+'/configurations';
+    let URL = URL_SERVICIOS+'/ice_tarifas';
     return this.http.post(URL, data, {headers: headers})
     .pipe();
   }
 
-  showConfiguration(configuration_id:string){
+  showIceTarifa(ice_tarifa_id:string){
     let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
-    let URL = URL_SERVICIOS+'/configurations/'+configuration_id;
+    let URL = URL_SERVICIOS+'/ice_tarifas/'+ice_tarifa_id;
     return this.http.get(URL, {headers: headers})
     .pipe();
   }
 
-  updateConfiguration(configuration_id:string, data:any){
+  updateIceTarifa(ice_tarifa_id:string, data:any){
     let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
-    let URL = URL_SERVICIOS+'/configurations/'+configuration_id;
-    return this.http.post(URL, data, {headers: headers})
+    let URL = URL_SERVICIOS+'/ice_tarifas/'+ice_tarifa_id;
+    return this.http.put(URL, data, {headers: headers})
     .pipe();
   }
 
-  changeState(configuration_id:string){
+  changeState(ice_tarifa_id:string){
     let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
-    let URL = URL_SERVICIOS+'/configurations/'+configuration_id;
+    let URL = URL_SERVICIOS+'/ice_tarifas/'+ice_tarifa_id;
     return this.http.delete(URL, {headers: headers})
     .pipe();
   }
 
-  getTarifasIva(){
-    let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
-    let URL = URL_SERVICIOS+'/getTarifasIva';
-    return this.http.get(URL, {headers: headers})
-    .pipe();
-  }
 }

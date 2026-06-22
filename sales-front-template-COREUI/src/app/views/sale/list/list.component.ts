@@ -175,9 +175,9 @@ export class ListComponent {
 
 
     reconsultarSri(item:any){
+      // console.log(item);
       this.saleService.reconsultarSri(item.idx)
       .subscribe((resp:any)=>{
-
         if(resp.estado == 'AUTORIZADO'){
           this.sales.update((currentSales:any) => 
             currentSales.map((sale:any) => 

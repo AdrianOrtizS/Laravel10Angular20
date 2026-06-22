@@ -24,6 +24,8 @@ export class ListComponent {
   value: string='';
   state: boolean=true;
 
+  imagen_previsualiza:any = '../../../../assets/images/sin_imagen.jpg';
+
   configurations: any = signal<any[]>([]);
   search:     string ='';
   totalPages: number =0;
@@ -51,6 +53,12 @@ export class ListComponent {
     }
   }
 
+  getImageUrl(imagePath: string | null): string {
+    return imagePath 
+      ? `${URL_BACKEND}storage/${imagePath}` 
+      : `${URL_BACKEND}uploads/sin_imagen.jpg`;
+  }
+
   ngOnInit(){
     this.listarConfigurations();
   }
@@ -60,11 +68,12 @@ export class ListComponent {
     this.listarConfigurations(1);  
   }
 
+  
   verifData = 0;
   listarConfigurations(page = 1){
     this.configurationService.listConfigurations(page, this.search, this.pageSize)
     .subscribe((resp:any) => {
-      // console.log(resp);
+      console.log(resp);
       this.verifData = 0;
       if(resp.configurations.length == 0 && this.verifData == 0){
         this.verifData ++;

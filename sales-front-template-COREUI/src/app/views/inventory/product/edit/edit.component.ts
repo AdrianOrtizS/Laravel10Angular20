@@ -19,7 +19,9 @@ interface ProductI {
   stock_min: number,
   imagen: string,
   id_categorie: number,
-  tarifa_iva: number
+  tarifa_iva: number,
+  id_ice_tarifa:  any
+
 }
 
 @Component({
@@ -44,6 +46,7 @@ export class EditComponent {
     stock_minTouched = false;
     imagenTouched  = false;
     tarifa_ivaTouched = false;
+    id_ice_tarifaTouched  = false;
 
     public favoriteColor = '#26ab3c';
     icons   = freeSet;
@@ -61,36 +64,38 @@ export class EditComponent {
       stock_min: 0,
       imagen: '',
       id_categorie: 0,
-      tarifa_iva: 0
+      tarifa_iva: 0,
+      id_ice_tarifa: null
     });
+
+    tarifa_ice = 0;
 
     PRODUCT_ID:any  = null;
     Categories:any = [];
-    // Tarifas_iva:any = [];
+    TarifasIce:any  = [];
 
     imagen_previsualiza:any = '../../../../assets/images/sin_imagen.jpg';
     file_imagen:any =null;
     isEmpty:boolean = true;
     
     ngOnInit(){
+      this.activatedRoute.params.subscribe((resp:any)=>{
+        this.PRODUCT_ID = resp.id;
+      });
+      this.productService.getTarifasIce()
+      .subscribe((resp:any)=>{
+        this.TarifasIce = resp.Tarifas_ice;
+        console.log(this.TarifasIce);
+      });
       this.productService.getCategories()
       .subscribe((resp:any)=>{
         this.Categories = resp.Categories;
       });
-      // this.productService.getTarifasIva()
-      // .subscribe((resp:any)=>{
-      //   this.Tarifas_iva = resp.Tarifas_iva;
-      // });
-      this.activatedRoute.params.subscribe((resp:any)=>{
-        this.PRODUCT_ID = resp.id;
-      });
       this.productService.showProduct(this.PRODUCT_ID)
       .subscribe((resp:any)=>{
-        
         this.isEmpty = Object.keys(this.PRODUCT()).length === 0;
-
-        const product = resp.Product;
-
+        let product = resp.Product;
+        
         this.PRODUCT.set({
           ...product,
           tarifa_iva: Number(product.tarifa_iva), // 🔥 IMPORTANTE
@@ -100,7 +105,9 @@ export class EditComponent {
         if(product.imagen){
           this.imagen_previsualiza = product.imagen;
         }
-        console.log(this.PRODUCT());
+        if(product.id_ice_tarifa != null){
+          this.tarifa_ice = 1;
+        }
       });
     }
 
@@ -164,6 +171,12 @@ export class EditComponent {
         tarifa_iva: Number(value)
       }));
     }
+    updateId_Ice_Tarifa(value: number) {
+      this.PRODUCT.update((c:any) => ({ 
+        ...c, 
+        id_ice_tarifa: Number(value) 
+      }));
+    }
 
     // Validar si todos los campos son obligatorios y válidos
     isFormValid = computed(() => {
@@ -184,6 +197,9 @@ export class EditComponent {
 
 
     save(){
+
+      console.log(this.tarifa_ice);
+      
       if(this.PRODUCT().id_categorie == 0){
         this.toastr.error('Validacion', 'Seleccione categoria');
         return;
@@ -199,10 +215,16 @@ export class EditComponent {
       formData.append('id_categorie', this.PRODUCT().id_categorie);
       formData.append('tarifa_iva', this.PRODUCT().tarifa_iva);
 
+      if(this.tarifa_ice != 0){
+        formData.append('id_ice_tarifa',  this.PRODUCT().id_ice_tarifa);
+      }else{
+        formData.append('id_ice_tarifa',  '');
+      }
+      
       if(this.file_imagen){
         formData.append('producto', this.file_imagen);
       }
-
+      console.log(formData);
       this.productService.updateProduct(this.PRODUCT_ID, formData)
       .subscribe({
         next:() =>{

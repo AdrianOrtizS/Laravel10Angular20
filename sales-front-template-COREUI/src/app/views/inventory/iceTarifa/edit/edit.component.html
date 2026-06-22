@@ -1,0 +1,127 @@
+@if(ICE_TARIFA){
+    <c-row ngPreserveWhitespaces class="justify-content-center">
+    <c-col xs="12" md="10" lg="8">
+        <c-card class="mb-4 shadow-sm border-0">
+        <c-card-header class="d-flex align-items-center justify-content-between">
+            <div>
+            <strong class="fs-5">Editar tarifa ICE</strong>
+            <div class="small text-body-secondary">
+                Complete los campos requeridos con <span class="text-danger">*</span>
+            </div>
+            </div>
+        </c-card-header>
+
+        <c-card-body>
+
+            <div class="row g-3">
+
+            <div class="col-md-6">
+                <label cLabel for="codigo">
+                Código (3-ICE   4-IRBPNR)<span class="text-danger">*</span>
+                </label>
+                <select cSelect id="codigo" [ngModelOptions]="{standalone: true}" [(ngModel)]="codigo" >
+                <option value="">Seleccione...</option>
+                <option value="3">3 - ICE</option>
+                <option value="4">4 - IRBPNR</option>
+                </select>
+
+            </div>
+
+            <!-- Código porcentaje -->
+            <div class="col-md-6">
+                <label cLabel for="codigo_porcentaje">
+                Código porcentaje <span class="text-danger">*</span>
+                </label>
+
+                <input cFormControl id="codigo_porcentaje" type="text" maxlength="10" autocomplete="off"
+                [ngModelOptions]="{standalone: true}" [(ngModel)]="codigo_porcentaje" placeholder="Ej: 3512"/>
+            </div>
+
+            <!-- Descripción -->
+            <div class="col-12">
+                <label cLabel for="descripcion">
+                Descripción <span class="text-danger">*</span>
+                </label>
+
+                <textarea cFormControl id="descripcion" rows="3" [ngModelOptions]="{standalone: true}"
+                [(ngModel)]="descripcion" placeholder="Ingrese una descripción de la tarifa ICE">
+                </textarea>
+            </div>
+
+            <!-- Tipo -->
+            <div class="col-md-6">
+                <label cLabel for="tipo">
+                Tipo <span class="text-danger">*</span>
+                </label>
+
+                <select cSelect id="tipo" [ngModelOptions]="{standalone: true}" [(ngModel)]="tipo">
+                    <!-- <option [ngValue]="null">
+                        Seleccione...
+                    </option> -->
+                    <option [ngValue]="Tipo_tar.Porcentaje">
+                        PORCENTAJE
+                    </option>
+                    <option [ngValue]="Tipo_tar.Especifico">
+                        ESPECIFICO
+                    </option>
+                    <option [ngValue]="Tipo_tar.Mixto">
+                        MIXTO
+                    </option>
+                </select>
+            </div>
+
+            <!-- Tarifa -->
+            <div class="col-md-6">
+                <label cLabel for="tarifa">
+                Tarifa <span class="text-danger">*</span>
+                </label>
+
+                <div class="input-group">
+                <input cFormControl id="tarifa" type="number" step="0.01" min="0" [ngModelOptions]="{standalone: true}"
+                    [(ngModel)]="tarifa" placeholder="0.00" />
+                <span class="input-group-text">%</span>
+                </div>
+            </div>
+
+            <!-- Unidad -->
+            <div class="col-md-6" *ngIf="tipo == 'ESPECIFICO' || tipo == 'MIXTO'">
+                <label cLabel for="unidad">
+                Unidad <span class="text-danger"></span>
+                </label>
+
+                <select cSelect id="unidad" [ngModelOptions]="{standalone: true}" [(ngModel)]="unidad" >
+                <!-- <option value="">Seleccione...</option> -->
+                <option value="UNIDAD">UNIDAD</option>
+                <option value="LITRO">LITRO</option>
+                <option value="ML">ML</option>
+                <option value="GRAMO">GRAMO</option>
+                <option value="KG">KG</option>
+                </select>
+            </div>
+
+            </div>
+
+            <!-- Botones -->
+            <div class="d-grid gap-2 mt-3">
+                <button cButton color="primary" title="Guardar" (click)="save()">
+                    <svg [cIcon]="icons.cilSave" size="xl" ></svg>
+                </button>
+                <button cButton color="danger" title="Cancelar" (click)="goList()">
+                    <svg [cIcon]="icons.cilBan" size="xl" ></svg>
+                </button>
+            </div>
+
+            <!-- Contenido adicional -->
+            <div class="mt-4">
+            <ng-content />
+            </div>
+
+        </c-card-body>
+        </c-card>
+    </c-col>
+    </c-row>
+}@else{
+  <div class="loading-overlay text-center p-5">
+      <div class="spinner-border" role="status" aria-hidden="true"></div>
+  </div>
+}

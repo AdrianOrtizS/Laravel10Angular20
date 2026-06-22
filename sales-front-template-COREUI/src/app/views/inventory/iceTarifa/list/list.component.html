@@ -1,4 +1,4 @@
-@if(configurations().length > 0){
+@if(iceTarifas().length > 0){
   <div class="d-flex align-items-center gap-2 m-2">
       <input cFormControl id="buscarInput" [(ngModel)]="search"  placeholder="Buscar..." type="text"/>
       <button cButton color="info" shape="rounded-pill" title="Buscar" (click)="searchTo()">
@@ -7,7 +7,7 @@
       <button cButton color="secondary" shape="rounded-pill" title="Actualizar" (click)="refresh()">
         <svg [cIcon]="icons.cilReload" size="xl"></svg>
       </button>
-      <button cButton color="primary" shape="rounded-pill" title="Nuevo" (click)="createConfiguration()">
+      <button cButton color="primary" shape="rounded-pill" title="Nuevo" (click)="createIceTarifa()">
         <svg [cIcon]="icons.cilPlus" size="xl"></svg>
       </button>
   </div>
@@ -15,44 +15,49 @@
     <thead cTableColor="light">
       <tr>
         <th scope="col">#</th>
-        <th scope="col">Nombre</th>
+        <th scope="col">Codigo</th>
+        <th scope="col">Codigo porcentaje</th>
         <th scope="col">Descripcion</th>
         <th scope="col">Estado</th>
         <th scope="col">Accion</th>
       </tr>
     </thead>
     <tbody>
-      @for (item of configurations(); track item.id) {
+      @for (item of iceTarifas(); track item.id) {
         <tr>
           <th scope="row" style="width: 40px;">{{item.id}}</th>
-          <td style="width: 150px;">{{item.name}}</td>
-          <td style="width: 200px; ">
-            <p *ngIf="item.name != 'logoPdf'">{{ item.value.length > 30 ? item.value.slice(0, 27) + '...' : item.value }}</p>
-
-            <img *ngIf="item.name == 'logoPdf'" getImageUrl [src]="(item.value)" width="50px" height="50px !important">
-            
+          <td style="width: 150px;">
+            <div *ngIf="item.codigo == '3'">
+              {{item.codigo}} - ICE
+            </div>
+            <div *ngIf="item.codigo == '4'">
+              {{item.codigo}} - IRBPNR
+            </div>
           </td>
-    
+          <td style="width: 150px;">{{item.codigo_porcentaje}}</td>
+          <td style="width: 200px; ">
+            <p>{{ item.descripcion.length > 30 ? item.descripcion.slice(0, 27) + '...' : item.descripcion }}</p>
+          </td>
+
           <td style="width: 60px;">
-            @if(item.state == 1){
+            @if(item.estado == 1){
               <button cButton color="success" variant="outline" shape="rounded-pill" (click)="abrirModal(item)" title="Activo">
                 <svg [cIcon]="icons.cilToggleOn" size="xl"></svg>
               </button>
-
             }
-            @if(item.state == 0){
-              
+            @if(item.estado == 0){
               <!-- Botón abre el modal -->
               <button cButton color="danger" variant="outline" shape="rounded-pill" (click)="abrirModal(item)" title="Inactivo">
                 <svg [cIcon]="icons.cilToggleOff" size="xl"></svg>
               </button>
-
             }
           </td>
           <td style="width: 60px;"> 
             <c-button-group aria-label="Basic mixed styles example" role="group">
-
-              <button cButton color="warning" title="Editar" (click)="editConfiguration(item)">
+              <button cButton color="info" title="Ver" (click)="verIceTarifa(item)">
+                <svg [cIcon]="icons.cilLowVision" size="xl" ></svg>
+              </button>
+              <button cButton color="warning" title="Editar" (click)="editIceTarifa(item)">
                 <svg cIcon name="cil-pen" size="xl" ></svg>
               </button>
             </c-button-group>
@@ -62,8 +67,7 @@
     </tbody>
   </table>
   
- 
-  <div class="div-fijo-abajo bg-white border-top shadow-sm px-3 py-2">
+   <div class="div-fijo-abajo bg-white border-top shadow-sm px-3 py-2">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
       <!-- PAGINACIÓN -->
       <ngb-pagination
@@ -84,7 +88,7 @@
           cFormControl
           class="form-select form-select-sm w-auto"
           [(ngModel)]="pageSize" 
-          (change)="listarConfigurations()">
+          (change)="listarIceTarifas()">
 
           @for (item of itemForPage; track item.id) {
             <option [value]="item.val">
@@ -97,35 +101,33 @@
     </div>
   </div>
 
-  <c-modal [visible]="!!selectedConfiguration()" (close)="cerrarModal()">
 
-    <c-modal-header>
-        <h5 cModalTitle>
-        {{ selectedConfiguration()?.state === 1 ? 'Desactivar' : 'Activar' }} configuracion
-        </h5>
-        <button cButtonClose (click)="cerrarModal()"></button>
-    </c-modal-header>
+    <c-modal [visible]="!!selectedIceTarifa()" (close)="cerrarModal()">
 
-    <c-modal-body>
-        ¿Deseas
-        {{ selectedConfiguration()?.state === 1 ? 'desactivar' : 'activar' }}
-        al configuracion <strong>{{ selectedConfiguration()?.name }}</strong>?
-    </c-modal-body>
+      <c-modal-header>
+          <h5 cModalTitle>
+          {{ selectedIceTarifa()?.estado === 1 ? 'Desactivar' : 'Activar' }} categoria
+          </h5>
+          <button cButtonClose (click)="cerrarModal()"></button>
+      </c-modal-header>
 
-    <c-modal-footer>
-        <button
-            cButton
-            [color]="selectedConfiguration()?.state === 1 ? 'danger' : 'success'"
-            (click)="changeState(selectedConfiguration()?.id)">
-            {{ selectedConfiguration()?.state === 1 ? 'Desactivar' : 'Activar' }}
-        </button>
-        <button cButton color="secondary" (click)="cerrarModal()">Cerrar</button>
-    </c-modal-footer>
+      <c-modal-body>
+          ¿Deseas
+          {{ selectedIceTarifa()?.estado === 1 ? 'desactivar' : 'activar' }}
+          la ice tarifa <strong>{{ selectedIceTarifa()?.name }}</strong>?
+      </c-modal-body>
 
-  </c-modal>
+      <c-modal-footer>
+          <button
+              cButton
+              [color]="selectedIceTarifa()?.estado === 1 ? 'danger' : 'success'"
+              (click)="changeState(selectedIceTarifa()?.id)">
+              {{ selectedIceTarifa()?.estado === 1 ? 'Desactivar' : 'Activar' }}
+          </button>
+          <button cButton color="secondary" (click)="cerrarModal()">Cerrar</button>
+      </c-modal-footer>
 
-
-
+    </c-modal>
 <!-- }@else{
   <div class="loading-overlay text-center p-5">
       <div class="spinner-border" role="status" aria-hidden="true"></div>
@@ -147,7 +149,7 @@
               <button cButton color="secondary" shape="rounded-pill" title="Actualizar" (click)="refresh()">
                 <svg [cIcon]="icons.cilReload" size="xl"></svg>
               </button>
-              <button cButton color="primary" shape="rounded-pill" title="Nuevo" (click)="createConfiguration()">
+              <button cButton color="primary" shape="rounded-pill" title="Nuevo" (click)="createIceTarifa()">
                 <svg [cIcon]="icons.cilPlus" size="xl"></svg>
               </button>
             </div>

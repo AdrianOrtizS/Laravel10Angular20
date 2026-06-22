@@ -1,4 +1,3 @@
-// import { ProductService } from './../../product/product.service';
 import { ToastrService } from 'ngx-toastr';
 import { freeSet } from '@coreui/icons';
 import { Component, computed, inject, signal } from '@angular/core';
@@ -22,10 +21,10 @@ interface SaleI {
   id_customer:  any,
   subtotal:     any,
   discount:     any,
-  // type_receivable:any,
   form_pay:     any,
   iva0:         any,
   iva:          any,
+  ice:          any,
   total:        any,
   plazo:        any,
   unidadTiempo: any,
@@ -87,11 +86,6 @@ export class CreateComponent {
     });
   }
 
-  // selectedTypeSale: string = '1'; // Valor por defecto
-  // Opcional: función para hacer algo cuando cambia
-  // onTypeSaleChange() {
-  //   // console.log('Tipo de compra seleccionado:', this.selectedTypeBuy);
-  // }
   form_pay:string = '';
 
   formPays:any = [
@@ -153,7 +147,7 @@ export class CreateComponent {
     this.searchProductNull = false;
     this.saleService.getProducts(search)
     .subscribe((resp:any)=>{
-      // console.log(resp.Products.data);
+      console.log(resp);
       this.products.set(resp.Products.data);
       this.searchProductNull = true;
     });
@@ -165,24 +159,31 @@ export class CreateComponent {
     this.search_ngModelProduct = '';
   }
   selectProduct(product:any){
-    // console.log(this.ivaValor.value); //15.00
-
+    // console.log(product);
     var iva = 0; 
-    if(this.productSelect.tarifa_iva == 1){
-          iva = 15;
+    var ice = 0;
+    if(product.tarifa_iva == 1 || product.tarifa_iva == '1'){
+      iva = this.ivaValor.value;
     }else{
       iva = 0;
     }
-
+    if(product.id_ice_tarifa != null && product.tarifa_ice != null){
+      ice = product.tarifa_ice.tarifa;
+    }else{
+      ice = 0;
+    }
     this.productSelect = product;
-    this.producto.set({ id_product: this.productSelect.id,
-                        cod_pro:    this.productSelect.cod_pro, 
-                        name:       this.productSelect.name, 
-                        quantity:   1, 
-                        price:      this.productSelect.price, 
-                        discount:   0,
-                        iva: iva 
+    this.producto.set({ id_product:   this.productSelect.id,
+                        cod_pro:      this.productSelect.cod_pro, 
+                        name:         this.productSelect.name, 
+                        quantity:     1, 
+                        price:        this.productSelect.price, 
+                        discount:     0,
+                        iva:          iva,
+                        ice:          ice,
+                        tarifa_ice:   this.productSelect.tarifa_ice
                       });
+    console.log(this.producto());
     this.closeModalSelectProduct();
   }  
   openModalSelectProduct(){
@@ -295,6 +296,10 @@ export class CreateComponent {
     const valor = (event.target as HTMLInputElement).value;
     this.producto.update((c:any) => ({ ...c, iva: valor }));
   }  
+  updateIce(event: Event) {
+    const valor = (event.target as HTMLInputElement).value;
+    this.producto.update((c:any) => ({ ...c, ice: valor }));
+  }  
 
   // Validar si los campos cantidad y precio son válidos
   isAddProductValid = computed(() => {
@@ -324,8 +329,8 @@ export class CreateComponent {
     discount:     0,
     iva0:         0,
     iva:          0,
+    ice:          0,
     total:        0,
-    // type_receivable : 1,
     form_pay:     '',
     plazo:        0,
     unidadTiempo: 'dias',
@@ -340,6 +345,8 @@ export class CreateComponent {
     price:      0,
     subtotal:   0,
     iva:        0,
+    ice:        0,
+    tarifa_ice: {},
     discount:   0
   });
   items: any[] = [];
@@ -380,82 +387,105 @@ export class CreateComponent {
 
 
 
+
   baseImponible:any = 0;
+
   agregarProducto() {
-    
-    this.producto().subtotal = this.producto().price * this.producto().quantity;
-    this.producto().discount = ((this.producto().discount * this.producto().price)/100)*this.producto().quantity;
-    this.producto().iva = Number((((this.producto().subtotal-this.producto().discount)*this.producto().iva)/100).toFixed(2));
-    
-    this.baseImponible = this.producto().subtotal - this.producto().discount;
 
-    // console.log(this.producto());
-    if(this.ivaValor.value == '15.00'){
-      // console.log('15.00');
-      this.producto().impuesto = { 'codigo'    : '2',   //  2-iva, 3-ice, 5-IRBPNR
-                                   'codigoPorcentaje' : '4', //0   0%
-                                                             //2   12% (antiguo)
-                                                             //4   15% (actual Ecuador)
-                                                             //6   No objeto
-                                                             //7   Exento
-                                   'tarifa'           : this.ivaValor.value,  // desde BD
-                                   'baseImponible'    : this.baseImponible,
-                                   'valor': this.producto().iva.toFixed(2) };
-    }
-    if(this.ivaValor.value == '14.00'){
-      // console.log('14.00');
-      this.producto().impuesto = { 'codigo'    : '2',   //  2-iva, 3-ice, 5-IRBPNR
-                                   'codigoPorcentaje' : '3', //0   0%
-                                                             //2   12% (antiguo)
-                                                             //4   15% (actual Ecuador)
-                                                             //6   No objeto
-                                                             //7   Exento
-                                   'tarifa'           : this.ivaValor.value,  // desde BD
-                                   'baseImponible'    : this.baseImponible,
-                                   'valor': this.producto().iva.toFixed(2) };
-    }
-    if(this.ivaValor.value == '12.00'){
-      // console.log('12.00');
-      this.producto().impuesto = { 'codigo'    : '2',   //  2-iva, 3-ice, 5-IRBPNR
-                                   'codigoPorcentaje' : '2', //0   0%
-                                                             //2   12% (antiguo)
-                                                             //4   15% (actual Ecuador)
-                                                             //6   No objeto
-                                                             //7   Exento
-                                   'tarifa'           : this.ivaValor.value,  // desde BD
-                                   'baseImponible'    : this.baseImponible,
-                                   'valor': this.producto().iva.toFixed(2) };
-    }
-    if(this.ivaValor.value == '0.00'){
-      // console.log('0.00');
-      this.producto().impuesto = { 'codigo'    : '2',   //  2-iva, 3-ice, 5-IRBPNR
-                                   'codigoPorcentaje' : '0', //0   0%
-                                                             //2   12% (antiguo)
-                                                             //4   15% (actual Ecuador)
-                                                             //6   No objeto
-                                                             //7   Exento
-                                   'tarifa'           : '0',  // desde BD
-                                   'baseImponible'    : this.baseImponible,
-                                   'valor': this.producto().iva.toFixed(2) };
+    this.producto().subtotal =
+        this.producto().price * this.producto().quantity;
+
+    // descuento en dinero
+    this.producto().discount =
+        ((this.producto().discount * this.producto().price) / 100)
+        * this.producto().quantity;
+
+    // base sin impuestos
+    this.baseImponible =
+        this.producto().subtotal - this.producto().discount;
+
+    // ICE
+    this.producto().ice = Number(
+        (
+          (this.baseImponible * this.producto().ice) / 100
+        ).toFixed(2)
+    );
+
+    // Base IVA (SRI)
+    const baseImponibleIva =
+    this.baseImponible + this.producto().ice;
+
+    // IVA
+    this.producto().iva = Number(
+        (
+          (baseImponibleIva * this.producto().iva) / 100
+        ).toFixed(2)
+    );
+
+    // ================= IVA =================
+
+    let codigoPorcentajeIva = '0';
+    let tarifaIva = '0';
+
+    if (this.producto().iva > 0) {
+
+        tarifaIva = this.ivaValor.value;
+
+        if (this.ivaValor.value === '12.00') {
+            codigoPorcentajeIva = '2';
+        }
+
+        if (this.ivaValor.value === '14.00') {
+            codigoPorcentajeIva = '3';
+        }
+
+        if (this.ivaValor.value === '15.00') {
+            codigoPorcentajeIva = '4';
+        }
     }
 
-    
+    this.producto().impuesto = {
+        codigo: '2',
+        codigoPorcentaje: codigoPorcentajeIva,
+        tarifa: tarifaIva,
+        baseImponible: Number(baseImponibleIva.toFixed(2)),
+        valor: this.producto().iva.toFixed(2)
+    };
+
+    // ================= ICE =================
+
+    if (this.producto().ice > 0) {
+
+        this.producto().impuesto_ice = {
+            codigo: '3',
+            codigoPorcentaje: this.producto().tarifa_ice.codigo_porcentaje,
+            tarifa: this.producto().tarifa_ice.tarifa,
+            baseImponible: this.baseImponible.toFixed(2),
+            valor: this.producto().ice.toFixed(2)
+        };
+
+    } else {
+
+        this.producto().impuesto_ice = null;
+    }
+
     this.items.push({ ...this.producto() });
-    // console.log(this.items);
 
-    this.producto.set({ 
-      id_product: '',
-      cod_pro:    '', 
-      name:       '', 
-      quantity:   1, 
-      price:      0, 
-      subtotal:   0, 
-      iva:        0,
-      discount:   0 
+    this.producto.set({
+        id_product: '',
+        cod_pro: '',
+        name: '',
+        quantity: 1,
+        price: 0,
+        subtotal: 0,
+        iva: 0,
+        ice: 0,
+        tarifa_ice: {},
+        discount: 0
     });
+
     this.calcularTotales();
   }
-
 
   save(){
     this.btnSaveBlock = true;
@@ -474,31 +504,48 @@ export class CreateComponent {
       discount:     this.descuentoTotal,
       iva0:         this.iva0,
       iva:          this.iva,
+      ice:          this.ice,
       plazo:        this.plazo,
       unidadTiempo: 'dias',
       total:        this.total,
       items:        this.items
     };
-    // console.log(this.sale);
 
     this.saleService.createSale(this.sale)
-      .subscribe({
-        next: (resp: any) => {
+    .subscribe({
+      next: (resp: any) => {
+        if(resp.resp.code != 500 || resp.resp.code != '500'){
           this.toastr.success('Éxito', 'La venta se ha creado correctamente');
+          
           setTimeout(() => {
-            this.printSale(resp.sale.id);
-            this.customerSelect   = {};
-            this.subtotal         = 0;
-            this.total            = 0;
-            this.iva0             = 0;
-            this.iva              = 0;
-            this.descuentoTotal   = 0;
-            this.items            = [];
-            this.form_pay         = '';
-            this.plazo            = 0; 
-            this.see_days_for_pay = false;
-            this.btnSaveBlock           = false;
-          }, 2500);
+              this.saleService.reconsultarSri(resp.sale.id)
+              .subscribe((respuesta:any)=>{
+                if(respuesta.estado == 'AUTORIZADO'){
+                  this.toastr.success('Exito', 'Factura fue autorizada');
+                  this.customerSelect   = {};
+                  this.subtotal         = 0;
+                  this.total            = 0;
+                  this.iva0             = 0;
+                  this.iva              = 0;
+                  this.ice              = 0;
+                  this.descuentoTotal   = 0;
+                  this.items            = [];
+                  this.form_pay         = '';
+                  this.plazo            = 0; 
+                  this.see_days_for_pay = false;
+                  this.btnSaveBlock     = false;
+                  setTimeout(() => {
+                    this.printSale(resp.sale.id);
+                  }, 500); 
+                  return;
+                }}
+              )
+          },5000);
+
+        }else{
+          this.btnSaveBlock = false;
+          this.toastr.error('Error al crear la venta');
+        }
         },
         error: (err: any) => {
           console.log(err);
@@ -509,7 +556,6 @@ export class CreateComponent {
           this.btnSaveBlock = false;
         }
     });     
-    
   }
 
 
@@ -517,52 +563,53 @@ export class CreateComponent {
     this.items = this.items.filter(p => p !== item);
   }
 
+  
   subtotal:any  = 0;
   descuentoTotal:any = 0;
   iva0:any      = 0;
   iva:any       = 0;
+  ice:any       = 0;
   total:any     = 0;
-  
+
   calcularTotales() {
-    let subtotal = 0;
-    let descuento = 0;
-    let iva0 = 0;
-    let iva = 0;
+      let subtotal = 0;
+      let descuento = 0;
+      let iva0 = 0;
+      let iva = 0;
+      let ice = 0;
 
-    this.items.forEach(p => {
-      const price = Number(p.price) || 0;
-      const quantity = Number(p.quantity) || 0;
-      const discount = Number(p.discount) || 0;
-      const tarifa = Number(p.iva) || 0;
-      const base = (price * quantity) - discount;
+      this.items.forEach(p => {
+          subtotal += Number(p.subtotal) || 0;
+          descuento += Number(p.discount) || 0;
+          iva += Number(p.impuesto?.valor) || 0;
+          ice += Number(p.impuesto_ice?.valor) || 0;
+          if ((Number(p.impuesto?.tarifa) || 0) === 0) {
+              iva0 += Number(p.impuesto?.baseImponible) || 0;
+          }
+      });
 
-      subtotal += price * quantity;
-      descuento += discount;
-
-      if (tarifa === 0) {
-        iva0 += base;
-      } else {
-        // console.log(this.ivaValor);
-        iva += base * (+(this.ivaValor.value)/100);
-        // console.log(iva);
-      }
-    });
-
-    this.subtotal = subtotal;
-    this.descuentoTotal = descuento;
-    this.iva0 = iva0;
-    this.iva = iva;
-    this.total = (subtotal - descuento) + iva;
+      this.subtotal = Number(subtotal.toFixed(2));
+      this.descuentoTotal = Number(descuento.toFixed(2));
+      this.iva0 = Number(iva0.toFixed(2));
+      this.iva = Number(iva.toFixed(2));
+      this.ice = Number(ice.toFixed(2));
+      this.total = Number(
+          (
+              (this.subtotal - this.descuentoTotal)
+              + this.iva
+              + this.ice
+          ).toFixed(2)
+      );
   }
 
   printSale(id_sale:any){
-    this.saleService.getFacturaPDF(id_sale).subscribe((pdfBlob: Blob) => {
-        const url = window.URL.createObjectURL(pdfBlob);
-        const newWindow = window.open(url, '_blank');
-        if (newWindow) {
-          newWindow.print(); // abre el diálogo de impresión directamente
-        }
-    });
+      this.saleService.getFacturaPDF(id_sale).subscribe((pdfBlob: Blob) => {
+          const url = window.URL.createObjectURL(pdfBlob);
+          const newWindow = window.open(url, '_blank');
+          if (newWindow) {
+            newWindow.print(); // abre el diálogo de impresión directamente
+          }
+      });
   }
    
   ticketSale(id_sale:any){

@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, } from '@angular/router';
 import { CategorieService } from '../categorie.service';
 // import { URL_BACKEND } from '../../../config/config';
 import moment  from 'moment';
-import 'moment/locale/es';
+// import 'moment/locale/es';
 // import { SharedModule } from '../../../shared/shared.module';
 import { freeSet } from '@coreui/icons';
 import { Location } from '@angular/common';

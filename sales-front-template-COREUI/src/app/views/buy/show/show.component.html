@@ -10,23 +10,22 @@
       <div class="row">
         <!-- 🧍 Datos del Proveedor -->
         <div class="col-md-6 mb-3">
-          <p><strong>Nombre:</strong> {{ BUY().supplier.name }}</p>
-          <p><strong>Cedula:</strong> {{ BUY().supplier.num_identificador }}</p>
+          <p><strong>Ruc / cedula:</strong> {{ BUY().supplier.num_identificador }}</p>
+          <p><strong>Razon social:</strong> {{ BUY().supplier.name }}</p>
+          <p><strong>Telefono:</strong> {{ BUY().supplier.phone }}</p>
           <p><strong>Direccion:</strong> {{ BUY().supplier.address }}</p>
         </div>
 
         <!-- 📅 Datos de Factura -->
         <div class="col-md-6 mb-3">
           <p><strong>Fecha:</strong> {{ BUY().fecha_ingreso | date: 'dd/MM/yyyy' }}</p>
-          <p><strong>Telefono:</strong> {{ BUY().supplier.phone }}</p>
           <p>
-            
             <strong>Tipo doc.:</strong>
             <span class="">
               @if (BUY().type_doc == '1') { Factura } @else { Nota de venta }
             </span>
-
-            <strong style="margin-left: 20px;">Pago:</strong>
+            </p><p>
+            <strong >Pago:</strong>
                     @if (BUY().type_pay == '1') 
                     { 
                         <h6 style="display:inline; margin-left: 5px; color: blue;">Contado</h6> 
@@ -53,18 +52,30 @@
         <table class="table table-striped align-middle mb-0">
           <thead class="table-light">
             <tr>
+              <th class="">Codigo</th>
               <th>Descripcion</th>
-              <th class="text-end">Precio unitario</th>
+              <th class="text-center">Precio unitario</th>
               <th class="text-center">Cantidad</th>
-              <th class="text-end">Subtotal</th>
+              <th class="text-center">Subtotal</th>
+              <th class="text-center">Iva</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let p of BUY().details">
+              <td>{{ p.product.codigo }}</td>
               <td>{{ p.product.name }}</td>
-              <td class="text-end">{{ p.price | currency:'USD' }}</td>
+              <td class="text-center">{{ p.price | currency:'USD' }}</td>
               <td class="text-center">{{ p.quantity }}</td>
-              <td class="text-end">{{ p.subtotal | currency:'USD' }}</td>
+              <td class="text-center">{{ p.subtotal | currency:'USD' }}</td>
+              <td class="text-center">
+                {{p.iva | currency:'USD'}}
+                <!-- @if(p.product.tarifa_iva == '1'){
+                    {{ p.subtotal * (ivaValor / 100) | currency:'USD':'symbol':'1.2-2' }}
+                }
+                @else{
+                  0
+                } -->
+              </td>
             </tr>
           </tbody>
         </table>
@@ -81,6 +92,10 @@
       <div class="d-flex justify-content-between py-1">
         <div>Subtotal:</div>
         <div>{{ BUY().subtotal | currency:'USD' }}</div>
+      </div>
+      <div class="d-flex justify-content-between py-1">
+        <div>Iva 0:</div>
+        <div>{{ BUY().iva0 | currency:'USD' }}</div>
       </div>
       <div class="d-flex justify-content-between py-1">
         <div>Iva:</div>

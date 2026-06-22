@@ -1,9 +1,9 @@
 <c-row class="g-4">
   
-  <c-col sm="6" xl="3" *ngIf="total_current_year > 0">
+  <c-col sm="6" xl="4" *ngIf="total_current_year > 0">
     <c-widget-stat-a
       color="primary"
-      [title]="'Ventas del año actual'">
+      [title]="'Vent. anual sucursal '+branch_name">
       <ng-template cTemplateId="widgetValueTemplate" ngPreserveWhitespaces>
         ${{total_current_year}}
         <span class="fw-normal" style="font-size: 12px;">
@@ -18,9 +18,9 @@
     </c-widget-stat-a>
   </c-col>
 
-  <c-col sm="6" xl="3" *ngIf="total_last_10days > 0">
+  <c-col sm="6" xl="4" *ngIf="total_last_10days > 0">
     <c-widget-stat-a
-      [title]="'Ventas ultimos 10 dias'"
+      [title]="'Ventas ultimos 10 dias '+branch_name"
       color="info">
       <ng-template cTemplateId="widgetValueTemplate" ngPreserveWhitespaces>
         <span>${{total_last_10days}}</span>
@@ -31,7 +31,7 @@
     </c-widget-stat-a>
   </c-col>
 
-  <c-col sm="6" xl="3" *ngIf="total_products_low_stock > 0">
+  <!-- <c-col sm="6" xl="3" *ngIf="total_products_low_stock > 0">
     <c-widget-stat-a
       [title]="'Prod. con stock minimo'"
       color="warning"
@@ -43,12 +43,12 @@
         <c-chart [data]="data[2]" [options]="options[2]" class="mt-3" height="70" type="line" />
       </ng-template>
     </c-widget-stat-a>
-  </c-col>
+  </c-col> -->
 
-  <c-col sm="6" xl="3" *ngIf="total_products > 0">
+  <c-col sm="6" xl="4" *ngIf="total_products > 0">
     <c-widget-stat-a
 
-      [title]="'Prod. mas vendidos en el año'"
+      [title]="'Prod. mas vendidos en el año '+branch_name"
       color="danger">
       <ng-template cTemplateId="widgetValueTemplate" ngPreserveWhitespaces>
         <span>{{total_products}} unid.</span>

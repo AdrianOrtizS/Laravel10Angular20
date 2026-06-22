@@ -27,16 +27,11 @@ export class ShowComponent {
     SALE_ID:any;
     SALE:any = signal<any>({});
     tiempo_creacion:any;
-    // isFull:boolean = false;
     isLoading = signal<boolean>(true);
 
      /** Modal de imagen */
     showModal = false;
     selectedReceivable: any = null;
-    // total_abonos:any = signal<any>(0);
-    // saldo:any = signal<any>(0);
-    
-
 
     ngOnInit(){
       // Obtener ID de la ruta
@@ -67,7 +62,6 @@ export class ShowComponent {
         next: (resp: any) => {
           this.SALE.set(resp);
           console.log(this.SALE());
-
             this.formPays.forEach((element:any) => {
               if(element.code == this.SALE().form_pay){
                 this.formPay = element.description;
@@ -114,15 +108,38 @@ export class ShowComponent {
 
 
 
-    rePrintPdf(){
-      this.saleService.rePrintFacturaPDF(this.SALE_ID).subscribe((pdfBlob: Blob) => {
+    // rePrintPdf(){
+    //   this.saleService.rePrintFacturaPDF(this.SALE_ID)
+    //   .subscribe((pdfBlob: Blob) => {
+    //     const url = window.URL.createObjectURL(pdfBlob);
+    //     const newWindow = window.open(url, '_blank');
+    //     if (newWindow) {
+    //       newWindow.print(); // abre el diálogo de impresión directamente
+    //     }
+    //   },
+    //   error: (error:any) => {
+    //     const reader = new FileReader();
+    //     reader.onload = () => {
+    //       console.log('ERROR REAL:', reader.result);
+    //     };
+    //     reader.readAsText(error.error);
+    //   }
+    // );
+    // }
+
+    rePrintPdf(clave:any){
+      this.saleService.rePrintFacturaPDF(clave)
+      .subscribe((pdfBlob: Blob) => {
         const url = window.URL.createObjectURL(pdfBlob);
         const newWindow = window.open(url, '_blank');
         if (newWindow) {
           newWindow.print(); // abre el diálogo de impresión directamente
         }
-      });
+      },
+
+    );
     }
+
 
      /** Mostrar modal de imagen */
     openModal(receivable: any) {

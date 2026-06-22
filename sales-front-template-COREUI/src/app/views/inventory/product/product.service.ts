@@ -37,6 +37,20 @@ export class ProductService {
             .pipe();
   }
 
+  getTarifasIce(){
+    let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
+    let URL = URL_SERVICIOS+'/getTarifasIce';
+    return this.http.get(URL, {headers: headers})
+            .pipe();
+  }
+
+  getConfigurations(){
+    let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
+    let URL = URL_SERVICIOS+'/configurations';
+    return this.http.get(URL, {headers: headers})
+    .pipe();
+  }
+
   createProduct(data:any){
     let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
     let URL = URL_SERVICIOS+'/products';

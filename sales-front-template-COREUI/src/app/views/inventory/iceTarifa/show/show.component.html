@@ -1,0 +1,63 @@
+@if(ICE_TARIFA){
+  <c-card class="mb-3" [ngStyle]="{'max-width.px': 540}">
+    <c-row class="g-0">
+      <c-card-body cCol [md]="8">
+        <h5>        
+          <table>
+            <tr >
+              <td style="padding: 10px;"><u>Codigo:</u></td>
+              <td style="padding: 10px;">
+                <div *ngIf="codigo == '3'">{{codigo}} - ICE</div>
+                <div *ngIf="codigo == '4'">{{codigo}} - IRBPNR</div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 10px;"><u>Codigo porcentaje:</u></td>
+              <td style="padding: 10px;"><div>{{codigo_porcentaje}}</div></td>
+            </tr>
+            <tr>
+              <td style="padding: 10px;"><u>Descripcion:</u></td>
+              <td style="padding: 10px;"><div>{{descripcion}}</div></td>
+            </tr>
+            <tr>
+              <td style="padding: 10px;"><u>Tipo:</u></td>
+              <td style="padding: 10px;"><div>{{tipo}}</div></td>
+            </tr>
+            <tr>
+              <td style="padding: 10px;"><u>Tarifa:</u></td>
+              <td style="padding: 10px;"><div>{{tarifa}}</div></td>
+            </tr>
+            <tr *ngIf="unidad">
+              <td style="padding: 10px;"><u>Medida:</u></td>
+              <td style="padding: 10px;"><div>{{unidad}}</div></td>
+            </tr>
+            <tr>
+              <td style="padding: 10px;"><u>Estado:</u></td>
+              <td style="padding: 10px;">
+                <div *ngIf="estado == '1'">Activo</div>
+                <div *ngIf="estado == '0'">Inactivo</div>
+              </td>
+            </tr>
+          </table>
+        </h5>
+
+        <p cCardText>
+          <small class="text-medium-emphasis">Creado {{tiempo_creacion}} </small>
+        </p>
+
+        <button cButton color="warning" title="Editar" (click)="goUpdate()">
+          <svg cIcon name="cil-pen" size="xl" ></svg>
+        </button>
+
+        <button cButton color="primary" title="Regresar" (click)="goBack()">
+          <svg [cIcon]="icons.cilActionUndo"  size="xl" ></svg>
+        </button>
+        
+      </c-card-body>
+    </c-row>
+  </c-card>
+}@else{
+  <div class="loading-overlay text-center p-5">
+      <div class="spinner-border" role="status" aria-hidden="true"></div>
+  </div>
+}

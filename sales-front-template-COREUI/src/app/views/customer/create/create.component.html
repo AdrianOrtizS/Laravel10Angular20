@@ -19,7 +19,7 @@
                     <div class="mb-3">
                         <div class="row">
                             <div class="col-md-4">
-                                <label cLabel for="num_identificador">#Identificadpr (*)</label>
+                                <label cLabel for="num_identificador">#Identificador (*)</label>
                                 <input cFormControl id="num_identificador" placeholder="Ej: 1718192021" type="text" [value]="CUSTOMER().num_identificador" (input)="updateNumIdentificador($event)" required />
                                 <!-- <input cFormControl id="num_identificador" [ngModelOptions]="{standalone: true}" [(ngModel)]="CUSTOMER().num_identificador" placeholder="Ej: 1712338765" type="text" /> -->
                                 <div *ngIf="!CUSTOMER().num_identificador.trim() && CUSTOMER().num_identificador !== ''" class="text-danger mt-1">

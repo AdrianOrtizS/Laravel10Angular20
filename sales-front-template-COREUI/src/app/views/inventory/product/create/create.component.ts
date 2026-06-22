@@ -16,8 +16,8 @@ interface ProductI {
   stock_min:  string,
   imagen: string,
   id_categorie: number,
-  // id_tarifa_iva: number,
-  tarifa_iva:  any
+  tarifa_iva:  any,
+  id_ice_tarifa:  any
 }
         
 @Component({
@@ -37,9 +37,8 @@ export class CreateComponent {
     stock_minTouched      = false;
     imagenTouched         = false;
     tarifa_ivaTouched     = false;
-    // id_tarifa_ivaTouched  = false;
-
-
+    id_ice_tarifaTouched  = false;
+    
     public favoriteColor = '#26ab3c';
     icons     = freeSet;
     router    = inject(Router);
@@ -55,25 +54,26 @@ export class CreateComponent {
       stock_min:'',
       imagen:   '',
       id_categorie: 0,
-      // id_tarifa_iva: 0,
-      tarifa_iva: 0
+      tarifa_iva:   0,
+      id_ice_tarifa: null
     });
+    tarifa_ice = 0;
 
     imagen_previsualiza:any = '../../../../assets/images/sin_imagen.jpg';
     file_imagen:any = null;
     Categories:any  = [];
-    // Tarifas_iva:any  = [];
+    TarifasIce:any  = [];
 
     ngOnInit(){
+      this.productService.getTarifasIce()
+      .subscribe((resp:any)=>{
+        this.TarifasIce = resp.Tarifas_ice;
+        console.log(this.TarifasIce);
+      });
       this.productService.getCategories()
       .subscribe((resp:any)=>{
         this.Categories = resp.Categories;
       });
-      // this.productService.getTarifasIva()
-      // .subscribe((resp:any)=>{
-      //   this.Tarifas_iva = resp.Tarifas_iva;
-      //   console.log(this.Tarifas_iva);
-      // });
     }
 
     // Métodos para update cada campo (evita parser error)
@@ -119,6 +119,11 @@ export class CreateComponent {
       const valor = (event.target as HTMLInputElement).value;
       this.PRODUCT.update((c:any) => ({ ...c, tarifa_iva: valor }));
     }
+    updateId_Ice_Tarifa(event: Event) {
+      const valor = (event.target as HTMLInputElement).value;
+      // console.log(valor);
+      this.PRODUCT.update((c:any) => ({ ...c, id_ice_tarifa: valor }));
+    }
 
     // Validar si todos los campos son obligatorios y válidos
     isFormValid = computed(() => {
@@ -133,6 +138,7 @@ export class CreateComponent {
         // c.id_tarifa_iva > 0 && 
         c.id_categorie > 0 &&
         c.tarifa_iva != null
+        // c.id_ice_tarifa != null
       );
     });
 
@@ -153,9 +159,6 @@ export class CreateComponent {
 
 
     save(){
-
-      console.log(this.PRODUCT());
-
       if(this.PRODUCT.id_categorie == 0){
         this.toastr.error('Validacion', 'Seleccione categoria');
         return;
@@ -165,13 +168,17 @@ export class CreateComponent {
       formData.append('cod_pro',  this.PRODUCT().cod_pro);
       formData.append('name',     this.PRODUCT().name);
       formData.append('description', this.PRODUCT().description);
-      formData.append('price', this.PRODUCT().price);
-      formData.append('stock', this.PRODUCT().stock);
-      formData.append('stock_min', this.PRODUCT().stock_min);
-      formData.append('id_tarifa_iva', this.PRODUCT().id_tarifa_iva);
-      formData.append('id_categorie', this.PRODUCT().id_categorie);
-      formData.append('tarifa_iva', this.PRODUCT().tarifa_iva);
+      formData.append('price',    this.PRODUCT().price);
+      formData.append('stock',    this.PRODUCT().stock);
+      formData.append('stock_min',      this.PRODUCT().stock_min);
+      formData.append('id_tarifa_iva',  this.PRODUCT().id_tarifa_iva);
+      formData.append('id_categorie',   this.PRODUCT().id_categorie);
+      formData.append('tarifa_iva',     this.PRODUCT().tarifa_iva);
 
+      if(this.tarifa_ice != 0){
+        formData.append('id_ice_tarifa',  this.PRODUCT().id_ice_tarifa);
+      }
+      
       if(this.file_imagen){
         formData.append('producto', this.file_imagen);
       }
@@ -198,8 +205,8 @@ export class CreateComponent {
       this.stockTouched   = false;
       this.stock_minTouched = false;
       this.imagenTouched  = false;
-      // this.id_tarifa_ivaTouched  = false;
       this.tarifa_ivaTouched  = false;
+      this.id_ice_tarifaTouched  = false;
 
       this.PRODUCT.set({ 
         cod_pro:  '',
@@ -209,11 +216,12 @@ export class CreateComponent {
         price:    '',
         stock:    '',
         stock_min:'',
-        // id_tarifa_iva: 0,
-        tarifa_iva:0
+        tarifa_iva:0,
+        id_ice_tarifa:null,
       });
       this.file_imagen = null;
       this.imagen_previsualiza = '../../../../assets/images/sin_imagen.jpg';        
+      this.tarifa_ice = 0;
     }
 
     goList(){

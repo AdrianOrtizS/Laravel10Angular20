@@ -68,7 +68,10 @@
         <th scope="col">Compra #</th>
         <th scope="col">Proveedor</th>
         <th scope="col">Fecha</th>
+        <!-- <th scope="col">Iva 0</th>
+        <th scope="col">Iva</th> -->
         <th scope="col">Total</th>
+        
         <th scope="col">Accion</th>
       </tr>
     </thead>
@@ -78,6 +81,10 @@
           <td style="width: 150px;">{{item.numero_factura}}</td>
           <td style="width: 150px;">{{item.supplier.name}}</td>
           <td style="width: 100px;">{{item.created_at|date: 'dd/MM/yyyy'}}</td>
+          
+          <!-- <td style="width: 80px;">{{item.iva0}}</td>
+          <td style="width: 80px;">{{item.iva}}</td> -->
+
           <td style="width: 80px;">{{item.total}}</td>
 
           <td style="width: 60px;"> 

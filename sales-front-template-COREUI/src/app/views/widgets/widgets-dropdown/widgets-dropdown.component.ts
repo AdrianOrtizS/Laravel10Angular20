@@ -192,12 +192,15 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
   total_current_year:any=0;
   total_last_year:   any=0;
   percent_difference:any=0;
+  branch_name:any;
 
   reportsSalesMonthly(){
     this.widgetsService.reportsSalesMonthly()
       .subscribe(
         {
           next:(resp:any)=>{
+            console.log(resp.branch.name);
+            this.branch_name = resp.branch.name;
             this.total_current_year = resp.total_current_year;
             this.total_last_year    = resp.total_last_year;
             this.percent_difference = resp.percent_difference;

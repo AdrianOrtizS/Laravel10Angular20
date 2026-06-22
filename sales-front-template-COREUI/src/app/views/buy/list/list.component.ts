@@ -42,6 +42,8 @@ export class ListComponent {
     modalId = signal<number | null>(null);
     modalIdDelete = signal<any | null>(null);
   
+    
+
     constructor(
     ){
     }

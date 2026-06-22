@@ -6,6 +6,7 @@ import moment from 'moment';
 import { freeSet } from '@coreui/icons';
 import { IconDirective } from '@coreui/icons-angular';
 import { BuyService } from '../buy.service';
+import { SaleService } from '../../sale/sale.service';
 
 @Component({
   selector: 'app-show',
@@ -22,6 +23,9 @@ export class ShowComponent {
   private buyService = inject(BuyService);
   private router = inject(Router);
 
+  saleService     = inject(SaleService);
+  
+
   /** Variables de estado */
   BUY_ID: any;
   BUY = signal<any>({});
@@ -31,9 +35,16 @@ export class ShowComponent {
   /** Modal de imagen */
   showModal = false;
   selectedPay: any = null;
-
+  
+  configurations:any;
+  ivaValor:any;
 
   ngOnInit() {
+    this.saleService.getConfigurations().subscribe((resp:any)=>{
+      this.configurations = resp.configurations;
+      this.ivaValor = this.configurations.find((u:any) => u.name === 'iva').value;
+      console.log(this.ivaValor);
+    });
     // Obtener ID de la ruta
     this.activatedRoute.params.subscribe((resp: any) => {
       this.BUY_ID = resp.id;
@@ -47,6 +58,7 @@ export class ShowComponent {
     this.buyService.showBuy(this.BUY_ID).subscribe({
       next: (resp: any) => {
         this.BUY.set(resp);
+        console.log(this.BUY());
         this.isLoading.set(false);
       },
       error: (err) => {

@@ -70,7 +70,7 @@ export class ListComponent {
   listarProducts(page = 1){
     this.productService.listProducts(page, this.search, this.id_categorie, this.pageSize)
     .subscribe((resp:any) => {
-      console.log(resp);
+      // console.log(resp);
       this.verifData = 0;
       if(resp.total == 0 && this.verifData == 0){
         this.verifData ++;

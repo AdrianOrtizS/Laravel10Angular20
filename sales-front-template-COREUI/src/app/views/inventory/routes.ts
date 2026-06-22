@@ -68,6 +68,35 @@ export const routes: Routes = [
           title: 'Show categorie'
         }
       },
+      ///
+      {
+        path: 'list-ice-tarifa',
+        loadComponent: () => import('./iceTarifa/list/list.component').then(m => m.ListComponent),
+        data: {
+          title: 'List ice tarifa'
+        }
+      },
+      {
+        path: 'create-ice-tarifa',
+        loadComponent: () => import('./iceTarifa/create/create.component').then(m => m.CreateComponent),
+        data: {
+          title: 'Create ice tarifa'
+        }
+      },
+      {
+        path: 'edit-ice-tarifa/:id',
+        loadComponent: () => import('./iceTarifa/edit/edit.component').then(m => m.EditComponent),
+        data: {
+          title: 'Edit ice tarifa'
+        }
+      },
+      {
+        path: 'show-ice-tarifa/:id',
+        loadComponent: () => import('./iceTarifa/show/show.component').then(m => m.ShowComponent),
+        data: {
+          title: 'Show ice tarifa'
+        }
+      },
     ]
   }
 ];

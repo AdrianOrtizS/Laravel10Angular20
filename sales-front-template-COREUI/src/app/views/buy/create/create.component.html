@@ -275,7 +275,7 @@
       <div class="col-md-2 mb-3 mt-3">
         <div class="col-md-12">
           <label>PREC.</label>
-          <input cFormControl id="price" placeholder="2,33" type="number" [value]="producto().price" (input)="updateProductPrice($event)" required/>    
+          <input cFormControl id="price" placeholder="2.33" type="number" [value]="producto().price" (input)="updateProductPrice($event)" required/>    
         </div>
       </div>
       <div class="col-md-2 mb-3 mt-3">
@@ -352,19 +352,25 @@
     @if(selectedTypeDoc == '1' || selectedTypeDoc == '2'){
       <div class="d-flex justify-content-between">
         <div><strong>Subtotal:</strong></div>
-        <div>{{ calcularSubtotal() | currency:'USD' }}</div>
+        <div>{{ subtotal | currency:'USD' }}</div>
+      </div>
+    }
+    @if(selectedTypeDoc == '1'){
+      <div class="d-flex justify-content-between">
+        <div><strong>Iva 0:</strong></div>
+        <div>{{ iva0 | currency:'USD' }}</div>
       </div>
     }
     @if(selectedTypeDoc == '1'){
       <div class="d-flex justify-content-between">
         <div><strong>Iva:</strong></div>
-        <div>{{ calcularIva() | currency:'USD' }}</div>
+        <div>{{ iva | currency:'USD' }}</div>
       </div>
     }
     @if(selectedTypeDoc == '1' || selectedTypeDoc == '2'){
       <div class="d-flex justify-content-between">
         <div><strong>Total:</strong></div>
-        <div><h5> {{ calcularTotal() | currency:'USD' }} </h5></div>    
+        <div><h5> {{ total | currency:'USD' }} </h5></div>    
       </div>
     }  
   </c-card-body>

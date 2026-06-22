@@ -90,29 +90,24 @@
                   }">
                 </i>
                 <span>{{ item.estado_sri }}</span>
-                <!-- <button cButton color="warning" *ngIf="item.estado_sri == 'ERROR' || item.estado_sri == 'PENDIENTE' 
-                        || item.estado_sri == 'EN PROCESO' || item.estado_sri == 'RECIBIDA' || item.estado_sri == 'DEVUELTA'" 
-                        title="Reenviar Sri" (click)="reconsultarSri(item)" >
-                  <svg [cIcon]="icons.cilMoney" size="xl"></svg>
-                </button> -->
-<button 
-  cButton 
-  color="info"
-  variant="outline"
-  shape="rounded-pill"
-  size="sm"
-  class="d-flex align-items-center gap-1 px-2"
-  *ngIf="item.estado_sri == 'ERROR' 
-      || item.estado_sri == 'PENDIENTE' 
-      || item.estado_sri == 'EN PROCESO' 
-      || item.estado_sri == 'RECIBIDA' 
-      || item.estado_sri == 'DEVUELTA'"
-  title="Reconsultar estado en SRI"
-  (click)="reconsultarSri(item)"
->
-  <i class="bi bi-arrow-repeat"></i>
-  <span class="d-none d-md-inline">Reintentar</span>
-</button>
+
+                <button 
+                  cButton 
+                  color="info"
+                  variant="outline"
+                  shape="rounded-pill"
+                  size="sm"
+                  class="d-flex align-items-center gap-1 px-2"
+                  *ngIf="item.estado_sri == 'ERROR' 
+                      || item.estado_sri == 'PENDIENTE' 
+                      || item.estado_sri == 'EN PROCESO' 
+                      || item.estado_sri == 'RECIBIDA' 
+                      || item.estado_sri == 'DEVUELTA'"
+                  title="Reconsultar estado en SRI"
+                  (click)="reconsultarSri(item)"
+                > <i class="bi bi-arrow-repeat"></i>
+                  <span class="d-none d-md-inline">Reintentar</span>
+                </button>
 
               </div>
               <button 

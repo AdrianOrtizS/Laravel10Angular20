@@ -17,11 +17,12 @@
             </div>
 
             <div class="col-md-6">
-                <p><strong>Fecha:</strong> {{ SALE().infoFactura.fechaEmision}}</p>
                 <p><strong>Pago:</strong>  {{formPay}}</p>
                 @if(SALE().plazo > 0){
                     <p><strong>Plazo:</strong> {{SALE().plazo}} {{SALE().unidadTiempo}}  </p>
                 }
+                <p><strong>Fecha emision:</strong> {{ SALE().fecha_emision}}</p>
+                <p><strong>Fecha autorizacion:</strong> {{ SALE().fecha_autorizacion}}</p>
                 <p><strong>Clave de acceso:</strong> {{ SALE().infoTributaria.claveAcceso }}</p>
             </div>
         </div>
@@ -38,12 +39,14 @@
             <table class="table table-striped table-hover ">
             <thead class="">
                 <tr>
-                    <th style="width: 15%;">Codigo</th>
+                    <th style="width: 10%;">Codigo</th>
                     <th style="width: 15%;">Descripción</th>
-                    <th style="width: 16%;">Precio Unitario</th>
+                    <th style="width: 16%;">P. Unitario</th>
                     <th style="width: 16%;">Cantidad</th>
-                    <th style="width: 16%;">Subtotal</th>
                     <th style="width: 17%;">Descuento</th>
+                    <th style="width: 16%;">Subtotal</th>
+                    <th style="width: 17%;">Ice</th>
+                    <th style="width: 17%;">Iva</th>
                 </tr>
             </thead>
             <tbody>
@@ -52,8 +55,10 @@
                 <td>{{ p.descripcion }}</td>
                 <td >{{ p.precioUnitario | currency:'USD' }}</td>
                 <td >{{ p.cantidad }}</td>
-                <td >{{ p.precioTotalSinImpuesto | currency:'USD'}}</td>
                 <td >{{ p.descuento | currency:'USD' }}</td>
+                <td >{{ p.precioTotalSinImpuesto | currency:'USD'}}</td>
+                <td >{{ p.ice | currency:'USD' }}</td>
+                <td >{{ p.iva | currency:'USD' }}</td>
                 </tr>
             </tbody>
             </table>
@@ -62,37 +67,88 @@
     </c-card>
 
 
-    <c-card class="mb-4 shadow-sm border-0">
-        <c-card-header class="bg-light">
-        <h6 class="mb-0 fw-semibold">💰 Resumen de Factura</h6>
-
-        </c-card-header>
-        <c-card-body>
-            <div class="d-flex justify-content-between">
-            <div><strong>Subtotal:</strong></div>
-            <div>{{ SALE().infoFactura.totalSinImpuestos | currency:'USD' }}</div>
-            </div>
-            <div class="d-flex justify-content-between">
-            <div><strong>Descuento:</strong></div>
-            <div>{{ SALE().discount | currency:'USD' }}</div>
-            </div>
-
-            <div class="d-flex justify-content-between">
-            <div><strong>Iva 0:</strong></div>
-            <div>{{ SALE().iva0 | currency:'USD' }}</div>
-            </div>
-
-            <div class="d-flex justify-content-between">
-            <div><strong>Iva:</strong></div>
-            <div>{{ SALE().iva | currency:'USD' }}</div>
-            </div>
-
-            <div class="d-flex justify-content-between">
-            <div><strong>Total:</strong></div>
-            <div><h5> {{ SALE().infoFactura.importeTotal | currency:'USD' }} </h5></div>    
-            </div>
-        </c-card-body>
-    </c-card>
+    <div class="row">
+        <div class="col-md-6">
+            <c-card class="mb-4 shadow-sm border-0">
+                <c-card-header class="bg-light">
+                <h6 class="mb-0 fw-semibold">💰 Resumen de Factura</h6>
+        
+                </c-card-header>
+                <c-card-body>
+                    <div class="d-flex justify-content-between bg-light">
+                        <div><strong>Subtotal:</strong></div>
+                        <div>{{ SALE().infoFactura.totalSinImpuestos | currency:'USD' }}</div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <div><strong>Descuento:</strong></div>
+                        <div>{{ SALE().discount | currency:'USD' }}</div>
+                    </div>
+                    <div class="d-flex justify-content-between bg-light">
+                        <div><strong>Ice:</strong></div>
+                        <div>{{ SALE().ice | currency:'USD' }}</div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <div><strong>Iva 0:</strong></div>
+                        <div>{{ SALE().iva0 | currency:'USD' }}</div>
+                    </div>
+                    <div class="d-flex justify-content-between bg-light">
+                        <div><strong>Iva:</strong></div>
+                        <div>{{ SALE().iva | currency:'USD' }}</div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <div><strong>Total:</strong></div>
+                        <div><h5> {{ SALE().infoFactura.importeTotal | currency:'USD' }} </h5></div>    
+                    </div>
+                </c-card-body>
+            </c-card>
+        </div>
+        <div class="col-md-6">
+            <c-card class="mb-4 shadow-sm border-0">
+                <c-card-header class="bg-light">
+                    <h6 class="mb-0 fw-semibold">💰 Pago</h6>
+                </c-card-header>
+                <c-card-body>
+                    <div class="d-flex justify-content-between">
+                        <strong>Forma de pago:</strong>
+                            <!-- // SIN UTILIZACION DEL SISTEMA FINANCIERO     01 contado  
+                            // COMPENSACIÓN DE DEUDAS                     15 credito
+                            // TARJETA DE DÉBITO                          16 contado
+                            // DINERO ELECTRÓNICO                         17 contado
+                            // TARJETA PREPAGO                            18 contado
+                            // TARJETA DE CRÉDITO                         19 contado
+                            // OTROS CON UTILIZACIÓN DEL SISTEMA FINANCIERO  20  credito
+                            // ENDOSO DE TÍTULOS                          21  credito -->
+                         
+                            @if(SALE().form_pay == '01') {
+                            <h6>SIN UTILIZACION DEL SISTEMA FINANCIERO</h6>
+                            }
+                            @if(SALE().form_pay == '15') {
+                            <h6>COMPENSACIÓN DE DEUDAS</h6>
+                            }
+                            @if(SALE().form_pay == '16') {
+                            <h6>TARJETA DE DÉBITO</h6>
+                            }
+                            @if(SALE().form_pay == '17') {
+                            <h6>DINERO ELECTRÓNICO</h6>
+                            }
+                            @if(SALE().form_pay == '18') {
+                            <h6>TARJETA PREPAGO</h6>
+                            }
+                            @if(SALE().form_pay == '19') {
+                            <h6>TARJETA DE CRÉDITO</h6>
+                            }        
+                            @if(SALE().form_pay == '20') {
+                            <h6>OTROS CON UTILIZACIÓN DEL SISTEMA FINANCIERO</h6>
+                            }        
+                            @if(SALE().form_pay == '21') {
+                            <h6>ENDOSO DE TÍTULOS</h6>
+                            }        
+                            
+                    </div>
+                </c-card-body>
+            </c-card>
+        </div>
+    </div>
 
 
     <c-card *ngIf="SALE().form_pay == '15' || SALE().form_pay == '20' || SALE().form_pay == '21'" class="mb-4 shadow-sm border-0">
@@ -104,36 +160,36 @@
             <table class="table table-striped align-middle mb-0">
             <thead class="table-light" *ngIf="SALE().total_abonos > 0">
                 <tr>
-                <th class="text-center">Fecha</th>
-                <th class="text-center"># Comprobante</th>
-                <th class="text-center">Valor</th>
-                <th class="text-center">Accion</th>
+                    <th class="text-center">Fecha</th>
+                    <th class="text-center"># Comprobante</th>
+                    <th class="text-center">Valor</th>
+                    <th class="text-center">Accion</th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let p of SALE().receivables">
-                <td class="text-center">{{ p.fecha | date: 'dd/MM/yyyy' }}</td>
-                <td class="text-center">{{ p.num_comprobante_abono }}</td>
-                <td class="text-center">{{ p.valor_abono | currency:'USD' }}</td>
-                
-                <td class="text-center">
-                    <button cButton color="secondary" size="lg" (click)="printReceivable(p)">
-                        <svg [cIcon]="icons.cilPrint" size="lg"></svg>
-                    </button>
-                    <button cButton color="danger" size="lg" (click)="confirmDelete(p)">
-                        <svg [cIcon]="icons.cilTrash" size="lg"></svg>
-                    </button>
-                </td>
+                    <td class="text-center">{{ p.fecha | date: 'dd/MM/yyyy' }}</td>
+                    <td class="text-center">{{ p.num_comprobante_abono }}</td>
+                    <td class="text-center">{{ p.valor_abono | currency:'USD' }}</td>
+                    
+                    <td class="text-center">
+                        <button cButton color="secondary" size="lg" (click)="printReceivable(p)">
+                            <svg [cIcon]="icons.cilPrint" size="lg"></svg>
+                        </button>
+                        <button cButton color="danger" size="lg" (click)="confirmDelete(p)">
+                            <svg [cIcon]="icons.cilTrash" size="lg"></svg>
+                        </button>
+                    </td>
                 </tr>
             </tbody>
             <tfoot class="table-light">
                 <tr>
-                <td colspan="2" class="text-end fw-bold">Total abono:</td>
-                <td class="text-end">{{  SALE().total_abonos | currency:'USD' }}</td>
+                    <td colspan="2" class="text-end fw-bold">Total abono:</td>
+                    <td class="text-end">{{  SALE().total_abonos | currency:'USD' }}</td>
                 </tr>
                 <tr>
-                <td colspan="2" class="text-end fw-bold">Saldo pendiente:</td>
-                <td class="text-end">{{  SALE().saldo | currency:'USD' }}</td>
+                    <td colspan="2" class="text-end fw-bold">Saldo pendiente:</td>
+                    <td class="text-end">{{  SALE().saldo | currency:'USD' }}</td>
                 </tr>
             </tfoot>
             </table>
@@ -162,7 +218,6 @@
                     </button>
                 </c-modal-footer>
             </c-modal>
-        
         </div>
 
         <!-- Modal Imagen -->
@@ -189,7 +244,7 @@
     </c-card>
 
     <div class="d-grid gap-2">
-        <button cButton color="primary" (click)="rePrintPdf()"  title="Imprimir">
+        <button cButton color="primary" (click)="rePrintPdf(SALE().infoTributaria.claveAcceso)"  title="Imprimir">
             <svg [cIcon]="icons.cilPrint" size="xl"></svg>
         </button>
          <button cButton color="danger" (click)="goList()"  title="Regresar">

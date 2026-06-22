@@ -1,6 +1,6 @@
 @if(!isEmpty){
     <c-row>
-  <c-col xs="12" md="10" lg="8">
+  <c-col xs="12" md="12" lg="12">
         <c-card class="mb-4 shadow-sm" *ngIf="PRODUCT()">
         <c-card-header >
             Producto: <strong>🆕 {{PRODUCT().name}}</strong>
@@ -9,7 +9,7 @@
         <c-card-body>
             <!-- CATEGORÍA -->
             <div class="row">
-                <div class="col-md-8 mb-3">
+                <div class="col-md-4 mb-3">
                     <label cLabel>Categoría (*)</label>
                     <select
                         cSelect
@@ -30,7 +30,7 @@
                     </small>
                 </div>
                
-                <div class="col-md-3 mb-3">
+                <div class="col-md-2 mb-3 border border-3 rounded shadow-sm p-3">
                     <label cLabel>Tarifa Iva(*)</label>
                     <div class="d-flex gap-3">
                     <c-form-check inline>
@@ -54,7 +54,51 @@
                     </c-form-check>
                     </div>
                 </div>
-                
+                <div class="col-md-2 mb-3 border border-3 rounded shadow-sm p-3">
+                    <label cLabel>Tarifa Ice(*)</label>
+                    <div class="d-flex gap-3">
+                    <c-form-check inline>
+                        <input cFormCheckInput type="radio" name="tarifa_ice" [value]="1"
+                        [(ngModel)]="tarifa_ice">
+                        <label cFormCheckLabel>SI</label>
+                    </c-form-check>
+
+                    <c-form-check inline>
+                        <input cFormCheckInput type="radio" name="tarifa_ice" [value]="0"
+                        [(ngModel)]="tarifa_ice">
+                        <label cFormCheckLabel>NO</label>
+                    </c-form-check>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3" *ngIf="tarifa_ice == 1">
+                    <label cLabel>Selecciona tarifa ice(*)</label>
+                    <label cLabel *ngIf="tarifa_ice == 1" class="mb-0">Codigo -- Porcentaje -- Tipo</label>
+                    <!-- <select
+                        cSelect class="mt-0"
+                        [class.is-invalid]="id_ice_tarifaTouched && PRODUCT().id_ice_tarifa === '0'"
+                        (blur) ="id_ice_tarifaTouched = true"
+                        [value]="PRODUCT().id_ice_tarifa"
+                        (change)="updateId_Ice_Tarifa($event); id_ice_tarifaTouched = true">
+                        <option value="0">— Seleccione Tarifa ice —</option>
+                        @for(item of TarifasIce; track item.id) {
+                            <option [value]="item.id"> {{item.codigo_porcentaje}} -- {{item.tarifa}} -- {{item.tipo}}</option>
+                        }
+                    </select> -->
+
+<select cSelect class="mt-0" 
+        [ngModelOptions]="{ standalone: true }" 
+        [(ngModel)]="PRODUCT().id_ice_tarifa" 
+        (ngModelChange)="updateId_Ice_Tarifa($event)">
+    <option value="0">- Seleccione Tarifa ice -</option>
+    @for(item of TarifasIce; track item.id){
+        <option [value]="item.id"> {{item.codigo_porcentaje}} -- {{item.tarifa}} -- {{item.tipo}}</option>
+    }    
+</select>
+
+                    <small class="text-danger" *ngIf="id_ice_tarifaTouched && PRODUCT().id_ice_tarifa === null">
+                        La tarifa es obligatoria
+                    </small>
+                </div>
             </div>
 
             <!-- CÓDIGO / NOMBRE -->
