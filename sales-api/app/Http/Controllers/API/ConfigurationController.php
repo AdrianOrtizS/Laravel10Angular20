@@ -28,7 +28,15 @@ class ConfigurationController extends Controller
                                             ->get();          
         }else{
             $configurations = Configuration::orderBy('id')
-                                            ->get();  
+                                            ->get(); 
+
+            $configurations->transform(function ($item) {
+                if ($item->name === 'logoPdf' && $item->value) {
+                    $item->value = asset('storage/' . $item->value);
+                }
+                return $item;
+            });
+
         }
 
         
@@ -68,10 +76,11 @@ class ConfigurationController extends Controller
 
     }
 
-    // /**
-    //  * Display the specified resource.
-    //  */
-    // public function getTarifas(string $id)
+
+    /**
+     * Display the specified resource.
+     */
+    // public function show(string $id)
     // {
     //     $configuration = Configuration::where('id','=',$id)->first();
 
@@ -79,73 +88,88 @@ class ConfigurationController extends Controller
     //         $data = ['code'=> 404,
     //                  'message' => 'Configuration not found'];
     //     }else{
+
+
+    //         $configurations->transform(function ($item) {
+    //             if ($item->name === 'logoPdf' && $item->value) {
+    //                 $item->value = asset('storage/' . $item->value);
+    //             }
+    //             return $item;
+    //         });
+
+
+
     //         $data = ['code'=> 200,
     //                  'message' => ($configuration )];
     //     }
     //     return response()->json(['code' => $data['code'], 
     //                              'configuration' => $data['message']]);
     // }
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        $configuration = Configuration::where('id','=',$id)->first();
 
-        if(!$configuration){
-            $data = ['code'=> 404,
-                     'message' => 'Configuration not found'];
-        }else{
-            $data = ['code'=> 200,
-                     'message' => ($configuration )];
-        }
-        return response()->json(['code' => $data['code'], 
-                                 'configuration' => $data['message']]);
+public function show(string $id)
+{
+    $configuration = Configuration::find($id);
+
+    if (!$configuration) {
+        return response()->json([
+            'code' => 404,
+            'message' => 'Configuration not found'
+        ]);
     }
 
+    if ($configuration->name === 'logoPdf' && $configuration->value) {
+        $configuration->value = env('APP_URL').'storage/'.$configuration->value;
+    }                           
+
+    return response()->json([
+        'code' => 200,
+        'configuration' => $configuration
+    ]);
+}
     /**
      * Update the specified resource in storage.
      */
+
     public function update(Request $request, string $id)
-    {            // method for post, with hasFile
+    {
         $validator = Validator::make($request->all(),[
-                  'name' => ['required', Rule::unique('configurations')->ignore($id),],
-                  'value' => 'required'
+            'name' => ['required', Rule::unique('configurations')->ignore($id)],
+            'value' => 'nullable'
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['code' => 403, 'message' => $validator->errors()]);
+            return response()->json([
+                'code' => 403,
+                'message' => $validator->errors()
+            ]);
         }
 
         $configuration = Configuration::find($id);
-        if(! $configuration){
-            $data = ['code'=> 404,
-                     'message' => 'Configuration not found'];
-        }else{
-            if($configuration->name == 'iva'){
-                $valueOld = $configuration->value;
-                $valueNew = $request->value;
 
-                // Obtener IDs reales
-                $id_tarifa_old = Tarifa_iva::where('porcentaje', $valueOld)->value('id');
-                $id_tarifa_new = Tarifa_iva::where('porcentaje', $valueNew)->value('id');
-
-                // Actualizar productos
-                Product::where('id_tarifa_iva', $id_tarifa_old)
-                        ->where('iva', 1)
-                        ->update([
-                            'id_tarifa_iva' => $id_tarifa_new
-                        ]);            
-            }
-            $configuration->update($request->all());
-            
-            $data = ['code'=> 200, 'message' => 'Configuration updated'];
+        if (!$configuration) {
+            return response()->json([
+                'code' => 404,
+                'message' => 'Configuration not found'
+            ]);
         }
 
-        return response()->json([$data['code'], 
-                                 $data['message']]);
-    }
+        if ($request->hasFile('file_imagen')) {
+            $path = Storage::putFile('logoPdf', $request->file('file_imagen'));
 
+            $configuration->update([
+                'name' => $request->name,
+                'value' => $path
+            ]);
+        }
+
+
+        $configuration->update($request->all());
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Configuration updated'
+        ]);
+    }
     /**
      * Remove the specified resource from storage.
      */

@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Categorie;
 use App\Models\Branch;
 use App\Models\Tarifa_iva;
+use App\Models\Tarifa_ice;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\ProductCollection;
 use App\Http\Resources\ProductResource;
@@ -96,22 +97,35 @@ class ProductController extends Controller
                 'Categories' => ($categories)
             ]);
     }
-    // public function getTarifasIva(Request $request)
-    // {
-    //     $tarifas_iva = Tarifa_iva::select( 'tarifa_ivas.id',
-    //                                        'tarifa_ivas.codigo',
-    //                                        'tarifa_ivas.porcentaje'
-    //                                    )
-    //                             // ->where('state',1)
-    //                             ->orderBy('id') 
-    //                             ->get();
+    public function getTarifasIva(Request $request)
+    {
+        $tarifas_iva = Tarifa_iva::select( 'tarifa_ivas.id',
+                                           'tarifa_ivas.codigo',
+                                           'tarifa_ivas.porcentaje'
+                                       )
+                                // ->where('state',1)
+                                ->orderBy('id') 
+                                ->get();
         
-    //     return response()->json(
-    //         [   
-    //             'code'       => 200,
-    //             'Tarifas_iva' => ($tarifas_iva)
-    //         ]);
-    // }
+        return response()->json(
+            [   
+                'code'       => 200,
+                'Tarifas_iva' => ($tarifas_iva)
+            ]);
+    }
+    public function getTarifasIce(Request $request)
+    {
+        $tarifas_ice = Tarifa_ice::where('estado', 1)
+                                ->select('tarifa_ices.id','tarifa_ices.codigo_porcentaje','tarifa_ices.tarifa','tarifa_ices.tipo')
+                                ->orderBy('id') 
+                                ->get();
+       
+        return response()->json(
+            [   
+                'code'       => 200,
+                'Tarifas_ice' => $tarifas_ice
+            ]);
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -156,7 +170,7 @@ class ProductController extends Controller
 
             $product = Product::create($request->only([
                 'cod_pro', 'name', 'description', 'price', 
-                'id_categorie', 'imagen', 'tarifa_iva' 
+                'id_categorie', 'imagen', 'tarifa_iva', 'id_ice_tarifa' 
             ]));
 
             // Asignar stock a la sucursal del usuario
@@ -214,7 +228,7 @@ class ProductController extends Controller
                 $join->on('products.id', '=', 'inventories.id_product')
                     ->where('inventories.id_branch', $id_branch);
             })
-            ->with(['categorie'])
+            ->with(['categorie','tarifa_ice'])
             ->where('products.id', $id)
             ->first();
 
@@ -244,7 +258,6 @@ class ProductController extends Controller
      */              
     public function update(Request $request, string $id)
     {            
-
          $validator = Validator::make($request->all(), [
             'cod_pro'       => ['required', Rule::unique('products', 'cod_pro')->ignore($id)],
             'name'          => ['required', Rule::unique('products', 'name')->ignore($id)],
@@ -298,10 +311,10 @@ class ProductController extends Controller
                 $path = Storage::putFile('products', $request->file('producto'));
                 $request->merge(['imagen' => $path]);
             }
-
+            
             // Actualizar campos del producto
             $updateData = $request->only([
-                'cod_pro', 'name', 'description', 'price', 'id_categorie', 'imagen', 'tarifa_iva'
+                'cod_pro', 'name', 'description', 'price', 'id_categorie', 'imagen', 'tarifa_iva', 'id_ice_tarifa'
             ]);
             
             // Agregar stock y stock_min al update del producto

@@ -25,6 +25,7 @@ class Buy extends Model
         'type_doc',
         'subtotal',
         'iva',
+        'iva0',
         'total',
         'state',
     ];

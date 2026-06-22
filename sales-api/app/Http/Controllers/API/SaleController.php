@@ -84,7 +84,6 @@ class SaleController extends Controller
         $pageSize  = $request->pageSize ?? 10;
         $fecha_ini = $request->fecha_ini;
         $fecha_fin = $request->fecha_fin;
-        // $type_receivable   = $request->type_receivable;
         $form_pay   =   $request->form_pay;
 
         // Consulta base
@@ -165,8 +164,8 @@ class SaleController extends Controller
         $query = Product::select('products.*',
                             //COALESCE  ->  si es null return 0  
                     \DB::raw('COALESCE(inventories.stock, 0) as stock'),
-                    \DB::raw('COALESCE(inventories.stock_min, 0) as stock_min'))
-                ->leftJoin('inventories', function($join) use ($id_branch) {
+                    \DB::raw('COALESCE(inventories.stock_min, 0) as stock_min')
+                )->leftJoin('inventories', function($join) use ($id_branch) {
                     $join->on('products.id', '=', 'inventories.id_product')
                         ->where('inventories.id_branch', $id_branch);
                 });
@@ -231,13 +230,13 @@ class SaleController extends Controller
             $sale = Sale::create([
                 'id_customer'      => $request->id_customer,
                 'id_point_of_sale' => $pointOfSale->id,
-                // 'type_receivable'  => $request->type_receivable,
                 'establecimiento'  => $num_establecimiento,
                 'punto_emision'    => $pointOfSale->codigo_punto_emision,
                 'secuencial'       => $numeroConCeros,
                 'numero_factura'   => $num_establecimiento . '-' . $pointOfSale->codigo_punto_emision . '-' . $numeroConCeros,
                 'iva'              => $request->iva,
                 'iva0'             => $request->iva0,
+                'ice'              => $request->ice,
                 'subtotal'         => $request->subtotal,
                 ////////////////////////////////////////////////////////////////////////////
                                     // SIN UTILIZACION DEL SISTEMA FINANCIERO     01 contado  
@@ -278,15 +277,22 @@ class SaleController extends Controller
                     'price'      => $item['price'],
                     'subtotal'   => $item['subtotal'],
                     'discount'   => $item['discount'],
-                    'impuesto' => json_encode($item['impuesto'])
+                    'iva'        => $item['iva'],
+                    'ice'        => $item['ice'],
+                    'impuesto'   => json_encode($item['impuesto']),
+                    'impuesto_ice' => isset($item['impuesto_ice'])
+                        ? json_encode($item['impuesto_ice'])
+                        : null,
                 ]);
      
-                $this->updateStockSale($item['id_product'], $id_branch, $item['quantity']);
-                $this->updateSecuencialPointSale($id_branch, $pointOfSale->codigo_punto_emision);
+                // $this->updateStockSale($item['id_product'], $id_branch, $item['quantity']);
+
             }
 
 
             $resp = $this->generarFirmarEnviar($sale);
+
+            $this->updateSecuencialPointSale($id_branch, $pointOfSale->codigo_punto_emision);
             
             if (in_array($resp['code'], [500, 422, 400])) {
                 DB::rollBack();
@@ -294,8 +300,12 @@ class SaleController extends Controller
             }
      
             DB::commit();
-            return response()->json(['sale' => $sale, 'resp' => $resp]);
 
+            $sale->refresh();
+
+            return response()->json(['sale' => $sale, 
+                                     'resp' => $resp
+                                   ]);
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Error creating sale: ' . $e->getMessage());
@@ -341,17 +351,44 @@ class SaleController extends Controller
             if (!is_dir($genPath)) mkdir($genPath, 0755, true);
             if (!is_dir($firPath)) mkdir($firPath, 0755, true);
 
+
+
             $itemsImpuestos = [];
             $detalles = $sale->details->map(function ($detail) use (&$itemsImpuestos) {
+
                 $impuesto = json_decode($detail->impuesto, true);
                 if (!$impuesto) {
                     throw new \Exception('Item sin impuesto');
                 }
-                $base       = $impuesto['baseImponible'];           //45
-                $codigoPorcentaje = $impuesto['codigoPorcentaje'];  //4 -> 15%
-                $tarifa     = (float) $impuesto['tarifa'];          //12.00
-                $valor      = round($base * ($tarifa / 100), 2);    //5.40
-                
+
+                $base_ice = 0;
+                $codigoPorcentaje_ice = null;
+                $tarifa_ice = 0;
+                $valor_ice = 0;
+
+                $impuesto_ice = json_decode($detail->impuesto_ice, true);
+                if ($impuesto_ice) {
+                    $base_ice       = $impuesto_ice['baseImponible'];           //45
+                    $codigoPorcentaje_ice = $impuesto_ice['codigoPorcentaje'];  //4 -> 15%
+                    $tarifa_ice     = (float) $impuesto_ice['tarifa'];          //12.00
+                    // $valor_ice      = round($base_ice * ($tarifa_ice / 100), 2);    //5.40
+                    $valor_ice = round((float)$impuesto_ice['valor'], 2);
+                }
+
+
+                // $base = (float)$impuesto['baseImponible'];
+                $codigoPorcentaje = $impuesto['codigoPorcentaje'];
+                $tarifa           = (float)$impuesto['tarifa'];
+                $valor            = round((float)$impuesto['valor'], 2);
+
+                // $baseIva = $base;
+
+                // if ($impuesto_ice && $codigoPorcentaje !== '0') {
+                //     $baseIva += $valor_ice;
+                // }
+                $baseIva = (float)$impuesto['baseImponible'];
+
+
                 // 🔥 alimentar cálculo global
                 $ivaCod = '';
                 if($codigoPorcentaje == '0'){
@@ -369,24 +406,45 @@ class SaleController extends Controller
 
 
                 $itemsImpuestos[] = [
-                    'base'  => $base,
-                    'tipo'  => $ivaCod,
+                    'base' => $baseIva,
+                    'tipo' => $ivaCod,
                     'valor' => $valor,
+
+                    'base_ice' => $base_ice,
+                    'tipo_ice' => $codigoPorcentaje_ice,
+                    'valor_ice' => $valor_ice,
                 ];
+
+                $impuestos = [[
+                        'codigo'           => '2',
+                        'codigoPorcentaje' => $codigoPorcentaje,
+                        'tarifa'           => number_format($tarifa, 2, '.', ''),
+                        'baseImponible'    => number_format($baseIva, 2, '.', ''),
+                        'valor'            => number_format($valor, 2, '.', ''),
+                ]];
+
+                if ($impuesto_ice) {
+
+                    $impuestos[] = [
+                        'codigo' => '3',
+                        'codigoPorcentaje' => $codigoPorcentaje_ice,
+                        'tarifa' => number_format($tarifa_ice, 2, '.', ''),
+                        'baseImponible' => number_format($base_ice, 2, '.', ''),
+                        'valor' => number_format($valor_ice, 2, '.', ''),
+                    ];
+                }
+                
+                $precioTotalSinImpuesto = ($detail->quantity * $detail->price) - $detail->discount;
+
+               
                 return [
                     'codigoPrincipal'        => $detail->product->cod_pro ?? 'cod_pro',
                     'descripcion'            => optional($detail->product)->name ?? 'Producto',
                     'cantidad'               => number_format($detail->quantity, 2, '.', ''),
                     'precioUnitario'         => number_format($detail->price, 2, '.', ''),
                     'descuento'              => number_format($detail->discount, 2, '.', ''),
-                    'precioTotalSinImpuesto' => number_format($base, 2, '.', ''),
-                    'impuestos' => [[
-                        'codigo'           => '2',
-                        'codigoPorcentaje' => $codigoPorcentaje,
-                        'tarifa'           => number_format($tarifa, 2, '.', ''),
-                        'baseImponible'    => number_format($base, 2, '.', ''),
-                        'valor'            => number_format($valor, 2, '.', ''),
-                    ]],
+                    'precioTotalSinImpuesto' => number_format($precioTotalSinImpuesto, 2, '.', ''),
+                    'impuestos' => $impuestos,
                 ];
             })->values()->toArray();
 
@@ -434,7 +492,7 @@ class SaleController extends Controller
                 'detalles' => $detalles,
 
                 'infoAdicional' => [
-                    ['nombre' => 'Email', 'valor' => $sale->customer->email ?? 'cliente@correo.com'],
+                    ['nombre' => 'Email',    'valor' => $sale->customer->email ?? 'cliente@correo.com'],
                     ['nombre' => 'Telefono', 'valor' => $sale->customer->phone ?? '0999999999'],
                 ],
             ];
@@ -542,57 +600,100 @@ class SaleController extends Controller
     }
     
 
+
+
     private function calcularImpuestosSri(array $items): array
     {
         $totales = [];
+
         foreach ($items as $item) {
-            $base  = round((float)$item['base'], 2);
-            $valor = round((float)$item['valor'], 2);
-            $tipo  = $item['tipo'];
-            // 🔥 Mapear tipo a códigos SRI
+
+            // ================= IVA =================
+            $base  = round((float)($item['base'] ?? 0), 2);
+            $valor = round((float)($item['valor'] ?? 0), 2);
+            $tipo  = $item['tipo'] ?? null;
+
             switch ($tipo) {
                 case 'iva0':
                     $codigo = '2';
                     $codigoPorcentaje = '0';
                     break;
+
                 case 'iva12':
                     $codigo = '2';
                     $codigoPorcentaje = '2';
                     break;
+
                 case 'iva14':
                     $codigo = '2';
                     $codigoPorcentaje = '3';
                     break;
+
                 case 'iva15':
                     $codigo = '2';
                     $codigoPorcentaje = '4';
                     break;
+
                 default:
-                    continue 2; // ignora tipos desconocidos
+                    $codigo = null;
+                    $codigoPorcentaje = null;
             }
-            $key = $codigo . '-' . $codigoPorcentaje;
-            if (!isset($totales[$key])) {
-                $totales[$key] = [
-                    'codigo'           => $codigo,
-                    'codigoPorcentaje' => $codigoPorcentaje,
-                    'baseImponible'    => 0,
-                    'valor'            => 0,
-                ];
+
+            if ($codigo) {
+
+                $key = $codigo . '-' . $codigoPorcentaje;
+
+                if (!isset($totales[$key])) {
+                    $totales[$key] = [
+                        'codigo'           => $codigo,
+                        'codigoPorcentaje' => $codigoPorcentaje,
+                        'baseImponible'    => 0,
+                        'valor'            => 0,
+                    ];
+                }
+
+                $totales[$key]['baseImponible'] += $base;
+                $totales[$key]['valor'] += $valor;
             }
-            $totales[$key]['baseImponible'] += $base;
-            $totales[$key]['valor']         += $valor;
+
+            // ================= ICE =================
+
+            $tipo_ice  = $item['tipo_ice'] ?? null;
+            $base_ice  = round((float)($item['base_ice'] ?? 0), 2);
+            $valor_ice = round((float)($item['valor_ice'] ?? 0), 2);
+
+            if (!empty($tipo_ice) && $valor_ice > 0) {
+
+                $keyIce = '3-' . $tipo_ice;
+
+                if (!isset($totales[$keyIce])) {
+                    $totales[$keyIce] = [
+                        'codigo'           => '3',
+                        'codigoPorcentaje' => $tipo_ice,
+                        'baseImponible'    => 0,
+                        'valor'            => 0,
+                    ];
+                }
+
+                $totales[$keyIce]['baseImponible'] += $base_ice;
+                $totales[$keyIce]['valor'] += $valor_ice;
+            }
         }
 
-        // 🔥 Formateo final (OBLIGATORIO SRI)
-        return array_map(function ($t) {
+        return array_values(array_map(function ($t) {
+
             return [
                 'codigo'           => $t['codigo'],
                 'codigoPorcentaje' => $t['codigoPorcentaje'],
                 'baseImponible'    => number_format($t['baseImponible'], 2, '.', ''),
                 'valor'            => number_format($t['valor'], 2, '.', ''),
             ];
-        }, array_values($totales));
+
+        }, $totales));
     }
+
+
+
     /**
      * Guarda un archivo asegurándose de que el directorio existe
      */
@@ -642,31 +743,12 @@ class SaleController extends Controller
         return $pointOfSale->fresh();
     }
 
-    // public function sendFacturaPdfXml($clave, $mailCustomerSale)
-    // {
-    //     $numero_factura = $clave;
 
-    //     // rutas de tus archivos ya generados
-    //     $pdfPath = storage_path("app/facturas/pdfs/{$clave}.pdf");
-    //     $xmlPath = storage_path("app/facturas/firmados/{$clave}.xml");
-
-    //     if (!file_exists($pdfPath)) {
-    //         error_log("No existe: " . $pdfPath);
-    //     }
-    //     if (!file_exists($xmlPath)) {
-    //         error_log("No existe: " . $xmlPath);
-    //     }
-
-    //     Mail::to("adrian-2222@hotmail.com")->send(new FacturaCustomerPdfXmlMail($pdfPath, $xmlPath, $numero_factura));
-
-    //     return response()->json(['code'=>200, 'message'=>'Factura enviada con éxito.']);
-    // }
 
     public function pdf($id)
     {
         // Limpiar buffers
         if (ob_get_length()) ob_clean();
-        
         // 🔥 Obtener configuraciones en 1 sola consulta
         $configs = Configuration::whereIn('name', [
             'version',
@@ -676,82 +758,150 @@ class SaleController extends Controller
             'ruc',
             'dirMatriz',
             'obligadoContabilidad',
-            'iva'
+            'iva',
+            'logoPdf',
+            'correo'
         ])->pluck('value', 'name');
 
         // Variables
-        $version    = $configs['version'] ?? '';
-        $ambiente   = $configs['ambiente'] ?? '';
-        $razonSocial = $configs['razonSocial'] ?? '';
-        $nombreComercial = $configs['nombreComercial'] ?? '';
-        $ruc        = $configs['ruc'] ?? '';
-        $dirMatriz  = $configs['dirMatriz'] ?? '';
+        $version        = $configs['version'] ?? '';
+        $ambiente       = $configs['ambiente'] ?? '';
+        $razonSocial    = $configs['razonSocial'] ?? '';
+        $nombreComercial= $configs['nombreComercial'] ?? '';
+        $ruc            = $configs['ruc'] ?? '';
+        $dirMatriz      = $configs['dirMatriz'] ?? '';
         $obligadoContabilidad = $configs['obligadoContabilidad'] ?? '';
-        $iva        = $configs['iva'] ?? '';
+        $iva            = $configs['iva'] ?? '';
+        $logoPdf        = $configs['logoPdf'] ?? '';
+        $correo         = $configs['correo'] ?? '';
         // 🔥 Venta
+
         $sale = Sale::with(['customer','details'])->findOrFail($id);
 
-        // 🔥 PDF
-        $pdf = Pdf::loadView('factura.pdf', compact(
-            'sale',
-            'version',
-            'ambiente',
-            'razonSocial',
-            'nombreComercial',
-            'ruc',
-            'dirMatriz',
-            'obligadoContabilidad',
-            'iva'
-        ))->setPaper('a4');
+        if($sale->estado_sri == 'AUTORIZADO'){
+            // 🔥 PDF
+            $pdf = Pdf::loadView('factura.pdf', compact(
+                'sale',
+                'version',
+                'ambiente',
+                'razonSocial',
+                'nombreComercial',
+                'ruc',
+                'dirMatriz',
+                'obligadoContabilidad',
+                'iva',
+                'logoPdf',
+                'correo'
+            ))->setPaper('a4');
 
-        $filename = $sale->clave_acceso . '.pdf';
-        $path = storage_path("app/facturas/pdfs/{$filename}");
+            $filename = $sale->clave_acceso . '.pdf';
+            $path = storage_path("app/facturas/pdfs/{$filename}");
 
-        // Crear directorio
-        $directory = dirname($path);
-        if (!file_exists($directory)) {
-            mkdir($directory, 0755, true);
+            // Crear directorio
+            $directory = dirname($path);
+            if (!file_exists($directory)) {
+                mkdir($directory, 0755, true);
+            }
+
+            // Guardar el PDF
+            $pdf->save($path);
+
+            // Descargar usando response()->download()
+            return response()->download($path, $filename, [
+                'Content-Type' => 'application/pdf',
+            ]); 
         }
-
-        // Guardar el PDF
-        $pdf->save($path);
-
-        // Descargar usando response()->download()
-        return response()->download($path, $filename, [
-            'Content-Type' => 'application/pdf',
-        ]); 
     }
-
-
 
 
     public function reconsultarSri($id, SriFacturaService $sri)
     {
+        $user        = auth()->user();
+        $pointOfSale = $user->pointsOfSale()->with('branch')->first();
+
+        if (!$pointOfSale) {
+            return response()->json(['error' => 'El usuario no tiene puntos de venta asignados'], 403);
+        }
+
+        $id_branch = $pointOfSale->id_branch;
+
+        if (!$id_branch) {
+            return response()->json(['error' => 'Usuario no tiene sucursal asignada'], 403);
+        }
+
         $sale = Sale::findOrFail($id);
+
+        // 🔥 EVITA DOBLE DESCUENTO
+        if ($sale->estado_sri === 'AUTORIZADO') {
+
+            return response()->json([
+                'estado'=>'AUTORIZADO'
+            ]);
+
+        }
+
+        $sale->load('details.product');
 
         $respuesta = $sri->autorizarSri($sale->clave_acceso, $sale->ambiente);
 
         if ($respuesta['estado'] === 'AUTORIZADO') {
+
+            $fechaAutorizacionRaw = $respuesta['fechaAutorizacion'] ?? null;
+            $fechaAutorizacion = $fechaAutorizacionRaw
+                ? Carbon::parse($fechaAutorizacionRaw)->format('Y-m-d H:i:s')
+                : now()->format('Y-m-d H:i:s');
+
+            // $sale->update([
+            //     'estado_sri' => 'AUTORIZADO',
+            //     'numero_autorizacion' => $respuesta['numeroAutorizacion']
+            // ]);
+
             $sale->update([
-                'estado_sri' => 'AUTORIZADO',
-                'numero_autorizacion' => $respuesta['numeroAutorizacion']
+                'estado_sri'             => 'AUTORIZADO',
+                'numero_autorizacion'    => $respuesta['numeroAutorizacion'],
+                'fecha_autorizacion_sri' => $fechaAutorizacion,
             ]);
+
+            foreach ($sale->details as $detail) {
+
+                $product = $detail->product;
+
+                if (!$product) {
+                    continue;
+                }
+
+                $inventory = Inventory::where('id_product', $product->id)
+                    ->where('id_branch', $id_branch)
+                    ->first();
+
+                if (!$inventory) {
+                    \Log::error('Inventario no encontrado', [
+                        'product_id' => $product->id,
+                        'branch_id' => $id_branch
+                    ]);
+                    continue;
+                }
+
+                // 🔥 forma correcta
+                $inventory->decrement('stock', $detail->quantity);
+            }
         }
 
         return response()->json($respuesta);
     }
 
-    public function rePrintFacturaPdf($id)
-    {
-        // Limpiar buffers
-        if (ob_get_length()) ob_clean();
-        
-        $sale = Sale::with(['customer','details'])->findOrFail($id);
-        $pdf = Pdf::loadView('factura.rePrintPdf', compact('sale'))
-                                ->setPaper('a4');
 
-        // Mostrar en el navegador (abre el PDF directamente)
-        return $pdf->stream($sale->clave_acceso . '.pdf');
+    public function rePrintFacturaPdf($clave)
+    {
+        $path = storage_path('app/facturas/pdfs/'.$clave.'.pdf');
+
+        if (!file_exists($path)) {
+            abort(404, 'Archivo no encontrado');
+        }
+
+        return response()->file($path, [
+            'Content-Type' => 'application/pdf',
+        ]);
     }
 
     /**
@@ -759,9 +909,10 @@ class SaleController extends Controller
      */
     public function show(string $id)
     {  
-        $sale = Sale::with(['customer', 'receivables', 
-                            'details.product'])
-                            ->find($id);
+        $sale = Sale::with(['customer', 
+                            'receivables', 
+                            'details.product'
+                          ])->find($id);
 
         if (!$sale) {
             return response()->json(['message' => 'No existe la venta solicitada.'], 404);
@@ -793,5 +944,6 @@ class SaleController extends Controller
         return response()->json([$data['code'], 
                                  $data['message']]);
     }
+
     
 }

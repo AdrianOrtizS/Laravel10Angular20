@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Sale;
 use App\Models\PointsOfSale;
+use App\Models\Branch;
 use App\Models\Product;
 
 class ReportsService
@@ -28,10 +29,12 @@ class ReportsService
 	        ], 403);
 	    }
 
+	    $branch = Branch::where('id', $id_branch)->first();
+
 	    // Filtro general
 	    $baseQuery = Sale::whereHas('point_of_sale', function($q) use ($id_branch) {
 	        $q->where('id_branch', $id_branch);
-	    });
+	    })->where('estado_sri', 'AUTORIZADO');
 
 	    // ░░░ Año actual
 	    $monthly = (clone $baseQuery)
@@ -75,6 +78,7 @@ class ReportsService
 	        : 100;
 
 	    return [
+	    	'branch'			  => $branch,	
 	        'month_current'       => $month_current,
 	        'monthly'             => $result,
 	        'monthly_last'        => $result_last,
@@ -105,6 +109,8 @@ class ReportsService
 	        ], 403);
 	    }
 
+	    $branch = Branch::where('id', $id_branch)->first();
+
 	    // Filtrar por branch (sucursal)
 	    $query = Sale::whereHas('point_of_sale', function($q) use ($id_branch) {
 	        $q->where('id_branch', $id_branch);
@@ -121,6 +127,7 @@ class ReportsService
 	    $total_last_10days = (float) Sale::whereHas('point_of_sale', function($q) use ($id_branch) {
 	            $q->where('id_branch', $id_branch);
 	        })
+		    ->where('estado_sri', 'AUTORIZADO')
 	        ->where('created_at', '>=', Carbon::now()->subDays(10))
 	        ->sum('total');
 
@@ -141,7 +148,6 @@ class ReportsService
 	}
 
 
-
 	public function top10Products()
 	{
 	    $user = auth()->user();
@@ -160,100 +166,108 @@ class ReportsService
 	            'error' => 'No se pudo determinar la sucursal del usuario'
 	        ], 403);
 	    }
-        $oneYearOld = now()->subYear();
-	    
-        // Ventas filtradas por sucursal con detalles y productos
+
+	    $oneYearOld = now()->subYear();
+
 	    $sales = Sale::whereHas('point_of_sale', function($q) use ($id_branch) {
 	            $q->where('id_branch', $id_branch);
 	        })
 	        ->with(['details.product'])
 	        ->where('created_at', '>=', $oneYearOld)
-            ->get();
+	        ->where('estado_sri','AUTORIZADO')
+	        ->get();
 
-	    // Agrupar productos y sumar cantidades
 	    $products = [];
-        $total_products = 0;
-       
+	    $total_products = 0;
+
 	    foreach ($sales as $sale) {
 	        foreach ($sale->details as $detail) {
 
-                //id del producto
+	            if (!$detail->product) {
+	                continue;
+	            }
+
 	            $id = $detail->product->id;
 
-                    //isset -> true (si es declarada y no es null)
-                    //si el producto aun no esta agregado
-                    //agrega id, nombre, cantidad 0
-                if (!isset($products[$id])) {
+	            if (!isset($products[$id])) {
 	                $products[$id] = [
 	                    'product_id'   => $id,
 	                    'product_name' => $detail->product->name,
 	                    'quantity'     => 0
 	                ];
 	            }
-                // print_r($products);
 
 	            $products[$id]['quantity'] += $detail->quantity;
-                $total_products = $total_products + $detail->quantity;
+	            $total_products += $detail->quantity;
 	        }
 	    }
 
-        // error_log($products);
+	    // 🔥 convertir a array normal (IMPORTANTE)
+	    $products = array_values($products);
 
-	    // Ordenar de mayor a menor cantidad
+	    // ordenar
 	    usort($products, function($a, $b) {
-            return $b['quantity'] - $a['quantity'];
-        });
+	        return $b['quantity'] <=> $a['quantity'];
+	    });
 
-	    // Obtener solo los primeros 5
-	    $top5 = array_slice($products, 0, 5);
+	    // 🔥 ahora sí top 10
+	    $top10 = array_slice($products, 0, 10);
 
 	    return [
-	        'top_10_products' => $top5,
-            'total_products' => $total_products
+	        'top_10_products' => $top10,
+	        'total_products' => $total_products
 	    ];
 	}
 
-    public function lowStock()
-    {
-        $user = auth()->user();
 
-        $pointOfSale = $user->pointsOfSale()->first();
-        if (!$pointOfSale) {
-            return response()->json([
-                'error' => 'El usuario no tiene puntos de venta asignados'
-            ], 403);
-        }
+	public function lowStock()
+	{
+	    $user = auth()->user();
 
-        $id_branch = $pointOfSale->id_branch;
-        if (!$id_branch) {
-            return response()->json([
-                'error' => 'No se pudo determinar la sucursal del usuario'
-            ], 403);
-        }
+	    $pointOfSale = $user->pointsOfSale()->first();
+	    if (!$pointOfSale) {
+	        return response()->json([
+	            'error' => 'El usuario no tiene puntos de venta asignados'
+	        ], 403);
+	    }
 
-		$query = Product::select('products.name',
-								//COALESCE(si es null, devuelve 0)
-					        \DB::raw('cat.name as categorie'),
-					        \DB::raw('COALESCE(inv.stock, 0) as stock'),
-					        \DB::raw('COALESCE(inv.stock_min, 0) as stock_min')
-		    )
-		    ->leftJoin('inventories as inv', function ($join) use ($id_branch) {
-		        $join->on('products.id', '=', 'inv.id_product')
-		             ->where('inv.id_branch', $id_branch);
-		    })
-		    ->join('categories as cat', 'products.id_categorie', '=', 'cat.id')
-		    	      // COALESCE(si es null, devuelve 0)
-		    ->whereRaw('COALESCE(inv.stock, 0) <= COALESCE(inv.stock_min, 0)')
-		    // ->orderBy('inv.stock', 'desc')
-		    ->take(20)
-		    ->get();
+	    $id_branch = $pointOfSale->id_branch;
+	    if (!$id_branch) {
+	        return response()->json([
+	            'error' => 'No se pudo determinar la sucursal del usuario'
+	        ], 403);
+	    }
 
-		// $low5 = array_slice($query, 0, 5);
+	    $query = Product::select(
+	            'products.id',
+	            'products.name',
+	            \DB::raw('cat.name as categorie'),
+	            \DB::raw('COALESCE(inv.stock, 0) as stock'),
+	            \DB::raw('COALESCE(inv.stock_min, 0) as stock_min')
+	        )
+	        ->leftJoin('inventories as inv', function ($join) use ($id_branch) {
+	            $join->on('products.id', '=', 'inv.id_product')
+	                 ->where('inv.id_branch', $id_branch);
+	        })
+	        ->join('categories as cat', 'products.id_categorie', '=', 'cat.id')
 
-        return [
-            'low_stock_20' => $query
-        ];
-    }
+	        // 🔥 SOLO productos que SI tienen inventario configurado
+	        ->whereNotNull('inv.id')
+
+	        // 🔥 condición real de stock bajo
+	        ->whereRaw('inv.stock <= inv.stock_min')
+
+	        // 🔥 ordenar: más críticos primero
+	        ->orderBy('inv.stock', 'asc')
+
+	        ->limit(20)
+	        ->get();
+
+	    return [
+	        'low_stock_20' => $query
+	    ];
+	}
+
 
 
     public function purchaseslast_10days()

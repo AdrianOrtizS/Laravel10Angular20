@@ -15,7 +15,6 @@ class SaleResource extends JsonResource
     public function toArray(Request $request): array
     {
         // return parent::toArray($request);
-
         return [
             'idx'                   => $this->resource->id,
             'version'               => '2.1.0',   // versión vigente del XSD
@@ -63,6 +62,9 @@ class SaleResource extends JsonResource
                     'precioUnitario'    => $details->price,
                     'descuento'         => $details->discount,
                     'precioTotalSinImpuesto' => $details->subtotal - $details->discount,
+                    'iva' => $details->iva,
+                    'ice' => $details->ice,
+                    
                     // 'impuestos' => [
                     //     [
                     //         'codigo'            => '2',  //  IVA
@@ -77,19 +79,24 @@ class SaleResource extends JsonResource
             'infoAdicional' => [
                 [
                     'nombre' => 'email',
-                    'valor' => 'cliente@correo.com'
+                    'valor'  => 'cliente@correo.com'
                 ]
             ],
             'customer'  => $this->resource->customer ? [
-                            'id_customer'   => $this->resource->customer->id,
+                            'id_customer' => $this->resource->customer->id,
                             'name'     => $this->resource->customer->name,
                             'num_identificador' => $this->resource->customer->num_identificador,
-                            'address' => $this->resource->customer->address,
-                            'phone' => $this->resource->customer->phone,
+                            'address'  => $this->resource->customer->address,
+                            'phone'    => $this->resource->customer->phone,
             ]:NULL,
-            // 'type_receivable'          => $this->resource->type_receivable,
-            'form_pay'   => $this->resource->form_pay,
-            'plazo'=> $this->resource->plazo,
+
+            'fecha_emision'      =>  \Carbon\Carbon::parse($this->resource->created_at)->format('Y-m-d H:i:s'),
+            
+            'fecha_autorizacion' => $this->resource->fecha_autorizacion_sri ? 
+                                        $this->resource->fecha_autorizacion_sri
+                                    :NULL,
+            'form_pay'  => $this->resource->form_pay,
+            'plazo'     => $this->resource->plazo,
             'unidadTiempo'=> $this->resource->unidadTiempo,
             'receivables' => $this->resource->receivables->map(function($receivables){
                 return [
@@ -102,14 +109,15 @@ class SaleResource extends JsonResource
                 ];
             }),
             'discount' => $this->resource->discount,
-            'iva0' => $this->resource->iva0,
-            'iva' => $this->resource->iva,
-            'numero_factura' => $this->resource->numero_factura,
-            // 'total_factura' => round($this->resource->total, 2),
-            'total_abonos' => round($this->resource->receivables->sum('valor_abono'), 2),
+            'iva0'  => $this->resource->iva0,
+            'iva'   => $this->resource->iva,
+            'ice'   => $this->resource->ice,
+            
+            'numero_factura'=> $this->resource->numero_factura,
+            'total_abonos'  => round($this->resource->receivables->sum('valor_abono'), 2),
             'cantidad_abonos' => $this->resource->receivables->count(),
-            'saldo' => round($this->resource->total - $this->resource->receivables->sum('valor_abono'), 2),
-            'estado_sri' => $this->resource->estado_sri,
+            'saldo'         => round($this->resource->total - $this->resource->receivables->sum('valor_abono'), 2),
+            'estado_sri'    => $this->resource->estado_sri,
             'error_no_autorizada' => $this->resource->error_no_autorizada
         ];
 

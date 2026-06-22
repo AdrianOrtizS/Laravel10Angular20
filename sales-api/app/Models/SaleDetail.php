@@ -17,7 +17,10 @@ class SaleDetail extends Model
         'price',
         'discount',
         'subtotal',
-        'impuesto'
+        'impuesto',
+        'impuesto_ice',
+        'iva',
+        'ice'
     ];
 
     protected $casts = [

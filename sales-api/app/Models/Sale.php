@@ -22,9 +22,9 @@ class Sale extends Model
         'subtotal',
         'iva',
         'iva0',
+        'ice',
         'total',
         'discount',
-        // 'type_receivable',
         'state',
         'id_point_of_sale',
         'establecimiento',
@@ -53,10 +53,11 @@ class Sale extends Model
     }
     
     protected $casts = [
-        // 'date' => 'date',
         'total'     => 'decimal:2',
         'subtotal'  => 'decimal:2',
         'iva'       => 'decimal:2',
+        'iva0'      => 'decimal:2',
+        'ice'       => 'decimal:2',
         'discount'  => 'decimal:2'
     ];
 
@@ -81,10 +82,6 @@ class Sale extends Model
         ];
     }
 
-    // public function branch()  //sucursal
-    // {                                           
-    //     return $this->belongsTo(Branch::class,'id_branch');
-    // }
     
     public function point_of_sale()  //punto de venta  -  sucursal
     {                                           

@@ -222,6 +222,7 @@ class BuyController extends Controller
                 'type_pay'      => $request->type_pay,
                 'type_doc'      => $request->type_doc,
                 'iva'           => $request->iva,
+                'iva0'           => $request->iva0,
                 'subtotal'      => $request->subtotal,
                 'total'         => $request->total,
             ]);
@@ -237,6 +238,7 @@ class BuyController extends Controller
                     'quantity'  => $item['quantity'],
                     'price'     => $item['price'],
                     'subtotal'  => $item['subtotal'],
+                    'iva'       => $item['iva'],
                 ]);
 
                 $this->updateStockBuy( $item['id_product'], 

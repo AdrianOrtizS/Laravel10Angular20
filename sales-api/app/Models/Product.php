@@ -20,7 +20,8 @@ class Product extends Model
         'imagen',
         'state',
         'id_categorie',
-        'tarifa_iva'
+        'tarifa_iva',
+        'id_ice_tarifa'
     ];
 
     public function setCreatedAtAttribute($value)
@@ -44,6 +45,11 @@ class Product extends Model
     // {                                            //table tarifas_iva
     //     return $this->belongsTo(Tarifa_iva::class, 'id_tarifa_iva');
     // }
+ 
+    public function tarifa_ice()
+    {
+        return $this->belongsTo(Tarifa_ice::class, 'id_ice_tarifa');
+    }
 
 
     public function branches()
@@ -58,6 +64,10 @@ class Product extends Model
     {
         return $this->hasMany(OrderDetail::class);
     }
+
+
+ 
+    
 
     public function scopeFilterCategorieProduct($query, $search, $id_categorie, $id_branch)
     {

@@ -13,6 +13,7 @@ use App\Http\Controllers\API\CategorieController;
 use App\Http\Controllers\API\CustomerController;
 use App\Http\Controllers\API\SupplierController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\Tarifa_iceController;
 
 use App\Http\Controllers\API\SaleController;
 use App\Http\Controllers\API\ReceivableController;
@@ -81,6 +82,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post("products/{id}",    [ProductController::class, 'update']);
     Route::get("getCategories",     [ProductController::class, 'getCategories']);
     Route::get("getTarifasIva",     [ProductController::class, 'getTarifasIva']);
+    Route::get("getTarifasIce",     [ProductController::class, 'getTarifasIce']);
 
     Route::resource("branches", BranchController::class);
     
@@ -95,7 +97,10 @@ Route::middleware('auth:api')->group(function () {
     Route::resource("customers", CustomerController::class);
     Route::resource("suppliers", SupplierController::class);
 
+    Route::resource("ice_tarifas", Tarifa_iceController::class);
+
     Route::resource('configurations', ConfigurationController::class);
+    Route::post("configurations/{id}", [ConfigurationController::class, 'update']);
 
 
     Route::resource("sales", SaleController::class);
@@ -103,9 +108,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get("sale/getProducts",  [SaleController::class, 'getProducts']);
     Route::get('sale/getByStatus',  [SaleController::class, 'getByStatus']);
     Route::get('sale/factura/{id}/pdf', [SaleController::class, 'pdf']);
-    Route::get('sale/factura/{id}/rePrintFacturaPdf', [SaleController::class, 'rePrintFacturaPdf']);
+    Route::get('sale/factura/{clave}/rePrintFacturaPdf', [SaleController::class, 'rePrintFacturaPdf']);
     
-Route::get('sale/factura/reconsultar/{id}', [SaleController::class, 'reconsultarSri']);
+    Route::get('sale/factura/reconsultar/{id}', [SaleController::class, 'reconsultarSri']);
     
 
     Route::post('sale/sendFacturaPdfXml/{clave}/{mailCustomerSale}', [SaleController::class, 'sendFacturaPdfXml']);
@@ -138,32 +143,5 @@ Route::get('sale/factura/reconsultar/{id}', [SaleController::class, 'reconsultar
 // routes/api.php
 Route::get('/facturas/{claveAcceso}/estado', [SaleController::class, 'estadoSri']);
 
+Route::post('factura/generar', [FacturaController::class, 'generar']);
 
-
-
-
-
-
-    Route::post('factura/generar', [FacturaController::class, 'generar']);
-
-Route::get('/test-p12', function () {
-
-    $p12Path = storage_path('app/certificados/certificado.p12');
-    $password = 'TU_PASSWORD_REAL';
-
-    $pkcs12 = file_get_contents($p12Path);
-
-    if (!$pkcs12) {
-        return 'NO SE PUEDE LEER EL ARCHIVO';
-    }
-
-    if (!openssl_pkcs12_read($pkcs12, $certs, $password)) {
-        return 'PASSWORD INCORRECTO O CERTIFICADO DAÑADO';
-    }
-
-    return [
-        'OK' => true,
-        'tiene_private_key' => isset($certs['pkey']),
-        'tiene_cert' => isset($certs['cert'])
-    ];
-});

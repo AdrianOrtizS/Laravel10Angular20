@@ -23,7 +23,8 @@ class BuyResource extends JsonResource
             'subtotal'          => $this->resource->subtotal,
             'fecha_ingreso'     => $this->resource->fecha_ingreso,
             'total'             => $this->resource->total,
-            'iva'             => $this->resource->iva,
+            'iva'               => $this->resource->iva ? $this->resource->iva : 0,
+            'iva0'              => $this->resource->iva0 ? $this->resource->iva0 : 0,
             'created_at'        => $this->resource->created_at->format('Y-m-d h:i A'),
             'state'     => $this->resource->state,
             'supplier'  => $this->resource->supplier ? [
@@ -36,14 +37,18 @@ class BuyResource extends JsonResource
             'details' => $this->resource->details->map(function($details){
                 return [
                     'id'          => $details->id,
+                    // 'codigo'      => $details->product->codigoPrincipal,
                     'product'     => [
                         'id_product'    => $details->product->id,
-                        'name'          => $details->product->name
+                        'name'          => $details->product->name,
+                        'codigo'        => $details->product->cod_pro,
+                        'tarifa_iva'    => $details->product->tarifa_iva,
                     ],
 
                     'quantity'  => $details->quantity,
                     'price'     => $details->price,
                     'subtotal'  => $details->subtotal,
+                    'iva'       => $details->iva,
                 ];
             }),
             'pays' => $this->resource->pays->map(function($pays){

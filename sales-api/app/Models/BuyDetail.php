@@ -15,7 +15,8 @@ class BuyDetail extends Model
         'id_product',
         'quantity',
         'price',
-        'subtotal'
+        'subtotal',
+        'iva'
     ];
 
     protected $casts = [

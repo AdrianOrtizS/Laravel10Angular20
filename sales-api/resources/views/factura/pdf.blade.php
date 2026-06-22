@@ -24,7 +24,7 @@
     float: right;
     border: 1px solid #000;
     padding: 20px;
-    text-align: center;
+    text-align: left;
   }
 
   .clear {
@@ -76,25 +76,37 @@
 <!-- HEADER -->
 <div class="header">
   <div class="logo">
-    <img src="{{ public_path('logo.png') }}" height="80">
+    <img src="{{ storage_path('app/public/' . $logoPdf) }}" height="80">
     <p>
       <strong>{{$nombreComercial}}</strong><br>
-      RUC: {{$ruc}}<br>
-      DIRECCION: {{$dirMatriz}}<br>
-      OBLIGADO A LLEVAR CONTABILIDAD: {{$obligadoContabilidad}}
+      <!-- <strong>Ruc:</strong> {{$ruc}}<br> -->
+      <strong>Direccion:</strong> {{$dirMatriz}}<br>
+      <strong>Correo:</strong> {{$correo}}<br>
+      
+      <strong>Obligado a llevar contabilidad:</strong> {{$obligadoContabilidad}}
     </p>
   </div>
 
   <div class="empresa-info">
-    <strong>RUC: {{$ruc}}</strong><br><br>
-    <strong>FACTURA</strong><br>
-    No: {{ $sale->numero_factura }}<br><br>
-    <strong>NÚMERO DE AUTORIZACIÓN</strong><br>
-    {{ $sale->clave_acceso }}<br><br>
-    <!-- <strong>FECHA Y HORA DE AUTORIZACIÓN</strong><br>
-    {{ $sale->fecha_autorizacion_sri ?? '-' }}<br><br> -->
-    <strong>AMBIENTE:</strong> {{$ambiente == '1' ? 'PRUEBAS' : 'NORMAL'}}<br>
-    <strong>EMISIÓN:</strong> NORMAL
+    <strong>Ruc:</strong> {{$ruc}}<br>
+    <strong>Factura No:</strong> {{ $sale->numero_factura }}<br>
+    <strong>Numero de autorizacion</strong> {{ $sale->clave_acceso }}<br>
+
+    <div style="display:flex; justify-content:space-between; gap:20px;">
+        @if($sale->created_at)
+        <div>
+            <strong>Fecha de creación</strong> {{ \Carbon\Carbon::parse($sale->created_at)->format('d/m/Y H:i:s') }}
+        </div>
+        @endif
+        @if($sale->fecha_autorizacion_sri)
+        <div>
+            <strong>Fecha de autorización</strong> {{ \Carbon\Carbon::parse($sale->fecha_autorizacion_sri)->format('d/m/Y H:i:s') }}
+        </div>
+        @endif
+    </div><br>
+
+    <strong>Ambiente:</strong> {{$ambiente == '1' ? 'Pruebas' : 'Normal'}}<br>
+    <strong>Emision:</strong> Normal
   </div>
 
   <div class="clear"></div>
@@ -104,15 +116,15 @@
 <div class="box">
   <table class="no-border">
     <tr>
-      <td><strong>RAZON SOCIAL:</strong> {{ $sale->customer->name }}</td>
-      <td><strong>RUC/CI:</strong> {{ $sale->customer->num_identificador }}</td>
+      <td><strong>Razon social:</strong> {{ $sale->customer->name }}</td>
+      <td><strong>Ruc/CI:</strong> {{ $sale->customer->num_identificador }}</td>
     </tr>
     <tr>
-      <td><strong>FECHA EMISION:</strong> {{ $sale->created_at->format('d/m/Y') }}</td>
-      <td><strong>TELEFONO:</strong> {{ $sale->customer->phone }}</td>
+      <td><strong>Fecha emision:</strong> {{ $sale->created_at->format('d/m/Y') }}</td>
+      <td><strong>Telefono:</strong> {{ $sale->customer->phone }}</td>
     </tr>
     <tr>
-      <td colspan="2"><strong>DIRECCION:</strong> {{ $sale->customer->address }}</td>
+      <td colspan="2"><strong>Direccion:</strong> {{ $sale->customer->address }}</td>
     </tr>
   </table>
 </div>
@@ -121,12 +133,14 @@
 <table>
   <thead>
     <tr>
-      <th>CODIGO</th>
-      <th>DESCRIPCION</th>
-      <th class="center">CANTIDAD</th>
-      <th class="right">PRECIO UNIT.</th>
-      <th class="right">DESCUENTO</th>
-      <th class="right">TOTAL</th>
+      <th>Codigo</th>
+      <th>Descripcion</th>
+      <th class="center">Cantidad</th>
+      <th class="right">P. Unitario</th>
+      <th class="right">Descuento</th>
+      <th class="right">Ice</th>
+      <th class="right">Iva</th>
+      <th class="right">Total</th>
     </tr>
   </thead>
   <tbody>
@@ -137,6 +151,8 @@
       <td class="center">{{ $p->quantity }}</td>
       <td class="right">{{ number_format($p->price, 2) }}</td>
       <td class="right">{{ number_format($p->discount, 2) }}</td>
+      <td class="right">{{ number_format($p->ice, 2) }}</td>
+      <td class="right">{{ number_format($p->iva, 2) }}</td>
       <td class="right">{{ number_format($p->subtotal, 2) }}</td>
     </tr>
     @endforeach
@@ -149,18 +165,22 @@
     <td>
       <table>
         <tr>
-          <td>SUBTOTAL 0%</td>
+          <td>Subtotal 0%</td>
           <td class="right">{{ number_format($sale->subtotal, 2) }}</td>
         </tr>
         <tr>
-          <td>DESCUENTO</td>
+          <td>Descuento</td>
           <td class="right">{{ number_format($sale->discount, 2) }}</td>
         </tr>
         <tr>
-          <td>IVA 0%</td>
+          <td>Ice</td>
+          <td class="right">{{ number_format($sale->ice, 2) }}</td>
+        </tr>
+        <tr>
+          <td>Iva 0%</td>
           <td class="right">{{ number_format($sale->iva0, 2) }}</td>
         </tr>        <tr>
-          <td>IVA {{$iva}}%</td>
+          <td>Iva {{$iva}}%</td>
           <td class="right">{{ number_format($sale->iva, 2) }}</td>
         </tr>
         <tr>
@@ -203,7 +223,7 @@
 
 <!-- FOOTER -->
 <div style="margin-top:20px;">
-  <strong>CLAVE DE ACCESO:</strong><br>
+  <strong>Clave de acceso:</strong><br>
   {{ $sale->clave_acceso }}
 </div>
 
