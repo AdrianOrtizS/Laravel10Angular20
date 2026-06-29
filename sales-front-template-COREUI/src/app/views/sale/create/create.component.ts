@@ -4,7 +4,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { SharedModule } from '../../../shared/shared.module';
 import { Router } from '@angular/router';
 import { SaleService } from '../sale.service';
-import { ButtonDirective, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective, ListGroupDirective, ListGroupItemDirective, ModalBodyComponent, ModalComponent, ModalHeaderComponent, ModalTitleDirective, ModalToggleDirective } from '@coreui/angular';
+import { ButtonDirective, FormCheckComponent, FormCheckInputDirective, ListGroupDirective, ListGroupItemDirective, ModalBodyComponent, ModalComponent, ModalHeaderComponent, ModalTitleDirective, ModalToggleDirective } from '@coreui/angular';
 import { CustomerService } from '../../customer/customer.service';
 import { ProductService } from '../../inventory/product/product.service';
 
@@ -41,7 +41,7 @@ interface SaleDetalleI {
 
 @Component({
   selector: 'app-create',
-  imports: [SharedModule, ListGroupDirective, ListGroupItemDirective, ButtonDirective, ModalToggleDirective, ModalComponent, ModalHeaderComponent, ModalTitleDirective, ModalBodyComponent, FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective],
+  imports: [SharedModule, ListGroupDirective, ListGroupItemDirective, ButtonDirective, ModalToggleDirective, ModalComponent, ModalHeaderComponent, ModalTitleDirective, ModalBodyComponent, FormCheckComponent, FormCheckInputDirective],
   templateUrl: './create.component.html',
   styleUrl: './create.component.scss',
   host: {
@@ -147,7 +147,7 @@ export class CreateComponent {
     this.searchProductNull = false;
     this.saleService.getProducts(search)
     .subscribe((resp:any)=>{
-      console.log(resp);
+      // console.log(resp);
       this.products.set(resp.Products.data);
       this.searchProductNull = true;
     });
@@ -183,7 +183,7 @@ export class CreateComponent {
                         ice:          ice,
                         tarifa_ice:   this.productSelect.tarifa_ice
                       });
-    console.log(this.producto());
+    // console.log(this.producto());
     this.closeModalSelectProduct();
   }  
   openModalSelectProduct(){
@@ -517,30 +517,52 @@ export class CreateComponent {
         if(resp.resp.code != 500 || resp.resp.code != '500'){
           this.toastr.success('Éxito', 'La venta se ha creado correctamente');
           
+          
           setTimeout(() => {
-              this.saleService.reconsultarSri(resp.sale.id)
-              .subscribe((respuesta:any)=>{
-                if(respuesta.estado == 'AUTORIZADO'){
-                  this.toastr.success('Exito', 'Factura fue autorizada');
-                  this.customerSelect   = {};
-                  this.subtotal         = 0;
-                  this.total            = 0;
-                  this.iva0             = 0;
-                  this.iva              = 0;
-                  this.ice              = 0;
-                  this.descuentoTotal   = 0;
-                  this.items            = [];
-                  this.form_pay         = '';
-                  this.plazo            = 0; 
-                  this.see_days_for_pay = false;
-                  this.btnSaveBlock     = false;
-                  setTimeout(() => {
-                    this.printSale(resp.sale.id);
-                  }, 500); 
-                  return;
-                }}
-              )
-          },5000);
+            // console.log(resp);
+            this.customerSelect   = {};
+            this.subtotal         = 0;
+            this.total            = 0;
+            this.iva0             = 0;
+            this.iva              = 0;
+            this.ice              = 0;
+            this.descuentoTotal   = 0;
+            this.items            = [];
+            this.form_pay         = '';
+            this.plazo            = 0; 
+            this.see_days_for_pay = false;
+            this.btnSaveBlock     = false;
+          }, 1000);
+
+
+          const interval = setInterval(() => {
+            this.saleService.reconsultarSri(resp.sale.id)
+              .subscribe({
+                next: (respuesta: any) => {
+                  // console.log(respuesta);
+                  if (!respuesta) {
+                    return;
+                  }
+                  // console.log(respuesta.estado);
+                  if (respuesta.estado === 'AUTORIZADO') {
+
+                    clearInterval(interval); // ⛔ Detiene el setInterval
+
+                    this.toastr.success(
+                      'La factura ya fue autorizada.',
+                      'Éxito'
+                    );
+                    setTimeout(() => {
+                      this.printSale(resp.sale.id);
+                    }, 2500);
+                  }
+                },
+                error: (err: any) => {
+                  console.log(err);
+                }
+              });
+          }, 1000);
+
 
         }else{
           this.btnSaveBlock = false;
@@ -602,13 +624,23 @@ export class CreateComponent {
       );
   }
 
-  printSale(id_sale:any){
-      this.saleService.getFacturaPDF(id_sale).subscribe((pdfBlob: Blob) => {
-          const url = window.URL.createObjectURL(pdfBlob);
-          const newWindow = window.open(url, '_blank');
-          if (newWindow) {
-            newWindow.print(); // abre el diálogo de impresión directamente
+  printSale(id_sale: any) {
+    this.saleService.getFacturaPDF(id_sale)
+      .subscribe({
+        next: (pdfBlob: Blob) => {
+          const url = URL.createObjectURL(pdfBlob);
+          const printWindow = window.open('', '_blank');
+          if (printWindow) {
+            printWindow.location.href = url;
+            printWindow.onload = () => {
+              printWindow.focus();
+              printWindow.print();
+            };
           }
+        },
+        error: (err) => {
+          console.error(err);
+        }
       });
   }
    
