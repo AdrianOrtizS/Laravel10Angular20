@@ -29,6 +29,7 @@ use Log;
 use App\Mail\FacturaCustomerPdfXmlMail;
 use Illuminate\Support\Facades\Mail;
 use App\Jobs\ConsultarAutorizacionSriJob;
+use Picqer\Barcode\BarcodeGeneratorPNG;
 
 class SaleController extends Controller
 {
@@ -371,21 +372,13 @@ class SaleController extends Controller
                     $base_ice       = $impuesto_ice['baseImponible'];           //45
                     $codigoPorcentaje_ice = $impuesto_ice['codigoPorcentaje'];  //4 -> 15%
                     $tarifa_ice     = (float) $impuesto_ice['tarifa'];          //12.00
-                    // $valor_ice      = round($base_ice * ($tarifa_ice / 100), 2);    //5.40
                     $valor_ice = round((float)$impuesto_ice['valor'], 2);
                 }
 
-
-                // $base = (float)$impuesto['baseImponible'];
                 $codigoPorcentaje = $impuesto['codigoPorcentaje'];
                 $tarifa           = (float)$impuesto['tarifa'];
                 $valor            = round((float)$impuesto['valor'], 2);
 
-                // $baseIva = $base;
-
-                // if ($impuesto_ice && $codigoPorcentaje !== '0') {
-                //     $baseIva += $valor_ice;
-                // }
                 $baseIva = (float)$impuesto['baseImponible'];
 
 
@@ -527,18 +520,14 @@ class SaleController extends Controller
 
             // ================= ENVÍO =================
             $recepcion = $this->sri->enviarComprobanteSri($xmlFirmado, $ambiente);
-
             \Log::info('SRI recepción', $recepcion);
-
             if (!isset($recepcion['estado'])) {
                 throw new \Exception('Respuesta inválida del SRI');
             }
 
             // 🔥 DEVUELTA
             if ($recepcion['estado'] === 'DEVUELTA') {
-
                 $mensajes = $recepcion['mensajes'] ?? [];
-
                 \Log::error('DEVUELTA SRI', $mensajes);
 
                 $es70 = collect($mensajes)
@@ -564,7 +553,6 @@ class SaleController extends Controller
 
             // ================= JOB =================
             $ahora = now()->timestamp;
-
             $sale->update(['estado_sri' => 'PENDIENTE']);
 
             \App\Jobs\ConsultarAutorizacionSriJob::dispatch(
@@ -584,13 +572,10 @@ class SaleController extends Controller
             ];
 
         } catch (\Throwable $e) {
-
             \Log::error('Error facturación', [
                 'error' => $e->getMessage()
             ]);
-
             $sale->update(['estado_sri' => 'ERROR']);
-
             return [
                 'code' => 500,
                 'status' => 'error',
@@ -599,8 +584,6 @@ class SaleController extends Controller
         }
     }
     
-
-
 
     private function calcularImpuestosSri(array $items): array
     {
@@ -745,11 +728,41 @@ class SaleController extends Controller
 
 
 
+
+    public function barcodeGeneratorPng($clave_acceso)
+    {
+        $generator = new BarcodeGeneratorPNG();
+
+        $barcode = base64_encode(
+            $generator->getBarcode(
+                $clave_acceso,
+                $generator::TYPE_CODE_128
+            )
+        );
+
+        return $barcode;        
+    }
+    
     public function pdf($id)
     {
-        // Limpiar buffers
-        if (ob_get_length()) ob_clean();
-        // 🔥 Obtener configuraciones en 1 sola consulta
+        $sale = $this->generarPdf($id);
+        $path = storage_path(
+            'app/facturas/pdfs/' . $sale->clave_acceso . '.pdf'
+        );
+        return response()->download(
+            $path,
+            $sale->clave_acceso . '.pdf',
+            [
+                'Content-Type' => 'application/pdf',
+            ]
+        );
+    }
+
+    public function generarPdf($id)
+    {
+        if (ob_get_length()) {
+            ob_clean();
+        }
         $configs = Configuration::whereIn('name', [
             'version',
             'ambiente',
@@ -762,72 +775,83 @@ class SaleController extends Controller
             'logoPdf',
             'correo'
         ])->pluck('value', 'name');
+        $sale = Sale::with(['customer', 'details'])->findOrFail($id);
+        $barcode = $this->barcodeGeneratorPng($sale->clave_acceso);
+        $pdf = Pdf::loadView('factura.pdf', [
+            'sale' => $sale,
+            'version' => $configs['version'] ?? '',
+            'ambiente' => $configs['ambiente'] ?? '',
+            'razonSocial' => $configs['razonSocial'] ?? '',
+            'nombreComercial' => $configs['nombreComercial'] ?? '',
+            'ruc' => $configs['ruc'] ?? '',
+            'dirMatriz' => $configs['dirMatriz'] ?? '',
+            'obligadoContabilidad' => $configs['obligadoContabilidad'] ?? '',
+            'iva' => $configs['iva'] ?? '',
+            'logoPdf' => $configs['logoPdf'] ?? '',
+            'correo' => $configs['correo'] ?? '',
+            'barcode' => $barcode,
+        ])->setPaper('a4');
 
-        // Variables
-        $version        = $configs['version'] ?? '';
-        $ambiente       = $configs['ambiente'] ?? '';
-        $razonSocial    = $configs['razonSocial'] ?? '';
-        $nombreComercial= $configs['nombreComercial'] ?? '';
-        $ruc            = $configs['ruc'] ?? '';
-        $dirMatriz      = $configs['dirMatriz'] ?? '';
-        $obligadoContabilidad = $configs['obligadoContabilidad'] ?? '';
-        $iva            = $configs['iva'] ?? '';
-        $logoPdf        = $configs['logoPdf'] ?? '';
-        $correo         = $configs['correo'] ?? '';
-        // 🔥 Venta
+        $filename = $sale->clave_acceso . '.pdf';
+        $path = storage_path("app/facturas/pdfs/{$filename}");
+        $directory = dirname($path);
 
-        $sale = Sale::with(['customer','details'])->findOrFail($id);
+        if (!file_exists($directory)) {
+            mkdir($directory, 0755, true);
+        }
+        $pdf->save($path);
+        // Devuelve la venta actualizada
+        return Sale::with(['customer', 'details'])
+            ->findOrFail($id);
+    }
 
-        if($sale->estado_sri == 'AUTORIZADO'){
-            // 🔥 PDF
-            $pdf = Pdf::loadView('factura.pdf', compact(
-                'sale',
-                'version',
-                'ambiente',
-                'razonSocial',
-                'nombreComercial',
-                'ruc',
-                'dirMatriz',
-                'obligadoContabilidad',
-                'iva',
-                'logoPdf',
-                'correo'
-            ))->setPaper('a4');
+    public function rePrintFacturaPdf($clave)
+    {
+        $path = storage_path("app/facturas/pdfs/{$clave}.pdf");
 
-            $filename = $sale->clave_acceso . '.pdf';
-            $path = storage_path("app/facturas/pdfs/{$filename}");
+        if (!file_exists($path)) {
 
-            // Crear directorio
-            $directory = dirname($path);
-            if (!file_exists($directory)) {
-                mkdir($directory, 0755, true);
+            $sale = Sale::where('clave_acceso', $clave)->first();
+
+            if (!$sale) {
+                abort(404, 'Factura no encontrada');
             }
 
-            // Guardar el PDF
-            $pdf->save($path);
+            // Regenera el PDF
+            $sale = $this->generarPdf($sale->id);
 
-            // Descargar usando response()->download()
-            return response()->download($path, $filename, [
-                'Content-Type' => 'application/pdf',
-            ]); 
+            // Verifica que se haya generado
+            if (!file_exists($path)) {
+                abort(500, 'No fue posible generar el PDF');
+            }
         }
+
+        return response()->file($path, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $clave . '.pdf"',
+        ]);
     }
+
+
+
+
+
 
 
     public function reconsultarSri($id, SriFacturaService $sri)
     {
-        $user        = auth()->user();
-        $pointOfSale = $user->pointsOfSale()->with('branch')->first();
+        // $user        = auth()->user();
+        // $pointOfSale = $user->pointsOfSale()->with('branch')->first();
 
-        if (!$pointOfSale) {
-            return response()->json(['error' => 'El usuario no tiene puntos de venta asignados'], 403);
-        }
+        // if (!$pointOfSale) {
+        //     return response()->json(['error' => 'El usuario no tiene puntos de venta asignados'], 403);
+        // }
 
-        $id_branch = $pointOfSale->id_branch;
+        // $id_branch = $pointOfSale->id_branch;
 
-        if (!$id_branch) {
-            return response()->json(['error' => 'Usuario no tiene sucursal asignada'], 403);
-        }
+        // if (!$id_branch) {
+        //     return response()->json(['error' => 'Usuario no tiene sucursal asignada'], 403);
+        // }
 
         $sale = Sale::findOrFail($id);
 
@@ -840,69 +864,52 @@ class SaleController extends Controller
 
         }
 
-        $sale->load('details.product');
+        // $sale->load('details.product');
 
-        $respuesta = $sri->autorizarSri($sale->clave_acceso, $sale->ambiente);
+        // $respuesta = $sri->autorizarSri($sale->clave_acceso, $sale->ambiente);
 
-        if ($respuesta['estado'] === 'AUTORIZADO') {
+        // if ($respuesta['estado'] === 'AUTORIZADO') {
 
-            $fechaAutorizacionRaw = $respuesta['fechaAutorizacion'] ?? null;
-            $fechaAutorizacion = $fechaAutorizacionRaw
-                ? Carbon::parse($fechaAutorizacionRaw)->format('Y-m-d H:i:s')
-                : now()->format('Y-m-d H:i:s');
+        //     $fechaAutorizacionRaw = $respuesta['fechaAutorizacion'] ?? null;
+        //     $fechaAutorizacion = $fechaAutorizacionRaw
+        //         ? Carbon::parse($fechaAutorizacionRaw)->format('Y-m-d H:i:s')
+        //         : now()->format('Y-m-d H:i:s');
 
-            // $sale->update([
-            //     'estado_sri' => 'AUTORIZADO',
-            //     'numero_autorizacion' => $respuesta['numeroAutorizacion']
-            // ]);
+        //     $sale->update([
+        //         'estado_sri'             => 'AUTORIZADO',
+        //         'numero_autorizacion'    => $respuesta['numeroAutorizacion'],
+        //         'fecha_autorizacion_sri' => $fechaAutorizacion,
+        //     ]);
 
-            $sale->update([
-                'estado_sri'             => 'AUTORIZADO',
-                'numero_autorizacion'    => $respuesta['numeroAutorizacion'],
-                'fecha_autorizacion_sri' => $fechaAutorizacion,
-            ]);
+        //     foreach ($sale->details as $detail) {
 
-            foreach ($sale->details as $detail) {
+        //         $product = $detail->product;
 
-                $product = $detail->product;
+        //         if (!$product) {
+        //             continue;
+        //         }
 
-                if (!$product) {
-                    continue;
-                }
+        //         $inventory = Inventory::where('id_product', $product->id)
+        //             ->where('id_branch', $id_branch)
+        //             ->first();
 
-                $inventory = Inventory::where('id_product', $product->id)
-                    ->where('id_branch', $id_branch)
-                    ->first();
+        //         if (!$inventory) {
+        //             \Log::error('Inventario no encontrado', [
+        //                 'product_id' => $product->id,
+        //                 'branch_id' => $id_branch
+        //             ]);
+        //             continue;
+        //         }
 
-                if (!$inventory) {
-                    \Log::error('Inventario no encontrado', [
-                        'product_id' => $product->id,
-                        'branch_id' => $id_branch
-                    ]);
-                    continue;
-                }
+        //         // 🔥 forma correcta
+        //         $inventory->decrement('stock', $detail->quantity);
+        //     }
+        // }
 
-                // 🔥 forma correcta
-                $inventory->decrement('stock', $detail->quantity);
-            }
-        }
-
-        return response()->json($respuesta);
+        // return response()->json($respuesta);
     }
 
 
-    public function rePrintFacturaPdf($clave)
-    {
-        $path = storage_path('app/facturas/pdfs/'.$clave.'.pdf');
-
-        if (!file_exists($path)) {
-            abort(404, 'Archivo no encontrado');
-        }
-
-        return response()->file($path, [
-            'Content-Type' => 'application/pdf',
-        ]);
-    }
 
     /**
      * Display the specified resource.

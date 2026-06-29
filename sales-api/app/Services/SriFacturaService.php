@@ -371,7 +371,7 @@ class SriFacturaService
                 'timeout' => 20,
                 'curl'    => [CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => false],
             ]);
-            sleep(3);
+            // sleep(3);
             $body = (string) $response->getBody();
             $dom  = new DOMDocument();
             if (!@$dom->loadXML($body)) {
@@ -430,7 +430,7 @@ class SriFacturaService
                 'curl'    => [CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => false],
             ]);
 
-            sleep(3);
+            // sleep(3);
             $body = (string) $response->getBody();
             $dom  = new DOMDocument();
             if (!@$dom->loadXML($body)) {

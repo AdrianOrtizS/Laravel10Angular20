@@ -107,12 +107,14 @@ Route::middleware('auth:api')->group(function () {
     Route::get("sale/getCustomers", [SaleController::class, 'getCustomers']);
     Route::get("sale/getProducts",  [SaleController::class, 'getProducts']);
     Route::get('sale/getByStatus',  [SaleController::class, 'getByStatus']);
-    Route::get('sale/factura/{id}/pdf', [SaleController::class, 'pdf']);
-    Route::get('sale/factura/{clave}/rePrintFacturaPdf', [SaleController::class, 'rePrintFacturaPdf']);
     
-    Route::get('sale/factura/reconsultar/{id}', [SaleController::class, 'reconsultarSri']);
+    Route::get('sale/factura/{id}/pdf', [SaleController::class, 'pdf']);
     
 
+
+    Route::get('sale/factura/{clave}/rePrintFacturaPdf', [SaleController::class, 'rePrintFacturaPdf']);
+    Route::get('sale/factura/reconsultar/{id}', [SaleController::class, 'reconsultarSri']);
+    Route::get('sale/generate_barcode/{clave_acceso}', [SaleController::class, 'barcodeGeneratorPng']);
     Route::post('sale/sendFacturaPdfXml/{clave}/{mailCustomerSale}', [SaleController::class, 'sendFacturaPdfXml']);
 
     Route::resource("receivables", ReceivableController::class);

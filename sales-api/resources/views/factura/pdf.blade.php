@@ -222,9 +222,15 @@
 </div>
 
 <!-- FOOTER -->
-<div style="margin-top:20px;">
-  <strong>Clave de acceso:</strong><br>
-  {{ $sale->clave_acceso }}
+<!-- FOOTER -->
+<div style="margin-top:20px; text-align:center;">
+    <strong>Clave de acceso:</strong><br>
+    <div style="margin:5px 0;">
+        <img src="data:image/png;base64,{{ $barcode }}" width="350" style="display:block; margin:0 auto;">
+    </div>
+    <div style="font-size:12px; letter-spacing:1px;">
+        {{ $sale->clave_acceso }}
+    </div>
 </div>
 
 </body>
