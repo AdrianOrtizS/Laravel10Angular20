@@ -20,12 +20,12 @@ class Buy extends Model
         'fecha_ingreso',
         'numero_factura',
         'type_pay',
-        // 'id_branch',
         'id_point_of_sale',
         'type_doc',
         'subtotal',
         'iva',
         'iva0',
+        'ice',
         'total',
         'state',
     ];

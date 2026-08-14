@@ -85,19 +85,20 @@ class BuyController extends Controller
         {
             $query->where('type_pay', (string)$type_pay);
         }   
+        $total_buys  = (clone $query)->sum('total');
 
         // Orden y paginación
         $buys = $query->orderBy('created_at', 'desc')
                       ->paginate($pageSize);
 
         return response()->json([
-            'code'  => 200,
-            'total' => $buys->total(),
-            'Buys'  => BuyCollection::make($buys),
+            'code'      => 200,
+            'total'     => $buys->total(),
+            'total_buys' => $total_buys,
+            'Buys'      => BuyCollection::make($buys),
         ]);
     }
 
-//cdfdddjhkjhkj
     public function guardarCambio(){
         return response()->json([
             'id' => '123'
@@ -222,7 +223,8 @@ class BuyController extends Controller
                 'type_pay'      => $request->type_pay,
                 'type_doc'      => $request->type_doc,
                 'iva'           => $request->iva,
-                'iva0'           => $request->iva0,
+                'iva0'          => $request->iva0,
+                'ice'           => $request->ice,
                 'subtotal'      => $request->subtotal,
                 'total'         => $request->total,
             ]);
@@ -239,6 +241,8 @@ class BuyController extends Controller
                     'price'     => $item['price'],
                     'subtotal'  => $item['subtotal'],
                     'iva'       => $item['iva'],
+                    'ice'       => $item['ice'],
+
                 ]);
 
                 $this->updateStockBuy( $item['id_product'], 

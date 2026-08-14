@@ -115,5 +115,13 @@ class Sale extends Model
         return $query;
     }
 
+    public function scopeFilterSalesCustomer($query, $search)
+    {
+        $query->where(function ($q) use ($search) {
+            $q->where('numero_factura', 'like', "%{$search}%");
+        });
+        return $query;
+    }
+
 
 }

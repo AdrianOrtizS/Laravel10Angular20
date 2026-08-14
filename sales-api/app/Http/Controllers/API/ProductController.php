@@ -16,9 +16,19 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Log;
+use Milon\Barcode\Facades\DNS1DFacade as DNS1D;
 
 class ProductController extends Controller
 {
+    public function barcode($code)
+    {
+        $png = DNS1D::getBarcodePNG($code, 'C128');
+        // $product->cod_pro_barras = DNS1D::getBarcodePNG($product->cod_pro_barras, 'C128');
+
+        return response($png)
+            ->header('Content-Type', 'image/png');
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -67,7 +77,8 @@ class ProductController extends Controller
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('products.name', 'LIKE', "%{$search}%")
-                  ->orWhere('products.cod_pro', 'LIKE', "%{$search}%");
+                  ->orWhere('products.cod_pro', 'LIKE', "%{$search}%")
+                  ->orWhere('products.cod_pro_barras', 'LIKE', "%{$search}%");
             });
         }
 
@@ -76,6 +87,11 @@ class ProductController extends Controller
         }
 
         $products = $query->orderBy('products.name')->paginate($pageSize);
+
+        $products->getCollection()->transform(function ($product) {
+            $product->cod_pro_barras = DNS1D::getBarcodePNG($product->cod_pro_barras, 'C128');
+            return $product;
+        });
 
         return response()->json([
             'total' => $products->total(),
@@ -133,7 +149,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-                  'cod_pro'     => 'required|unique:products,cod_pro',
+                  'type_cod_pro'=> 'required',
                   'name'        => 'required|unique:products,name',
                   'description' => 'required',
                   'price'       => 'required',
@@ -143,16 +159,13 @@ class ProductController extends Controller
                   'tarifa_iva'  => 'required',
         ]);
 
-
         if ($validator->fails()) {
             return response()->json(['code' => 403, 'message' => $validator->errors()]);
         }
 
         $user = auth()->user();
-
         $pointsOfSale = $user->pointsOfSale()->first();
         $id_branch = $pointsOfSale->id_branch;
-
 
         if (!$id_branch) {
             return response()->json([
@@ -167,33 +180,41 @@ class ProductController extends Controller
 
         try {
             DB::beginTransaction();
-
+       
             $product = Product::create($request->only([
-                'cod_pro', 'name', 'description', 'price', 
-                'id_categorie', 'imagen', 'tarifa_iva', 'id_ice_tarifa' 
+                'name', 'description', 'cod_pro_barras', 
+                'price', 'id_categorie', 'type_cod_pro', 
+                'imagen', 'tarifa_iva', 'id_ice_tarifa' 
             ]));
+
+            $codigo = 'P' . str_pad($product->id, 6, '0', STR_PAD_LEFT);
+            $product->cod_pro = $codigo;
+            
+            // 1 automatico  -  2 manual
+            if($product->type_cod_pro == '2' || $product->type_cod_pro == 2){
+                $barcode = $request->cod_pro_barras;
+            }else {
+                $barcode = str_pad($product->id, 12, '0', STR_PAD_LEFT);
+            }
+            $product->cod_pro_barras = $barcode;
+            $product->save();
 
             // Asignar stock a la sucursal del usuario
             $stock = $request->stock ?? 0;
             $stock_min = $request->stock_min ?? 0;
-
             $product->branches()->attach($id_branch, ['stock' => $stock,
                                                      'stock_min' => $stock_min]);
-            
             $otherBranches = Branch::where('id', '!=', $id_branch)->get();
-
             foreach ($otherBranches as $branch) {
                 $product->branches()->attach($branch->id, [
                     'stock' => 0,
                     'stock_min' => 0
                 ]);
             }
-
-
             DB::commit();
             return response()->json(['code'     => 200, 
                                      'message'  => 'Product created']);
-
+        
         }catch (\Exception $e) {
             DB::rollBack();
             
@@ -239,6 +260,9 @@ class ProductController extends Controller
                 ], 404);
             }
 
+            $product->cod_pro_barras_img = DNS1D::getBarcodePNG($product->cod_pro_barras, 'C128');
+
+
             return response()->json([
                 'code' => 200,
                 'Product' => new ProductResource($product),
@@ -246,8 +270,8 @@ class ProductController extends Controller
 
         } catch (\Exception $e) {
             return response()->json([
-                'code' => 500,
-                'message' => 'Error al obtener el producto',
+                'code'  => 500,
+                'message'   => 'Error al obtener el producto',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -257,9 +281,9 @@ class ProductController extends Controller
      * Update the specified resource in storage.
      */              
     public function update(Request $request, string $id)
-    {            
+    {      
          $validator = Validator::make($request->all(), [
-            'cod_pro'       => ['required', Rule::unique('products', 'cod_pro')->ignore($id)],
+            'type_cod_pro'  => 'required',
             'name'          => ['required', Rule::unique('products', 'name')->ignore($id)],
             'description'   => 'required',
             'price'         => 'required|numeric|min:0',
@@ -270,7 +294,6 @@ class ProductController extends Controller
             'tarifa_iva'    => 'required'
         ]);
         
-
         if ($validator->fails()) {
             return response()->json([
                 'code' => 403, 
@@ -314,9 +337,21 @@ class ProductController extends Controller
             
             // Actualizar campos del producto
             $updateData = $request->only([
-                'cod_pro', 'name', 'description', 'price', 'id_categorie', 'imagen', 'tarifa_iva', 'id_ice_tarifa'
+                'name', 'description', 'cod_pro_barras',
+                'price', 'id_categorie', 'imagen', 'type_cod_pro',
+                'tarifa_iva', 'id_ice_tarifa'
             ]);
+
+
+            // 1 automatico  -  2 manual
+            if($updateData['type_cod_pro'] == '2' || $updateData['type_cod_pro'] == 2){
+                $barcode = $request->cod_pro_barras;
+            }else {
+                $barcode = str_pad($id, 12, '0', STR_PAD_LEFT);
+            }
+            $updateData['cod_pro_barras'] = $barcode;
             
+           
             // Agregar stock y stock_min al update del producto
             if ($request->has('stock')) {
                 $updateData['stock'] = $request->stock;
@@ -361,7 +396,7 @@ class ProductController extends Controller
             
             return response()->json([
                 'code' => 500,
-                'message' => 'Error al actualizar el producto',
+                'message' => 'Error al actualizar el producto '.$e,
                 'error' => env('APP_DEBUG') ? $e->getMessage() : 'Error interno del servidor'
             ], 500);
         }

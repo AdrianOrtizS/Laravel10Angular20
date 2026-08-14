@@ -33,11 +33,13 @@ class ProductResource extends JsonResource
             ]: NULL, 
             'stock'         => $this->resource->stock.'', // Stock directo desde el join
             'stock_min'     => $this->resource->stock_min.'',
+            'type_cod_pro'  => $this->resource->type_cod_pro.'',
+            
+            'cod_pro_barras'=> $this->resource->cod_pro_barras.'',
+            'cod_pro_barras_img'=> $this->resource->cod_pro_barras_img.'',
             
             'tarifa_iva'    => $this->resource->tarifa_iva,
-            
             'id_ice_tarifa' => $this->resource->id_ice_tarifa,
-
             'tarifa_ice'    => $this->resource->tarifa_ice ? [
                 'id'        => $this->resource->tarifa_ice->id,
                 'codigo'    => $this->resource->tarifa_ice->codigo,

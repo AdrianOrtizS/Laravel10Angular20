@@ -85,7 +85,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get("getTarifasIce",     [ProductController::class, 'getTarifasIce']);
 
     Route::resource("branches", BranchController::class);
-    
+
+    Route::get('barcode/{code}', [ProductController::class, 'barcode']);    
 
     Route::resource("users", UserController::class);
     Route::post("users/{id}", [UserController::class, 'update']);
@@ -95,6 +96,10 @@ Route::middleware('auth:api')->group(function () {
 
 
     Route::resource("customers", CustomerController::class);
+    Route::get("sales/customer", [CustomerController::class, 'getSalesCustomer']);
+    
+
+
     Route::resource("suppliers", SupplierController::class);
 
     Route::resource("ice_tarifas", Tarifa_iceController::class);
@@ -109,6 +114,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('sale/getByStatus',  [SaleController::class, 'getByStatus']);
     
     Route::get('sale/factura/{id}/pdf', [SaleController::class, 'pdf']);
+    
+    Route::get('sale/excel', [SaleController::class, 'excel']);
+    Route::get('sale/exportPdf', [SaleController::class, 'exportPdf']);
     
 
 

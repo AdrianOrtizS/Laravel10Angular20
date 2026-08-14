@@ -13,7 +13,6 @@ class Product extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'cod_pro',
         'name',
         'description',
         'price',
@@ -21,7 +20,9 @@ class Product extends Model
         'state',
         'id_categorie',
         'tarifa_iva',
-        'id_ice_tarifa'
+        'id_ice_tarifa',
+        'type_cod_pro',    //  1 automatico - 2 manua
+        'cod_pro_barras'
     ];
 
     public function setCreatedAtAttribute($value)

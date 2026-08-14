@@ -31,6 +31,9 @@ use Illuminate\Support\Facades\Mail;
 use App\Jobs\ConsultarAutorizacionSriJob;
 use Picqer\Barcode\BarcodeGeneratorPNG;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\VentasExport;
+
 class SaleController extends Controller
 {
     protected $sri;
@@ -45,6 +48,98 @@ class SaleController extends Controller
     {
         $this->sri  =   $sri;
         $this->getConfig();
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $user = auth()->user();
+        $pointOfSale = $user->pointsOfSale()->first();
+        $query = Sale::with('customer')
+            ->where('id_point_of_sale', $pointOfSale->id);
+
+        if ($request->fecha_ini && $request->fecha_fin) {
+
+            $inicio = Carbon::parse($request->fecha_ini)->startOfDay();
+            $fin = Carbon::parse($request->fecha_fin)->endOfDay();
+
+            $query->whereBetween('created_at', [$inicio,$fin]);
+        }
+
+        $sales = $query
+            ->orderBy('created_at','desc')
+            ->get();
+
+        $pdf = Pdf::loadView('exportPdf.sales', compact('sales'));
+
+        $pdf->setPaper('A4','landscape');
+
+        return $pdf->download('ventas.pdf');
+    }
+
+    public function excel(Request $request)
+    {
+        $user = auth()->user();
+
+        // Obtener primer punto de venta del usuario
+        $pointOfSale = $user->pointsOfSale()->first();
+        if (!$pointOfSale) {
+            return response()->json([
+                'error' => 'El usuario no tiene puntos de venta asignados'
+            ], 403);
+        }
+
+        $id_branch = $pointOfSale->id_branch;
+        if (!$id_branch) {
+            return response()->json([
+                'error' => 'No se pudo determinar la sucursal del usuario'
+            ], 403);
+        }
+    
+        $fecha_ini = $request->fecha_ini;
+        $fecha_fin = $request->fecha_fin;
+
+        // Consulta base
+        $query = Sale::with('customer')
+                        ->where('id_point_of_sale', $pointOfSale->id);
+
+        if ($fecha_ini && $fecha_fin) {
+            try {
+                $inicio = \Carbon\Carbon::parse($fecha_ini)->startOfDay();
+                $fin    = \Carbon\Carbon::parse($fecha_fin)->endOfDay();
+                $query->whereBetween('created_at', [$inicio, $fin]);
+            } catch (\Exception $e) {
+                \Log::error('Error al parsear fechas: ' . $e->getMessage());
+            }
+        }
+
+        $query->select([
+                'id_customer',
+                'total',
+                'subtotal',
+                'discount',
+                'numero_factura',
+                'iva',
+                'iva0',
+                'clave_acceso',
+                'estado_sri',
+                'numero_autorizacion',
+                'fecha_autorizacion_sri',
+                'error_no_autorizada',
+                'establecimiento',
+                'punto_emision',
+                'secuencial',
+                'ambiente',
+                'created_at',
+                'form_pay',
+                'plazo',
+                'unidadTiempo',
+                'ice'
+            ])->orderBy('created_at', 'desc');
+
+            return Excel::download(
+                new VentasExport($query),
+                'ventas.xlsx'
+            );
     }
 
     public function getConfig()
@@ -85,10 +180,10 @@ class SaleController extends Controller
         $pageSize  = $request->pageSize ?? 10;
         $fecha_ini = $request->fecha_ini;
         $fecha_fin = $request->fecha_fin;
-        $form_pay   =   $request->form_pay;
+        $form_pay  = $request->form_pay;
 
         // Consulta base
-        $query = Sale::where('id_point_of_sale', $pointOfSale->id);
+        $query = Sale::where('id_point_of_sale', $pointOfSale->id)->take(1000);
 
         if ($search) {
             $query->FilterSale($search);
@@ -109,14 +204,20 @@ class SaleController extends Controller
             $query->where('form_pay', (string)$form_pay);
         }   
 
+        $total_autorizado       = (clone $query)->where('estado_sri', 'AUTORIZADO')
+                                                ->sum('total');
+        $total_autor_no_autor   = (clone $query)->where('estado_sri', 'NO AUTORIZADO')
+                                    ->sum('total');
         // Orden y paginación
         $sales = $query->orderBy('created_at', 'desc')
                       ->paginate($pageSize);
 
         return response()->json([
-            'code'  => 200,
-            'total' => $sales->total(),
-            'Sales'  => SaleCollection::make($sales),
+            'code'      =>      200,
+            'total'     =>      $sales->total(),
+            'total_autorizado'      => $total_autorizado,
+            'total_autor_no_autor'  => $total_autor_no_autor,
+            'Sales'     =>      SaleCollection::make($sales),
         ]);
     }
 
@@ -136,7 +237,7 @@ class SaleController extends Controller
         }
 
         return response()->json(
-            [   'code'  => 200,
+            [   'code'      => 200,
                 'customers' => CustomerCollection::make($customers)
             ]);
     }
@@ -176,6 +277,7 @@ class SaleController extends Controller
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('products.name', 'LIKE', "%{$search}%")
+                  ->orWhere('products.cod_pro_barras', 'LIKE', "%{$search}%")
                   ->orWhere('products.cod_pro', 'LIKE', "%{$search}%");
             });
         }

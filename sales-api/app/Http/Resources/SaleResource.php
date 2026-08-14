@@ -64,16 +64,6 @@ class SaleResource extends JsonResource
                     'precioTotalSinImpuesto' => $details->subtotal - $details->discount,
                     'iva' => $details->iva,
                     'ice' => $details->ice,
-                    
-                    // 'impuestos' => [
-                    //     [
-                    //         'codigo'            => '2',  //  IVA
-                    //         'codigoPorcentaje'  => '4',  //  4 -> 15%
-                    //         'tarifa'            => '15',
-                    //         'baseImponible'     => $details->subtotal - $details->discount,
-                    //         'valor'             => round((($details->subtotal - $details->discount)*15)/100, 2) ,
-                    //     ]
-                    // ]
                 ];
             }),
             'infoAdicional' => [

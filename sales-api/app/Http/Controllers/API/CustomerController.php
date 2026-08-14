@@ -6,15 +6,87 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\Customer;
+use App\Models\Sale;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\CustomerCollection;
 use App\Http\Resources\CustomerResource;
+use App\Http\Resources\SaleCollection;
+use App\Http\Resources\SaleResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-
+// use App\Rules\CedulaRule;
+use App\Services\DocumentValidator;
 
 class CustomerController extends Controller
 {
+
+    public function getSalesCustomer(Request $request)
+    {     
+        $user = auth()->user();
+
+        // Obtener primer punto de venta del usuario
+        $pointOfSale = $user->pointsOfSale()->first();
+
+        if (!$pointOfSale) {
+            return response()->json([
+                'error' => 'El usuario no tiene puntos de venta asignados'
+            ], 403);
+        }
+
+        $id_branch = $pointOfSale->id_branch;
+        
+        if (!$id_branch) {
+            return response()->json([
+                'error' => 'No se pudo determinar la sucursal del usuario'
+            ], 403);
+        }
+        $customer_id  = $request->customer_id;
+        $search       = $request->search;
+        $pageSize     = $request->pageSize ?? 10;
+        $fecha_ini    = $request->fecha_ini;
+        $fecha_fin    = $request->fecha_fin;
+        $form_pay     = $request->form_pay;
+
+        // Consulta base
+        $query = Sale::where('id_customer', $customer_id)
+                      ->where('id_point_of_sale', $pointOfSale->id);
+
+        if ($search) {
+            $query->FilterSalesCustomer($search);
+        }
+
+        if ($fecha_ini && $fecha_fin) {
+            try {
+                $inicio = \Carbon\Carbon::parse($fecha_ini)->startOfDay();
+                $fin    = \Carbon\Carbon::parse($fecha_fin)->endOfDay();
+                $query->whereBetween('created_at', [$inicio, $fin]);
+            } catch (\Exception $e) {
+                \Log::error('Error al parsear fechas: ' . $e->getMessage());
+            }
+        }
+
+        if($form_pay)
+        {
+            $query->where('form_pay', (string)$form_pay);
+        }   
+
+        $total_autorizado       = (clone $query)->where('estado_sri', 'AUTORIZADO')
+                                                ->sum('total');
+        $total_autor_no_autor   = (clone $query)->where('estado_sri', 'NO AUTORIZADO')
+                                    ->sum('total');
+        // Orden y paginación
+        $sales = $query->orderBy('created_at', 'desc')
+                      ->paginate($pageSize);
+
+        return response()->json([
+            'code'      =>      200,
+            'total'     =>      $sales->total(),
+            'total_autorizado'      => $total_autorizado,
+            'total_autor_no_autor'  => $total_autor_no_autor,
+            'Sales'     =>      SaleCollection::make($sales),
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -33,8 +105,6 @@ class CustomerController extends Controller
                             ->paginate($pageSize);
         }
 
-
-
         return response()->json(
             [   'code'  => 200,
                 'total' => $customers->total(),
@@ -48,12 +118,30 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-                  'name'        => 'required',
-                  // 'surname'        => 'required',
-                  'num_identificador' => 'required|unique:customers',
-                  'email'       => 'required|email|unique:customers',
-                  'phone'       => 'required',
-                  'address'=> 'required'
+                  'name' => 'required',
+                  'tipo_identificador' => 'required|in:cedula,ruc,pasaporte',
+                  'num_identificador' => [
+                              'required',
+                              function ($attribute, $value, $fail) use ($request) {
+                                  switch ($request->tipo_identificador) {
+                                      case 'cedula':
+                                          if (!DocumentValidator::cedula($value))
+                                              $fail('Cédula inválida');
+                                          break;
+                                      case 'ruc':
+                                          if (!DocumentValidator::ruc($value))
+                                              $fail('RUC inválido');
+                                          break;
+                                      case 'pasaporte':
+                                          if (!DocumentValidator::passport($value))
+                                              $fail('Pasaporte inválido');
+                                          break;
+                                  }
+                              }
+                          ],
+                  'email'   => 'required|email|unique:customers,email',
+                  'phone'   => 'required',
+                  'address' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -91,11 +179,36 @@ class CustomerController extends Controller
     public function update(Request $request, string $id)
     {   
         $validator = Validator::make($request->all(), [
-                  'name'        => 'required',
-                  // 'surname'        => 'required',
-                  'num_identificador' => ['required', Rule::unique('customers')->ignore($id),],
-                  'email'       => ['required','email', Rule::unique('customers')->ignore($id),],
-                  'phone'       => 'required',
+                  'name'  => 'required',
+
+                  'num_identificador' => [
+                              'required',
+                              function ($attribute, $value, $fail) use ($request) {
+                                  switch ($request->tipo_identificador) {
+                                      case 'cedula':
+                                          if (!DocumentValidator::cedula($value))
+                                              $fail('Cédula inválida');
+                                          break;
+                                      case 'ruc':
+                                          if (!DocumentValidator::ruc($value))
+                                              $fail('RUC inválido');
+                                          break;
+                                      case 'pasaporte':
+                                          if (!DocumentValidator::passport($value))
+                                              $fail('Pasaporte inválido');
+                                          break;
+                                  }
+                              },
+                              Rule::unique('customers', 'num_identificador')->ignore($id),
+                          ],
+
+                  'email' => [
+                            'required',
+                            'email', 
+                            Rule::unique('customers', 
+                            'email')->ignore($id),
+                          ],
+                  'phone'  => 'required',
                   'address'=> 'required'
         ]);
 

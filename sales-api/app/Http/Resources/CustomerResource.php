@@ -22,13 +22,9 @@ class CustomerResource extends JsonResource
             'email' => $this->resource->email,
             'phone' => $this->resource->phone,
             'address' => $this->resource->address,
+            'tipo_identificador' => $this->resource->tipo_identificador,
             'state' => $this->resource->state,
-            
-            // 'id_categorie' => $this->resource->id_categorie,
-            // 'categorie' => $this->resource->categorie ? [
-            //     'id' => $this->resource->categorie->id,
-            //     'name' => $this->resource->categorie->name
-            // ]: NULL, 
+            'created_at' => $this->resource->created_at
         ];
     }
 }
