@@ -151,7 +151,10 @@
     </div>
 
 
-    <c-card *ngIf="SALE().form_pay == '15' || SALE().form_pay == '20' || SALE().form_pay == '21'" class="mb-4 shadow-sm border-0">
+    <c-card *ngIf="(SALE().form_pay == '15' 
+                || SALE().form_pay == '20' 
+                || SALE().form_pay == '21') 
+                && plazo > 0" class="mb-4 shadow-sm border-0">
         <c-card-header class="bg-light">
             <h6 class="mb-0 fw-semibold">🧾 Resumen de cobros</h6>
         </c-card-header>

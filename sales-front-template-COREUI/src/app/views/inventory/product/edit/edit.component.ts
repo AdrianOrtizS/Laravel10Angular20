@@ -10,18 +10,31 @@ import { SharedModule } from '../../../../shared/shared.module';
 // import { SharedModule } from 'src/app/shared/shared.module';
 // import { error } from 'console';
 
+// interface ProductI {
+//   // cod_pro: string,
+//   name:    string,
+//   description: string,
+//   price:  number,
+//   stock:  number,
+//   stock_min: number,
+//   imagen: string,
+//   id_categorie: number,
+//   tarifa_iva: number,
+//   id_ice_tarifa:  any
+// }
+
 interface ProductI {
-  cod_pro: string,
-  name:    string,
+  cod_pro_barras:string,
+  type_cod_pro:number, //manual - automatico
+  name:   string,
   description: string,
-  price:  number,
-  stock:  number,
-  stock_min: number,
+  price:  string,
+  stock:  string,
+  stock_min:  string,
   imagen: string,
   id_categorie: number,
-  tarifa_iva: number,
+  tarifa_iva:  any,
   id_ice_tarifa:  any
-
 }
 
 @Component({
@@ -38,7 +51,8 @@ interface ProductI {
 export class EditComponent {
 
     id_categorieTouched  = false;
-    cod_proTouched = false;
+    cod_pro_barrasTouched = false;
+    type_cod_proTouched   = false;
     nameTouched    = false;
     descriptionTouched = false;
     priceTouched   = false;
@@ -56,15 +70,16 @@ export class EditComponent {
     activatedRoute = inject(ActivatedRoute);
 
     PRODUCT:any = signal<ProductI>({
-      cod_pro: '',
-      name:    '',
+      name:     '',
+      cod_pro_barras:  '',
+      type_cod_pro: 0,
       description:  '',
-      price:  0,
-      stock:  0,
-      stock_min: 0,
-      imagen: '',
+      price:    '',
+      stock:    '',
+      stock_min:'',
+      imagen:   '',
       id_categorie: 0,
-      tarifa_iva: 0,
+      tarifa_iva:   0,
       id_ice_tarifa: null
     });
 
@@ -85,7 +100,6 @@ export class EditComponent {
       this.productService.getTarifasIce()
       .subscribe((resp:any)=>{
         this.TarifasIce = resp.Tarifas_ice;
-        console.log(this.TarifasIce);
       });
       this.productService.getCategories()
       .subscribe((resp:any)=>{
@@ -127,10 +141,10 @@ export class EditComponent {
     }
 
     // Métodos para update cada campo (evita parser error)
-    updateCod(event: Event) {
-      const valor = (event.target as HTMLInputElement).value;
-      this.PRODUCT.update((c:any) => ({ ...c, cod_pro: valor }));
-    }    
+    // updateCod(event: Event) {
+    //   const valor = (event.target as HTMLInputElement).value;
+    //   this.PRODUCT.update((c:any) => ({ ...c, cod_pro: valor }));
+    // }    
     updateName(event: Event) {
       const valor = (event.target as HTMLInputElement).value;
       this.PRODUCT.update((c:any) => ({ ...c, name: valor }));
@@ -154,11 +168,16 @@ export class EditComponent {
       const valor = (event.target as HTMLInputElement).value;
       this.PRODUCT.update((c:any) => ({ ...c, stock_min: valor }));
     }
+
+    updateType_Cod_Pro(event: Event) {
+      const valor = (event.target as HTMLInputElement).value;
+      this.PRODUCT.update((c:any) => ({ ...c, type_cod_pro: valor }));
+    }
+    updateCod_Pro_Barras(event: Event) {
+      const valor = (event.target as HTMLInputElement).value;
+      this.PRODUCT.update((c:any) => ({ ...c, cod_pro_barras: valor }));
+    }
     
-    // updateId_categorie(event: Event) {
-    //   const valor = (event.target as HTMLInputElement).value;
-    //   this.PRODUCT.update((c:any) => ({ ...c, id_categorie: valor }));
-    // }
     updateId_categorie(value: number) {
       this.PRODUCT.update((c:any) => ({
         ...c,
@@ -182,33 +201,34 @@ export class EditComponent {
     isFormValid = computed(() => {
       const c = this.PRODUCT();
       return (
-        c.cod_pro.trim().length > 0 &&
+
         c.name.trim().length > 0 &&
         c.description.trim().length > 0 &&
-        // c.id_tarifa_iva > 0 &&
-        (c.price != '' && c.price >= 0) && 
-        c.stock != '' &&
-        c.stock_min != '' &&
+        ((c.type_cod_pro == '2' && c.cod_pro_barras.trim().length > 0) || c.type_cod_pro == '1' ) &&
+        (c.price >= 0 && c.price.trim().length > 0) &&
+        c.stock.trim().length > 0 &&
+        c.stock_min.trim().length > 0 && 
         c.id_categorie > 0 &&
-        c.tarifa_iva != null 
-        
+        c.tarifa_iva != null
+
       );
     });
 
 
     save(){
-
       console.log(this.tarifa_ice);
-      
       if(this.PRODUCT().id_categorie == 0){
         this.toastr.error('Validacion', 'Seleccione categoria');
         return;
       }
       
+      console.log(this.PRODUCT());
+
       let formData = new FormData();
-      formData.append('cod_pro',    this.PRODUCT().cod_pro);
       formData.append('name',       this.PRODUCT().name);
       formData.append('description', this.PRODUCT().description);
+      formData.append('type_cod_pro', this.PRODUCT().type_cod_pro);
+      formData.append('cod_pro_barras',  this.PRODUCT().cod_pro_barras);
       formData.append('price',      this.PRODUCT().price);
       formData.append('stock',       parseInt(this.PRODUCT().stock).toString());
       formData.append('stock_min',    parseInt(this.PRODUCT().stock_min).toString());
@@ -224,7 +244,6 @@ export class EditComponent {
       if(this.file_imagen){
         formData.append('producto', this.file_imagen);
       }
-      console.log(formData);
       this.productService.updateProduct(this.PRODUCT_ID, formData)
       .subscribe({
         next:() =>{

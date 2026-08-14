@@ -19,7 +19,6 @@ export const routes: Routes = [
           title: 'List'
         }
       },
-
       {
         path: 'create',
         loadComponent: () => import('./create/create.component').then(m => m.CreateComponent),
@@ -39,6 +38,13 @@ export const routes: Routes = [
         loadComponent: () => import('./show/show.component').then(m => m.ShowComponent),
         data: {
           title: 'Show'
+        }
+      },
+      {
+        path: 'sales_history/:id',
+        loadComponent: () => import('./sales-history/sales-history.component').then(m => m.SalesHistoryComponent),
+        data: {
+          title: 'Sales history'
         }
       },
 

@@ -17,16 +17,34 @@
                             El nombre es obligatorio
                         </div> 
                     </div>
+
                     <div class="mb-3">
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-6">
+                                <label cLabel for="tipo_identificador">Tipo identificador (*)</label>
+                                <!-- {{CUSTOMER().tipo_identificador}} -->
+                                <select id="tipo_identificador" (blur)="nombreTouched = true" cSelect [value]="CUSTOMER().tipo_identificador" (change)="updateTipo_identificador($event)">
+                                    <option value="">-Seleccione-</option>
+                                    <option value="cedula">Cédula</option>
+                                    <option value="ruc">Ruc</option>
+                                    <option value="pasaporte">Pasaporte</option>
+                                </select>
+                                <small class="text-danger" *ngIf="nombreTouched && CUSTOMER().tipo_identificador === ''">
+                                    Identificador es obligatoria
+                                </small>
+                            </div>
+                            <div class="col-md-6">
                                 <label cLabel for="num_identificador">#Identificador (*)</label>
                                 <input cFormControl id="num_identificador" placeholder="Ej: 1718192021" type="text" [value]="CUSTOMER().num_identificador" (input)="updateNumIdentificador($event)" required />
-                                <!-- <input cFormControl id="num_identificador" [ngModelOptions]="{standalone: true}" [(ngModel)]="CUSTOMER().num_identificador" placeholder="Ej: 1712338765" type="text" /> -->
                                 <div *ngIf="!CUSTOMER().num_identificador.trim() && CUSTOMER().num_identificador !== ''" class="text-danger mt-1">
                                     El #Identificador es obligatorio
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="row">
                             <div class="col-md-4">
                                 <label cLabel for="email">Email (*)</label>
                                 <input cFormControl id="email" placeholder="Ej: ejemplo@email.com" type="email" [value]="CUSTOMER().email" (input)="updateEmail($event)" required />

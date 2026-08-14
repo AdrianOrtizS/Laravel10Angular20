@@ -49,7 +49,7 @@ export class ShowComponent {
         if(this.PRODUCT().imagen){
           this.imagen_previsualiza = this.PRODUCT().imagen;
         }
-        // console.log(this.PRODUCT());
+        console.log(this.PRODUCT());
       });
     }
 

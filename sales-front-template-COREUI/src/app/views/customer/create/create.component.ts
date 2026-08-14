@@ -5,20 +5,25 @@ import { freeSet } from '@coreui/icons';
 import { Component, computed, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '../../../shared/shared.module';
+import { FormSelectDirective } from '@coreui/angular';
 
 interface CustomerI {
   name: string,
   email: string,
   phone: string,
   num_identificador:string,
-  address: string
+  address: string,
+  tipo_identificador:string
 }
 
 @Component({
   selector: 'app-create',
-  imports: [SharedModule, ReactiveFormsModule],
+  imports: [SharedModule, ReactiveFormsModule, FormSelectDirective],
   templateUrl: './create.component.html',
-  styleUrl: './create.component.scss'
+  styleUrl: './create.component.scss',
+  host: {
+    'class': 'example',
+  },
 })
 export class CreateComponent {
 
@@ -33,7 +38,8 @@ export class CreateComponent {
       email:  '',
       num_identificador:'',
       address:'',
-      phone:  ''
+      phone:  '',
+      tipo_identificador: ''
     });
 
     // Métodos para update cada campo (evita parser error)
@@ -62,6 +68,12 @@ export class CreateComponent {
       this.CUSTOMER.update(c => ({ ...c, address: valor }));
     }  
 
+    nombreTouched = false;
+    updateTipo_identificador(event: Event) {
+      const valor = (event.target as HTMLInputElement).value;
+      this.CUSTOMER.update(c => ({ ...c, tipo_identificador: valor }));
+    }
+
     // Validación de email reactiva
     isEmailValid = computed(() => {
       const email = this.CUSTOMER().email.trim();
@@ -77,22 +89,21 @@ export class CreateComponent {
         c.num_identificador.trim().length > 0 &&
         c.phone.trim().length > 0 &&
         c.address.trim().length > 0 &&
+        c.tipo_identificador.trim().length > 0 &&
         this.isEmailValid()
       );
     });
 
     save(){
-      // if(!this.CUSTOMER().name || !this.CUSTOMER().num_identificador 
-      // || !this.CUSTOMER().email || !this.CUSTOMER().phone || !this.CUSTOMER().address
-      // ){
-      //   this.toastr.error('Validacion', 'Los campos con * son obligatorios');
-      //   return;
-      // }
-
       this.customerService.createCustomer(this.CUSTOMER())
       .subscribe((resp:any) =>{
         if(resp.code == 403){
-          this.toastr.error('Validacion', 'El cliente ya existe');
+          let errors = Object.values(resp.message);
+          errors.forEach((err:any) => {
+            setTimeout(() => {
+              this.toastr.error('Validacion', err);
+            }, 800);
+          });
           return;
         }
         this.limpiarFormulario()
@@ -107,7 +118,9 @@ export class CreateComponent {
         num_identificador: '',
         email:  '', 
         phone:  '',
-        address:''});
+        address:'',
+        tipo_identificador:''
+      });
     }
 
     goList(){

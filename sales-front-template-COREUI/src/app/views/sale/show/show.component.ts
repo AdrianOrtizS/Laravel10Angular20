@@ -54,7 +54,7 @@ export class ShowComponent {
   ];
 
   formPay:any ='';
-
+  plazo:number = 0;
   /** Cargar información de la compra */
   private loadSale() {
     this.isLoading.set(true);
@@ -62,6 +62,9 @@ export class ShowComponent {
       next: (resp: any) => {
         this.SALE.set(resp);
         console.log(this.SALE());
+        this.plazo = +this.SALE().plazo;
+        console.log(this.plazo);
+        
           this.formPays.forEach((element:any) => {
             if(element.code == this.SALE().form_pay){
               this.formPay = element.description;

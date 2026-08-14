@@ -5,7 +5,7 @@ import moment from 'moment';
 import { CustomerService } from '../customer.service';
 import { SharedModule } from '../../../shared/shared.module';
 // import moment  from 'moment';
-import 'moment/locale/es';
+// import 'moment/locale/es';
 import { Location } from '@angular/common';
 
 @Component({
@@ -32,6 +32,7 @@ export class ShowComponent {
 
   ngOnInit(){
     this.activatedRoute.params.subscribe((resp:any)=>{
+      console.log(resp);
       this.CUSTOMER_ID = resp.id;
     });
     this.customerService.showCustomer(this.CUSTOMER_ID)
@@ -40,6 +41,7 @@ export class ShowComponent {
       this.CUSTOMER.set(resp.Customer);
       console.log(this.CUSTOMER());
       this.tiempo_creacion = moment(this.CUSTOMER().created_at).fromNow();
+      
     });
   }
 
@@ -53,6 +55,11 @@ export class ShowComponent {
 
   goList(){
     this.router.navigateByUrl("/customer/list");
+  }
+
+  goListSales(){
+    console.log(this.CUSTOMER_ID);
+    this.router.navigate(['/customer/sales_history/'+this.CUSTOMER_ID]);
   }
 
 }

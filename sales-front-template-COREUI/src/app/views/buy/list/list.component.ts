@@ -19,7 +19,12 @@ export class ListComponent {
     buyService = inject(BuyService);
     router  = inject(Router);
     toastr  = inject(ToastrService);
-      
+
+    // total_autorizadas:any =0;
+    // total_autor_no_autor:any =0;
+    total_compras:any =0;
+    total:any =0;
+
     buys:   any = signal<any[]>([]);
     search:     string ='';
     totalPages: number = 0;
@@ -75,12 +80,18 @@ export class ListComponent {
     listarBuys(page = 1){
       this.buyService.listBuys(page, this.search, this.pageSize, this.filterFrom, this.filterTo, this.selectedTypePay)
       .subscribe((resp:any) => {
+        
+        console.log(resp);
+
         this.verifData = 0;
         if(resp.Buys.data.length == 0 && this.verifData == 0){
           this.verifData ++;
           this.toastr.warning('Sin datos', 'No hay informacion que coincida con el criterio de busqueda');
           return this.buys.set([]) ;
         }
+        this.total = resp.total;
+        this.total_compras = Number(resp.total_buys);
+        
         this.totalPages = resp.total;
         this.currentPage = page;
         return this.buys.set(resp.Buys.data) ;

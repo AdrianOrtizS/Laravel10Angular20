@@ -4,7 +4,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { SharedModule } from '../../../shared/shared.module';
 import { Router } from '@angular/router';
 import { SaleService } from '../sale.service';
-import { ButtonDirective, FormCheckComponent, FormCheckInputDirective, ListGroupDirective, ListGroupItemDirective, ModalBodyComponent, ModalComponent, ModalHeaderComponent, ModalTitleDirective, ModalToggleDirective } from '@coreui/angular';
+import { ButtonDirective, FormCheckComponent, FormCheckInputDirective, FormSelectDirective, ListGroupDirective, ListGroupItemDirective, ModalBodyComponent, ModalComponent, ModalHeaderComponent, ModalTitleDirective, ModalToggleDirective } from '@coreui/angular';
 import { CustomerService } from '../../customer/customer.service';
 import { ProductService } from '../../inventory/product/product.service';
 
@@ -14,7 +14,8 @@ interface CustomerI {
   email:  string,
   phone:  string,
   num_identificador:string,
-  address: string
+  address: string,
+  tipo_identificador:string
 }
 
 interface SaleI {
@@ -41,7 +42,7 @@ interface SaleDetalleI {
 
 @Component({
   selector: 'app-create',
-  imports: [SharedModule, ListGroupDirective, ListGroupItemDirective, ButtonDirective, ModalToggleDirective, ModalComponent, ModalHeaderComponent, ModalTitleDirective, ModalBodyComponent, FormCheckComponent, FormCheckInputDirective],
+  imports: [SharedModule, FormSelectDirective, ListGroupDirective, ListGroupItemDirective, ButtonDirective, ModalToggleDirective, ModalComponent, ModalHeaderComponent, ModalTitleDirective, ModalBodyComponent, FormCheckComponent, FormCheckInputDirective],
   templateUrl: './create.component.html',
   styleUrl: './create.component.scss',
   host: {
@@ -71,7 +72,8 @@ export class CreateComponent {
     email:  '',
     num_identificador:'',
     address:'',
-    phone:  ''
+    phone:  '',
+    tipo_identificador: ''
   });
 
   search_ngModelCustomer: string =  '';
@@ -147,17 +149,31 @@ export class CreateComponent {
     this.searchProductNull = false;
     this.saleService.getProducts(search)
     .subscribe((resp:any)=>{
-      // console.log(resp);
+      console.log(resp);
       this.products.set(resp.Products.data);
       this.searchProductNull = true;
     });
   }
+
+  searchToProductKey(){
+    if(this.search_ngModelProduct.length > 5){
+      this.cargarProducts(this.search_ngModelProduct);
+      this.search_ngModelProduct = '';
+    }
+  }
   
   //trae products de acuerdo al criterio de busqueda
   searchToProduct(){    
-    this.cargarProducts(this.search_ngModelProduct);
-    this.search_ngModelProduct = '';
+    console.log(this.search_ngModelProduct);
+    // if(this.search_ngModelProduct.length > 5){
+      this.cargarProducts(this.search_ngModelProduct);
+      this.search_ngModelProduct = '';
+    // }
   }
+  // searchToProductLectorbarras(){    
+  //   this.cargarProducts(this.search_ngModelProduct);
+  //   this.search_ngModelProduct = '';
+  // }
   selectProduct(product:any){
     // console.log(product);
     var iva = 0; 
@@ -227,6 +243,11 @@ export class CreateComponent {
     this.customerNew.update((c:any) => ({ ...c, address: valor }));
   }  
 
+  nombreTouched = false;
+  updateTipo_identificador(event: Event) {
+    const valor = (event.target as HTMLInputElement).value;
+    this.customerNew.update((c:any) => ({ ...c, tipo_identificador: valor }));
+  }
   // Validación de email reactiva
   isEmailValid = computed(() => {
     const email = this.customerNew().email.trim();
@@ -241,20 +262,32 @@ export class CreateComponent {
       c.num_identificador.trim().length > 0 &&
       c.phone.trim().length > 0 &&
       c.address.trim().length > 0 &&
+      c.tipo_identificador.trim().length > 0 &&
       this.isEmailValid()
     );
   });
 
+  visibleModalCreateCustom = false;
   saveCustomer(){
     this.customerService.createCustomer(this.customerNew())
     .subscribe((resp:any) =>{
+      console.log(resp);
+      // this.toastr.error('Validacion', 'El cliente ya existe');
+      // return;
+      if(resp.code == 403){
+        let errors = Object.values(resp.message);
+        errors.forEach((err:any) => {
+          setTimeout(() => {
+            this.toastr.error('Validacion', err);
+          }, 800);
+        });
+        return;
+      }
+    
       this.customerSelect = resp.customer;
       this.customers.set([]);
       this.search_ngModelCustomer = '';
-      if(resp.code == 403){
-        this.toastr.error('Validacion', 'El cliente ya existe');
-        return;
-      }
+
       if(resp.code == 200){
         this.customerNew().name = '';
         this.customerNew().surname = '';
@@ -264,12 +297,15 @@ export class CreateComponent {
         this.customerNew().address = '';
 
         this.toastr.success('Exito', 'El cliente se ha creado correctamente');
+        this.visibleModalCreateCustom = false;
         return;
       }
-
     });
   }
 
+  closeModalCreateCustom(){
+    this.visibleModalCreateCustom = false;
+  }
 
   // Métodos para update PRODUCT cada campo (evita parser error)
   updateProductName(event: Event) {
@@ -391,59 +427,45 @@ export class CreateComponent {
   baseImponible:any = 0;
 
   agregarProducto() {
-
     this.producto().subtotal =
         this.producto().price * this.producto().quantity;
-
     // descuento en dinero
     this.producto().discount =
         ((this.producto().discount * this.producto().price) / 100)
-        * this.producto().quantity;
-
+          * this.producto().quantity;
     // base sin impuestos
     this.baseImponible =
         this.producto().subtotal - this.producto().discount;
-
     // ICE
     this.producto().ice = Number(
         (
           (this.baseImponible * this.producto().ice) / 100
         ).toFixed(2)
     );
-
     // Base IVA (SRI)
     const baseImponibleIva =
     this.baseImponible + this.producto().ice;
-
     // IVA
     this.producto().iva = Number(
         (
           (baseImponibleIva * this.producto().iva) / 100
         ).toFixed(2)
     );
-
     // ================= IVA =================
-
     let codigoPorcentajeIva = '0';
     let tarifaIva = '0';
-
     if (this.producto().iva > 0) {
-
         tarifaIva = this.ivaValor.value;
-
         if (this.ivaValor.value === '12.00') {
             codigoPorcentajeIva = '2';
         }
-
         if (this.ivaValor.value === '14.00') {
             codigoPorcentajeIva = '3';
         }
-
         if (this.ivaValor.value === '15.00') {
             codigoPorcentajeIva = '4';
         }
     }
-
     this.producto().impuesto = {
         codigo: '2',
         codigoPorcentaje: codigoPorcentajeIva,
@@ -451,11 +473,8 @@ export class CreateComponent {
         baseImponible: Number(baseImponibleIva.toFixed(2)),
         valor: this.producto().iva.toFixed(2)
     };
-
     // ================= ICE =================
-
     if (this.producto().ice > 0) {
-
         this.producto().impuesto_ice = {
             codigo: '3',
             codigoPorcentaje: this.producto().tarifa_ice.codigo_porcentaje,
@@ -465,7 +484,6 @@ export class CreateComponent {
         };
 
     } else {
-
         this.producto().impuesto_ice = null;
     }
 
@@ -583,6 +601,7 @@ export class CreateComponent {
 
   eliminarProducto(item: any) {
     this.items = this.items.filter(p => p !== item);
+    this.calcularTotales();
   }
 
   

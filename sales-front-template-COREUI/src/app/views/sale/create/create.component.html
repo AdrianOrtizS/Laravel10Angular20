@@ -67,10 +67,10 @@
                     </button>
                 </c-modal-footer>
             </c-modal>
-            <c-modal id="liveDemoModalTwo" #ModalTwo>
+            <c-modal id="liveDemoModalTwo" #ModalTwo  [(visible)]="visibleModalCreateCustom">
                 <c-modal-header>
                     <h5 cModalTitle>Nuevo cliente</h5>
-                    <button [cModalToggle]="ModalTwo.id" cButtonClose></button>
+                    <button cButtonClose  (click)="visibleModalCreateCustom = false"></button>
                 </c-modal-header>
                 <c-modal-body>
                     <div class="tab-content rounded-bottom">
@@ -83,23 +83,43 @@
                                         El nombre es obligatorio
                                     </div> 
                                 </div>
+
+
                                 <div class="mb-3">
                                     <div class="row">
-                                        <div class="col-md-4">
-                                            <label cLabel for="num_identificador">#Identificadpr (*)</label>
+                                        <div class="col-md-6">
+                                            <label cLabel for="tipo_identificador">Tipo identificador (*)</label>
+                                            <select id="tipo_identificador" (blur)="nombreTouched = true" cSelect [value]="customerNew().tipo_identificador" (change)="updateTipo_identificador($event)">
+                                                <option value="">-Seleccione-</option>
+                                                <option value="cedula">Cédula</option>
+                                                <option value="ruc">Ruc</option>
+                                                <option value="pasaporte">Pasaporte</option>
+                                            </select>
+                                            <small class="text-danger" *ngIf="nombreTouched && customerNew().tipo_identificador === ''">
+                                                Identificador es obligatoria
+                                            </small>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label cLabel for="num_identificador">#Identificador (*)</label>
                                             <input cFormControl id="num_identificador" placeholder="Ej: 1718192021" type="text" [value]="customerNew().num_identificador" (input)="updateNumIdentificador($event)" required />
+                                            <!-- <input cFormControl id="num_identificador" [ngModelOptions]="{standalone: true}" [(ngModel)]="CUSTOMER().num_identificador" placeholder="Ej: 1712338765" type="text" /> -->
                                             <div *ngIf="!customerNew().num_identificador.trim() && customerNew().num_identificador !== ''" class="text-danger mt-1">
                                                 El #Identificador es obligatorio
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="row">
+                                        <div class="col-md-6">
                                             <label cLabel for="email">Email (*)</label>
                                             <input cFormControl id="email" placeholder="Ej: email@gmail.com" type="email" [value]="customerNew().email" (input)="updateEmail($event)" required />
-                                            <div *ngIf="!customerNew().num_identificador.trim() && customerNew().num_identificador !== ''" class="text-danger mt-1">
+                                            <div *ngIf="!customerNew().email.trim() && customerNew().email !== ''" class="text-danger mt-1">
                                                 El email es obligatorio
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-6">
                                           <label cLabel for="phome">Telefono (*)</label>
                                           <input cFormControl id="phone" placeholder="Ej: 0987654321" type="tel" [value]="customerNew().phone" (input)="updatePhone($event)"/>
                                           <!-- <input cFormControl id="phome" [ngModelOptions]="{standalone: true}" [(ngModel)]="CUSTOMER().phone" placeholder="Ej: 0982223471" type="text" /> -->
@@ -128,9 +148,13 @@
                     </div>
                 </c-modal-body>
                 <c-modal-footer>
-                    <button  cButton color="primary" title="Guardar" 
-                        [cModalToggle]="ModalTwo.id" (click)="saveCustomer()" class="w-100" [disabled]="!isFormValid()">
+                    <!-- <button  cButton color="primary" title="Guardar" class="w-100"
+                        [cModalToggle]="ModalTwo.id" (click)="saveCustomer()" [disabled]="!isFormValid()">
                         <svg [cIcon]="icons.cilSave" size="xl" ></svg>
+                    </button> -->
+                    <button cButton color="primary" title="Guardar" class="w-100"
+                        (click)="saveCustomer()" [disabled]="!isFormValid()">
+                        <svg [cIcon]="icons.cilSave" size="xl"></svg>
                     </button>
                     <button cButton color="danger" class="w-100" 
                         [cModalToggle]="ModalOne.id"  title="Regresar" >
@@ -201,23 +225,23 @@
           <c-modal-body>
             <label>Ingresa nombre de producto y selecciona</label>    
             <div class="d-flex align-items-center gap-2 m-2">
-                <input cFormControl id="buscarInputProduct" [(ngModel)]="search_ngModelProduct"  placeholder="Ej: producto A   /   1711122234" type="text"/>
+                <input cFormControl id="buscarInputProduct" (keyup)="searchToProductKey()" [(ngModel)]="search_ngModelProduct"  placeholder="Ej: producto A   /   1711122234" type="text"/>
                 <button cButton color="primary" shape="rounded-pill" title="Buscar" (click)="searchToProduct()">
                     <svg [cIcon]="icons.cilMagnifyingGlass" size="xl"></svg>
                 </button>
             </div>
             <div *ngIf="products().length > 0">
                 <div class="d-flex align-items-center gap-2 m-2" >
-                    <div style="width: 20%;">
+                    <div style="width: 12%;">
                         <label for=""><strong> CODIGO </strong></label>
                     </div>
-                    <div style="width: 35%;">
+                    <div style="width: 45%;text-align: center;">
                         <label for=""><strong> NOMBRE </strong></label>
                     </div>
-                    <div style="width: 35%; text-align: center;">
+                    <div style="width: 25%; text-align: center;">
                         <label for=""><strong> PRECIO </strong></label>
                     </div>
-                    <div style="width: 35%; text-align: center;">
+                    <div style="width: 25%; text-align: center;">
                         <label for=""><strong> IVA </strong></label>
                     </div>
                     <div style="width: 20%;">
@@ -228,16 +252,16 @@
                     @for(product of products(); track product.id){
                         <li  cListGroupItem>
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div style="width: 20%;">
+                                <div style="width: 12%;">
                                     {{product.cod_pro}}
                                 </div>
-                                <div style="width: 35%;">
+                                <div style="width: 45%; text-align: center;">
                                     {{product.name}}
                                 </div>
-                                <div style="width: 35%; text-align: center;">
+                                <div style="width: 25%; text-align: center;">
                                     {{product.price}}
                                 </div>
-                                <div style="width: 35%; text-align: center;">
+                                <div style="width: 25%; text-align: center;">
                                     {{product.tarifa_iva}}
                                 </div>
 
@@ -307,11 +331,8 @@
         </div>
       </div>
 
-
-
       <div class="col-md-1 mb-3 mt-3">
         <label class="form-label ">ICE %</label>
-
         <div class="d-flex align-items-center border rounded shadow-sm overflow-hidden">
           <!-- Input -->
           <input cFormControl id="iva" type="number" class="form-control text-center border-0" [value]="producto().ice" readonly />
@@ -320,7 +341,6 @@
 
       <div class="col-md-1 mb-3 mt-3">
         <label class="form-label ">IVA %</label>
-
         <div class="d-flex align-items-center border rounded shadow-sm overflow-hidden">
           <!-- Input -->
           <input cFormControl id="iva" type="number" class="form-control text-center border-0" [value]="producto().iva" readonly />
@@ -358,8 +378,8 @@
           <td>{{ item.quantity }}</td>
           <td>{{ item.subtotal | currency:'USD' }}</td>
           <td>{{ item.discount | currency:'USD' }}</td>
-          <td>{{ item.ice  }}</td>
-          <td>{{ item.iva  }}</td>
+          <td>{{ item.ice | currency:'USD'}}</td>
+          <td>{{ item.iva | currency:'USD'}}</td>
 
           <td>
             <button cButton color="danger" size="sm" (click)="eliminarProducto(item)">

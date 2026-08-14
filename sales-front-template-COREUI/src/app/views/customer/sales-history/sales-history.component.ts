@@ -1,23 +1,22 @@
 import { ToastrService } from 'ngx-toastr';
 import { freeSet } from '@coreui/icons';
 import { Component, inject, signal } from '@angular/core';
-import { SaleService } from '../sale.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SharedModule } from '../../../shared/shared.module';
 import { ButtonDirective } from '@coreui/angular';
 import { IconDirective } from '@coreui/icons-angular';
+import { CustomerService } from '../customer.service';
 
 @Component({
-  selector: 'app-list',
+  selector: 'app-sales-history',
   imports: [SharedModule, IconDirective,ButtonDirective],
-  templateUrl: './list.component.html',
-  styleUrl: './list.component.scss'
+  templateUrl: './sales-history.component.html',
+  styleUrl: './sales-history.component.scss',
 })
-export class ListComponent {
+export class SalesHistoryComponent {
 
     icons = freeSet;
-  
-    saleService = inject(SaleService);
+    customService = inject(CustomerService);
     router  = inject(Router);
     toastr  = inject(ToastrService);
     
@@ -51,10 +50,12 @@ export class ListComponent {
     modalIdErr = signal<number | null>(null);
   
     num_comprobante_abono:any;
-    // num_comprobante_documento:any;
     valor_abono:any;
     observacion:any;
-
+    activatedRoute = inject(ActivatedRoute);
+    CUSTOMER_ID:any;
+    CUSTOMER:any;
+    col:number = 2.5;
 
     constructor(
     ){
@@ -67,7 +68,10 @@ export class ListComponent {
     }
   
     ngOnInit(){
-      this.listarSales();
+      this.activatedRoute.params.subscribe((resp:any)=>{
+        this.CUSTOMER_ID = resp.id;
+        this.listarSales();
+      });
     }
   
     refresh(){
@@ -76,7 +80,6 @@ export class ListComponent {
       this.filterTo   = '';  
       this.seeFilter  = false;
       this.filterType = '';
-      // this.selectedTypePay = '';
       this.listarSales(1); 
     }
 
@@ -88,42 +91,46 @@ export class ListComponent {
       }
     }
 
-    saveReceived(id:any, sale:any){
-      let received = {
-        'id_sale':id,
-        'valor_abono':this.valor_abono,
-        'observacion': this.observacion
-      };
+    goBack(){
+      this.router.navigateByUrl("/customer/show/"+this.CUSTOMER_ID);
+    }
+
+    // saveReceived(id:any, sale:any){
+    //   let received = {
+    //     'id_sale':id,
+    //     'valor_abono':this.valor_abono,
+    //     'observacion': this.observacion
+    //   };
       
-      this.saleService.createCobro(received)
-      .subscribe((resp:any) =>{
-        if(resp.code == 403){
-          this.toastr.error('Validacion', 'El comprobante de pago ya existe');
-          return;
-        }
-        setTimeout(() => {
-          this.cerrarModal();
-          this.updateSaleAbono(id, this.valor_abono)
+    //   this.saleService.createCobro(received)
+    //   .subscribe((resp:any) =>{
+    //     if(resp.code == 403){
+    //       this.toastr.error('Validacion', 'El comprobante de pago ya existe');
+    //       return;
+    //     }
+    //     setTimeout(() => {
+    //       this.cerrarModal();
+    //       this.updateSaleAbono(id, this.valor_abono)
 
-          this.num_comprobante_abono = '';
-          this.valor_abono = '';
-          this.observacion = '';
-          this.toastr.success('Exito', 'El cobro se ha creado correctamente');
-          // console.log(resp.receivable.id);
-          this.printReceivable(resp.receivable.id)
-        }, 1000);
-      });
-    }
+    //       this.num_comprobante_abono = '';
+    //       this.valor_abono = '';
+    //       this.observacion = '';
+    //       this.toastr.success('Exito', 'El cobro se ha creado correctamente');
+    //       // console.log(resp.receivable.id);
+    //       this.printReceivable(resp.receivable.id)
+    //     }, 1000);
+    //   });
+    // }
 
-    printReceivable(id_receivable:any){
-      this.saleService.getReceivablePDF(id_receivable).subscribe((pdfBlob: Blob) => {
-          const url = window.URL.createObjectURL(pdfBlob);
-          const newWindow = window.open(url, '_blank');
-          if (newWindow) {
-            newWindow.print(); // abre el diálogo de impresión directamente
-          }
-      });
-    }
+    // printReceivable(id_receivable:any){
+    //   this.customService.getReceivablePDF(id_receivable).subscribe((pdfBlob: Blob) => {
+    //       const url = window.URL.createObjectURL(pdfBlob);
+    //       const newWindow = window.open(url, '_blank');
+    //       if (newWindow) {
+    //         newWindow.print(); // abre el diálogo de impresión directamente
+    //       }
+    //   });
+    // }
     
 
     updateSaleAbono(id: number, total_abonos: any) {
@@ -165,7 +172,7 @@ export class ListComponent {
 
     verifData = 0;
     listarSales(page = 1){
-      this.saleService.listSales(page, this.search, this.pageSize, this.filterFrom, this.filterTo)
+      this.customService.listSalesCustomer(this.CUSTOMER_ID, page, this.search, this.pageSize, this.filterFrom, this.filterTo)
       .subscribe((resp:any) => {
         this.verifData = 0;
         if(resp.Sales.data.length == 0 && this.verifData == 0){
@@ -173,86 +180,85 @@ export class ListComponent {
           this.toastr.warning('Sin datos', 'No hay informacion que coincida con el criterio de busqueda');
           return this.sales.set([]);
         }
+        this.CUSTOMER = resp.Sales.data[0].customer;
         this.totalPages = resp.total;
         this.currentPage = page;
         this.total_autorizadas = resp.total_autorizado;
         this.total_autor_no_autor = resp.total_autor_no_autor;
         this.total = resp.total;
         this.total_ventas = Number(this.total_autorizadas) + Number(this.total_autor_no_autor);
-        
-        console.log(resp.Sales.data);
-        
         return this.sales.set(resp.Sales.data) ;
+
       });
     }
 
 
     listSalesExcel(){
-      this.saleService.listSalesExcel(this.filterFrom, this.filterTo)
-      .subscribe({
-        next: (blob: Blob) => {
+      // this.customService.listSalesExcel(this.filterFrom, this.filterTo)
+      // .subscribe({
+      //   next: (blob: Blob) => {
           
-          const file = new Blob([blob], {
-            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-          });
-          const url = window.URL.createObjectURL(file);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = 'ventas.xlsx';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
-        },
-        error: (err) => {
-          console.error(err);
-        }
-      });
+      //     const file = new Blob([blob], {
+      //       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      //     });
+      //     const url = window.URL.createObjectURL(file);
+      //     const link = document.createElement('a');
+      //     link.href = url;
+      //     link.download = 'ventas.xlsx';
+      //     document.body.appendChild(link);
+      //     link.click();
+      //     document.body.removeChild(link);
+      //     window.URL.revokeObjectURL(url);
+      //   },
+      //   error: (err) => {
+      //     console.error(err);
+      //   }
+      // });
     }
 
     listSalesPdf(){
-      this.saleService.listSalesPdf(this.filterFrom, this.filterTo)
-      .subscribe({
-         next: (response: Blob) => {
+    //   this.saleService.listSalesPdf(this.filterFrom, this.filterTo)
+    //   .subscribe({
+    //      next: (response: Blob) => {
 
-          const file = new Blob([response], {
-            type: 'application/pdf'
-          });
+    //       const file = new Blob([response], {
+    //         type: 'application/pdf'
+    //       });
 
-          const fileURL = window.URL.createObjectURL(file);
+    //       const fileURL = window.URL.createObjectURL(file);
 
-          // Descargar automáticamente
-          const link = document.createElement('a');
-          link.href = fileURL;
-          link.download = 'ventas.pdf';
-          link.click();
+    //       // Descargar automáticamente
+    //       const link = document.createElement('a');
+    //       link.href = fileURL;
+    //       link.download = 'ventas.pdf';
+    //       link.click();
 
-          window.URL.revokeObjectURL(fileURL);  
-        },
-        error: (err) => {
-          console.error(err);
-        }
-      });
+    //       window.URL.revokeObjectURL(fileURL);  
+    //     },
+    //     error: (err) => {
+    //       console.error(err);
+    //     }
+    //   });
     }
 
 
 
-    reconsultarSri(item:any){
-      // console.log(item);
-      this.saleService.reconsultarSri(item.idx)
-      .subscribe((resp:any)=>{
-        if(resp.estado == 'AUTORIZADO'){
-          this.sales.update((currentSales:any) => 
-            currentSales.map((sale:any) => 
-              sale.idx === item.idx 
-                ? { ...sale, estado_sri: 'AUTORIZADO' } 
-                : sale // 👈 IMPORTANTE
-            )
-          );
-          this.toastr.success('Exito', 'Factura: '+item.numero_factura+' fue autorizada');
-        }
-      })
-    }
+    // reconsultarSri(item:any){
+    //   // console.log(item);
+    //   this.customsaleService.reconsultarSri(item.idx)
+    //   .subscribe((resp:any)=>{
+    //     if(resp.estado == 'AUTORIZADO'){
+    //       this.sales.update((currentSales:any) => 
+    //         currentSales.map((sale:any) => 
+    //           sale.idx === item.idx 
+    //             ? { ...sale, estado_sri: 'AUTORIZADO' } 
+    //             : sale // 👈 IMPORTANTE
+    //         )
+    //       );
+    //       this.toastr.success('Exito', 'Factura: '+item.numero_factura+' fue autorizada');
+    //     }
+    //   })
+    // }
   
 
     mostrarFiltros(){
@@ -291,18 +297,18 @@ export class ListComponent {
       this.modalId.set(null);
     }
   
-    changeState(sale_id:any){
-      this.saleService.changeState(sale_id)
-      .subscribe((resp:any) => {
-        this.cerrarModal();
-        let state= false;
-        if(resp[1] === 'Sale annulled'){
-          state = false;
-          this.toastr.success('Exito', 'La venta se ha anulado correctamente');
-        }
-        this.actualizarSale(sale_id, state);
-      });
-    }
+    // changeState(sale_id:any){
+    //   this.saleService.changeState(sale_id)
+    //   .subscribe((resp:any) => {
+    //     this.cerrarModal();
+    //     let state= false;
+    //     if(resp[1] === 'Sale annulled'){
+    //       state = false;
+    //       this.toastr.success('Exito', 'La venta se ha anulado correctamente');
+    //     }
+    //     this.actualizarSale(sale_id, state);
+    //   });
+    // }
   
     actualizarSale(id: number, state: boolean) {
       this.sales.update((lista:any) =>

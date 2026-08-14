@@ -11,7 +11,7 @@
                     <div *ngIf="name != 'iva' && name != 'logoPdf'" >
                         <div class="mb-3">
                             <label cLabel for="name">Nombre configuracion (*)</label>
-                            <input cFormControl id="name" [ngModelOptions]="{standalone: true}" [(ngModel)]="name" placeholder="Ej: version xml..." type="text" />
+                            <input cFormControl id="name" [ngModelOptions]="{standalone: true}" [(ngModel)]="name" placeholder="Ej: version xml..." type="text" readonly/>
                         </div>
                         <div class="mb-3">
                             <label cLabel for="value">Valor (*)</label>

@@ -15,3 +15,8 @@ input[type="number"] {
 //   font-weight: 600;
 //   color: #6c757d;
 // }
+:host {
+  c-card {
+    min-width: 9rem;
+  }
+}

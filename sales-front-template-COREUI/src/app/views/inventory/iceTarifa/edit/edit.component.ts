@@ -4,7 +4,7 @@ import { freeSet } from '@coreui/icons';
 import { ToastrService } from 'ngx-toastr';
 import { IceTarifaService } from '../ice-tarifa.service';
 import { SharedModule } from '../../../../shared/shared.module';
-import { FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective, FormSelectDirective } from '@coreui/angular';
+import { FormCheckComponent, FormCheckInputDirective,  FormSelectDirective } from '@coreui/angular';
 import { ReactiveFormsModule } from '@angular/forms';
 
 export enum Tipo_tar {
@@ -15,7 +15,7 @@ export enum Tipo_tar {
 
 @Component({
   selector: 'app-edit',
-  imports: [SharedModule, FormSelectDirective, ReactiveFormsModule, FormCheckComponent,FormCheckInputDirective,FormCheckLabelDirective],
+  imports: [SharedModule, FormSelectDirective, ReactiveFormsModule, FormCheckComponent,FormCheckInputDirective],
   templateUrl: './edit.component.html',
   styleUrl: './edit.component.scss',
   host: {

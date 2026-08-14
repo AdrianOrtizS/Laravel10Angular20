@@ -5,18 +5,20 @@ import { SharedModule } from '../../../shared/shared.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CustomerService } from '../customer.service';
+import { FormSelectDirective } from '@coreui/angular';
 
 interface CustomerI {
   name:   string;
   email:  string;
   phone:  string;
   num_identificador:string;
-  address: string
+  address: string,
+  tipo_identificador:string
 }
 
 @Component({
   selector: 'app-edit',
-  imports: [SharedModule, ReactiveFormsModule],
+  imports: [SharedModule, ReactiveFormsModule,FormSelectDirective],
   templateUrl: './edit.component.html',
   styleUrl: './edit.component.scss',
   host: {
@@ -37,7 +39,8 @@ export class EditComponent {
       email:'',
       num_identificador:'',
       address:'',
-      phone:''
+      phone:'',
+      tipo_identificador:''
     });
 
     CUSTOMER_ID:any  = null;
@@ -81,6 +84,12 @@ export class EditComponent {
       const valor = (event.target as HTMLInputElement).value;
       this.CUSTOMER.update(c => ({ ...c, address: valor }));
     }  
+    
+    nombreTouched = false;
+    updateTipo_identificador(event: Event) {
+      const valor = (event.target as HTMLInputElement).value;
+      this.CUSTOMER.update(c => ({ ...c, tipo_identificador: valor }));
+    }
 
     // Validación de email reactiva
     isEmailValid = computed(() => {
@@ -91,28 +100,31 @@ export class EditComponent {
     
     // Validar si todos los campos son obligatorios y válidos
     isFormValid = computed(() => {
+      console.log(this.CUSTOMER());
       const c = this.CUSTOMER();
       return (
         c.name.trim().length > 0 &&
         c.num_identificador.trim().length > 0 &&
         c.phone.trim().length > 0 &&
         c.address.trim().length > 0 &&
+        c.tipo_identificador.trim().length > 0 &&
         this.isEmailValid()
       );
     });
 
     save(){
-      // if(!this.CUSTOMER().name || !this.CUSTOMER().num_identificador 
-      // || !this.CUSTOMER().email || !this.CUSTOMER().phone || !this.CUSTOMER().address
-      // ){
-      //   this.toastr.error('Validacion', 'Los campos con * son obligatorios');
-      //   return;
-      // }
+
+      console.log(this.CUSTOMER());
 
       this.customerService.updateCustomer(this.CUSTOMER_ID, this.CUSTOMER())
       .subscribe((resp:any) =>{
         if(resp.code == 403){
-          this.toastr.error('Validacion', 'El cliente ya existe');
+          let errors = Object.values(resp.message);
+          errors.forEach((err:any) => {
+            setTimeout(() => {
+              this.toastr.error('Validacion', err);
+            }, 800);
+          });
           return;
         }
         this.toastr.success('Exito', 'La cliente se ha actualizado correctamente');

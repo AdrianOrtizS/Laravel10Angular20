@@ -266,42 +266,53 @@
           </c-modal-footer>
         </c-modal>
       </div>
-      <div class="col-md-3 mb-3 mt-3">
-        <div class="col-md-12">
-          <label>PROD.</label>
-          <input cFormControl id="name" placeholder="Producto" type="text" [value]="producto().name" (input)="updateProductName($event)" readonly/>    
+      <div class="col-md-2 mb-3 mt-3">
+        <label class="form-label ">PROD.</label>
+        <div class="border rounded shadow-sm overflow-hidden">
+          <input cFormControl id="name" type="text" class="form-control text-center border-0 bg-light"
+            style="max-width: 100%;" placeholder="Producto" [value]="producto().name"
+            (input)="updateProductName($event)" readonly/>
         </div>
       </div>
       <div class="col-md-2 mb-3 mt-3">
-        <div class="col-md-12">
-          <label>PREC.</label>
-          <input cFormControl id="price" placeholder="2.33" type="number" [value]="producto().price" (input)="updateProductPrice($event)" required/>    
+        <label class="form-label ">PREC.</label>
+        <div class="border rounded shadow-sm overflow-hidden">
+          <input cFormControl id="price" type="number" class="form-control text-center border-0"
+            style="max-width: 100%;" placeholder="0.00" [value]="producto().price"
+            (input)="updateProductPrice($event)" min="0" step="0.01" required />
         </div>
-      </div>
-      <div class="col-md-2 mb-3 mt-3">
-        <div class="col-md-12">
-          <label>CANT.</label>
-          <input cFormControl id="quantity" placeholder="7" type="number" [value]="producto().quantity" (input)="updateProductQuantity($event)" required/>    
-        </div>
-      </div>
-      <div class="col-md-2 mb-3 mt-3 ml-3">
-          <label class="form-label">IVA</label>
-          <c-form-check class="mt-2">
-            <input 
-              cFormCheckInput 
-              type="checkbox" 
-              id="ivaCheck" 
-              style="margin-top: 25%; margin-left: -20px;"
-              class="check-lg"
-              [(ngModel)]="isCheckedIva"
-            />
-            <!-- <label cFormCheckLabel for="ivaCheck">
-              Aplicar IVA
-            </label> -->
-          </c-form-check>
       </div>
 
       <div class="col-md-2 mb-3 mt-3">
+        <label class="form-label ">CANT.</label>
+        <div class="d-flex align-items-center border rounded shadow-sm overflow-hidden">
+          <!-- Botón - -->
+          <button type="button" class="btn btn-light px-3" (click)="decreaseQuantity()"> − </button>
+          <!-- Input -->
+          <input cFormControl id="quantity" type="number" class="form-control text-center border-0"
+            style="max-width: 100px;" [value]="producto().quantity" (input)="updateProductQuantity($event)" min="1" required />
+          <!-- Botón + -->
+          <button type="button" class="btn btn-light px-3" (click)="increaseQuantity()"> + </button>
+        </div>
+      </div>
+
+      <div class="col-md-2 mb-3 mt-3">
+        <label class="form-label ">ICE %</label>
+        <div class="d-flex align-items-center border rounded shadow-sm overflow-hidden">
+          <!-- Input -->
+          <input cFormControl id="iva" type="number" class="form-control text-center border-0" [value]="producto().ice" readonly />
+        </div>
+      </div>
+
+      <div class="col-md-2 mb-3 mt-3 ml-3 text-center">
+          <label class="form-label">IVA</label>
+          <c-form-check class="mt-2">
+            <input cFormCheckInput type="checkbox" id="ivaCheck" style="margin-top: 25%; margin-left: -20px;"
+              class="check-lg" [(ngModel)]="isCheckedIva" />
+          </c-form-check>
+      </div> 
+
+      <div class="col-md-1 mb-3 mt-3">
         <div class="col-md-12" style="margin: inherit;">
           <label></label>
           <button cButton color="success" (click)="agregarProducto()" [disabled]="!isAddProductValid()" >
@@ -318,6 +329,7 @@
           <th style="width: 16%;">P. UNITARIO</th>
           <th style="width: 16%;">CANTIDAD</th>
           <th style="width: 16%;">SUBTOTAL</th>
+          <th style="width: 16%;">ICE %</th>
           @if(selectedTypeDoc == '1'){
             <th style="width: 17%;">IVA</th>
           }
@@ -330,6 +342,7 @@
           <td>{{ item.price | currency:'USD' }}</td>
           <td>{{ item.quantity }}</td>
           <td>{{ item.subtotal | currency:'USD' }}</td>
+          <td>{{ item.ice | currency:'USD' }}</td>
           @if(selectedTypeDoc == '1'){
             <td>{{ item.iva | currency:'USD' }}</td>
           }    
@@ -355,6 +368,12 @@
         <div>{{ subtotal | currency:'USD' }}</div>
       </div>
     }
+    <!-- @if(selectedTypeDoc == '1'){ -->
+      <div class="d-flex justify-content-between">
+        <div><strong>Ice:</strong></div>
+        <div>{{ ice | currency:'USD' }}</div>
+      </div>
+    <!-- } -->
     @if(selectedTypeDoc == '1'){
       <div class="d-flex justify-content-between">
         <div><strong>Iva 0:</strong></div>

@@ -73,27 +73,15 @@
                 <div class="col-md-4 mb-3" *ngIf="tarifa_ice == 1">
                     <label cLabel>Selecciona tarifa ice(*)</label>
                     <label cLabel *ngIf="tarifa_ice == 1" class="mb-0">Codigo -- Porcentaje -- Tipo</label>
-                    <!-- <select
-                        cSelect class="mt-0"
-                        [class.is-invalid]="id_ice_tarifaTouched && PRODUCT().id_ice_tarifa === '0'"
-                        (blur) ="id_ice_tarifaTouched = true"
-                        [value]="PRODUCT().id_ice_tarifa"
-                        (change)="updateId_Ice_Tarifa($event); id_ice_tarifaTouched = true">
-                        <option value="0">— Seleccione Tarifa ice —</option>
-                        @for(item of TarifasIce; track item.id) {
+                    <select cSelect class="mt-0" 
+                            [ngModelOptions]="{ standalone: true }" 
+                            [(ngModel)]="PRODUCT().id_ice_tarifa" 
+                            (ngModelChange)="updateId_Ice_Tarifa($event)">
+                        <option value="0">- Seleccione Tarifa ice -</option>
+                        @for(item of TarifasIce; track item.id){
                             <option [value]="item.id"> {{item.codigo_porcentaje}} -- {{item.tarifa}} -- {{item.tipo}}</option>
-                        }
-                    </select> -->
-
-<select cSelect class="mt-0" 
-        [ngModelOptions]="{ standalone: true }" 
-        [(ngModel)]="PRODUCT().id_ice_tarifa" 
-        (ngModelChange)="updateId_Ice_Tarifa($event)">
-    <option value="0">- Seleccione Tarifa ice -</option>
-    @for(item of TarifasIce; track item.id){
-        <option [value]="item.id"> {{item.codigo_porcentaje}} -- {{item.tarifa}} -- {{item.tipo}}</option>
-    }    
-</select>
+                        }    
+                    </select>
 
                     <small class="text-danger" *ngIf="id_ice_tarifaTouched && PRODUCT().id_ice_tarifa === null">
                         La tarifa es obligatoria
@@ -103,23 +91,7 @@
 
             <!-- CÓDIGO / NOMBRE -->
             <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label cLabel>Código (*)</label>
-                    <input
-                    cFormControl
-                    type="text"
-                    placeholder="Ej: PRD-001"
-                    [value]="PRODUCT().cod_pro"
-                    (input)="updateCod($event)"
-                    [class.is-invalid]="cod_proTouched && !PRODUCT().cod_pro?.trim()"
-                    (blur)="cod_proTouched = true"
-                    (change)="updateCod($event); cod_proTouched = true"/>
-                    <small class="text-danger" *ngIf="cod_proTouched && !PRODUCT().cod_pro?.trim()">
-                    Código obligatorio
-                    </small>
-                </div>
-
-                <div class="col-md-8 mb-3">
+                <div class="col-md-6 mb-3">
                     <label cLabel>Nombre (*)</label>
                     <input 
                     cFormControl
@@ -132,6 +104,40 @@
                     (change)="updateName($event); nameTouched = true"/>
                     <small class="text-danger" *ngIf="nameTouched && !PRODUCT().name?.trim()">
                     Nombre obligatorio
+                    </small>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label cLabel>Ingresar codigo de barras(*)</label>
+                    <select
+                        cSelect
+                        [class.is-invalid]="type_cod_proTouched && PRODUCT().type_cod_pro === '0'"
+                        (blur) ="type_cod_proTouched = true"
+                        [value]="PRODUCT().type_cod_pro"
+                        (change)="updateType_Cod_Pro($event); type_cod_proTouched = true">
+                        <option value="0">— Seleccione tipo codigo —</option>
+                        <option value="1">Automatico</option>
+                        <option value="2">Manual</option>
+                        <!-- <option value="2">Manual - EAN13</option> -->
+                    </select>
+                    <small class="text-danger" *ngIf="type_cod_proTouched && PRODUCT().type_cod_pro === '0'">
+                        Tipo codigo es obligatoria
+                    </small>
+                </div>
+
+                <div class="col-md-3 mb-3" *ngIf="PRODUCT().type_cod_pro == '2'">
+                    <label cLabel>Codigo de barras(*)</label>
+                    <input 
+                    cFormControl
+                    type="text"
+                    placeholder="Ej: 887766541237"
+                    [value]="PRODUCT().cod_pro_barras"
+                    (input)="updateCod_Pro_Barras($event)"
+                    [class.is-invalid]="cod_pro_barrasTouched && !PRODUCT().cod_pro_barras?.trim()"
+                    (blur)="cod_pro_barrasTouched = true"
+                    (change)="updateCod_Pro_Barras($event); cod_pro_barrasTouched = true"/>
+                    <small class="text-danger" *ngIf="cod_pro_barrasTouched && !PRODUCT().cod_pro_barras?.trim()">
+                    Codigo de producto es obligatorio
                     </small>
                 </div>
             </div>

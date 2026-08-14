@@ -26,7 +26,8 @@ interface BuyI {
   type_doc:any,
   subtotal:     any,
   iva:          any,
-  iva0:          any,
+  iva0:         any,
+  ice:          any,
   total:        any,
   items:        BuyDetalleI[]
 }
@@ -36,7 +37,8 @@ interface BuyDetalleI {
   quantity:   any,
   price:      any,
   subtotal:   any,
-  iva:        any
+  iva:        any,
+  ice:        any
 }
 
 @Component({
@@ -128,17 +130,27 @@ export class CreateComponent {
     this.search_ngModelProduct = '';
   }
   selectProduct(product:any){
+    // console.log(product);
     this.productSelect = product;
+    let ice_= null;
+    if(this.productSelect.tarifa_ice){
+      ice_ = this.productSelect.tarifa_ice.tarifa;
+    }else{
+      ice_ = 0;
+    }
     this.producto.set({ id_product: this.productSelect.id,
                         cod_pro:    this.productSelect.cod_pro, 
                         name:       this.productSelect.name, 
                         quantity:   1, 
                         discount:   0,
-                        iva:        0 
+                        iva:        0,     //1 si  -  0 no
+                        ice:        ice_
                       });
-                        
+    // console.log(this.producto());
+
     this.closeModalSelectProduct();
   }  
+
   openModalSelectProduct(){
     this.searchProductNull = false;
   }
@@ -281,7 +293,8 @@ export class CreateComponent {
     type_doc: 1,
     // discount:     0,
     iva:          0,
-    iva0:          0,
+    iva0:         0,
+    ice:          0,
     total:        0,
     items:        []
   };
@@ -294,24 +307,51 @@ export class CreateComponent {
     price:      0,
     subtotal:   0,
     iva:        0,
-    iva0:        0,
+    iva0:       0,
+    ice:        0
     // discount:   0
   });
   items: any[] = [];
 
 
+  increaseQuantity() {
+    const current = this.producto().quantity || 0;
+    this.producto().quantity = current + 1;
+  }
+  decreaseQuantity() {
+    const current = this.producto().quantity || 0;
+    if (current > 1) {
+      this.producto().quantity = current - 1;
+    }
+  }
+  increaseDiscount() {
+    const current = this.producto().discount || 0;
+    this.producto().discount = current + 1;
+  }
+  decreaseDiscount() {
+    const current = this.producto().discount || 0;
+    if (current > 1) {
+      this.producto().discount = current - 1;
+    }
+  }
+
+
   agregarProducto() {
-    
     this.producto().subtotal = this.producto().price * this.producto().quantity;
-    if(this.isCheckedIva){
-      this.producto().iva = Number(((this.producto().subtotal*this.ivaValor.value)/100).toFixed(2));
-    }else{
-      this.producto().iva0 = Number(this.producto().subtotal);
+
+    let ice_ = 0;
+    if(this.producto().ice){
+       ice_ = +(this.producto().subtotal * this.producto().ice / 100).toFixed(2)
     }
 
-    this.items.push({ ...this.producto() });
+    this.producto().ice = ice_; 
     
-    console.log(this.items);
+    if(this.isCheckedIva){
+      this.producto().iva = Number((((this.producto().subtotal + ice_)*this.ivaValor.value)/100).toFixed(2));
+    }else{
+      this.producto().iva0 = Number(this.producto().subtotal + ice_);
+    }
+    this.items.push({ ...this.producto() });
 
     this.producto.set({ 
       id_product: '',
@@ -322,8 +362,11 @@ export class CreateComponent {
       subtotal:   0, 
       iva:        0,
       iva0:       0,
+      ice:        0
       // discount:   0 
     });
+
+    this.isCheckedIva = null;
     this.calcularTotales();
   }
 
@@ -348,10 +391,13 @@ export class CreateComponent {
       subtotal:     this.subtotal,
       iva:          this.iva,
       iva0:         this.iva0,
+      ice:          this.ice, 
       total:        this.total,
       items:        this.items
     };
 
+    console.log(this.buy);
+    
     this.buyService.createBuy(this.buy)
     .subscribe((resp:any) =>{
       if(resp.code == 403){
@@ -378,8 +424,9 @@ export class CreateComponent {
         setTimeout(() => {
           this.supplierSelect = {};
           this.subtotal = 0;
-          this.iva = 0;
+          this.iva  = 0;
           this.iva0 = 0;
+          this.ice  = 0;
           this.total = 0;
           this.selectedTypeBuy = '1';   //1 contado - 2 credito
           this.selectedTypeDoc = '1';   //1 fact - 2 not. venta
@@ -395,6 +442,7 @@ export class CreateComponent {
 
   eliminarProducto(item: any) {
     this.items = this.items.filter(p => p !== item);
+    this.calcularTotales();
   }
 /////////////////////
 
@@ -403,38 +451,41 @@ export class CreateComponent {
   descuentoTotal:any = 0;
   iva0:any      = 0;
   iva:any       = 0;
+  ice:any       = 0;
   total:any     = 0;
   
   calcularTotales() {
     let subtotal = 0;
     let descuento = 0;
     let iva0 = 0;
-    let iva = 0;
+    let iva  = 0;
+    let ice  = 0;
 
     this.items.forEach(p => {
-      const price = Number(p.price) || 0;
-      const quantity = Number(p.quantity) || 0;
-      const discount = Number(p.discount) || 0;
-      const tarifa = Number(p.iva) || 0;
-      const base = (price * quantity) - discount;
+      const price     = Number(p.price) || 0;
+      const quantity  = Number(p.quantity) || 0;
+      const discount  = Number(p.discount) || 0;
+      const ice_      = Number(p.ice) || 0;
+      const tarifa    = Number(p.iva) || 0;
+      const base      = (price * quantity) - discount;
 
-      subtotal += price * quantity;
+      subtotal  += price * quantity;
       descuento += discount;
+      ice       += ice_;
 
       if (tarifa === 0) {
-        iva0 += base;
+        iva0 += base + ice_;
       } else {
-        // console.log(this.ivaValor);
-        iva += base * (+(this.ivaValor.value)/100);
-        // console.log(iva);
+        iva += (base + ice_) * (+(this.ivaValor.value)/100);
       }
     });
 
-    this.subtotal = subtotal;
+    this.subtotal = subtotal; 
     this.descuentoTotal = descuento;
     this.iva0 = iva0;
     this.iva = iva;
-    this.total = (subtotal - descuento) + iva;
+    this.ice = ice;
+    this.total = (subtotal - descuento) + ice + iva;
   }
 
 

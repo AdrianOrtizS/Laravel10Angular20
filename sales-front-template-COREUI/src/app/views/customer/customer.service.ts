@@ -47,4 +47,18 @@ export class CustomerService {
     .pipe();
   }
 
+
+  listSalesCustomer(customer_id:string, page:number=1, search:string, pageSize:number, fecha_ini?:any, fecha_fin?:any){
+    let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
+    let URL = URL_SERVICIOS+'/sales/customer/?customer_id='+customer_id+
+                                  '&page='+page+
+                                  '&search='+search+
+                                  '&pageSize='+pageSize+
+                                  '&fecha_ini='+fecha_ini+
+                                  '&fecha_fin='+fecha_fin;
+    console.log(URL);                              
+    return this.http.get(URL, {headers: headers})
+            .pipe();
+  }
+
 }

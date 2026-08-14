@@ -1,37 +1,78 @@
 @if(isFull){
   <c-card class="mb-3" [ngStyle]="{'max-width.px': 540}">
     <c-row class="g-0">
-      <!-- <c-col [md]="4" class="overflow-hidden position-relative">
-        <img cCardImg="start" [src]="imagen_previsualiza" class="d-none d-md-inline object-fit-cover" style="min-height: 100%; object-position: left">
-      </c-col> -->
+
       <c-card-body cCol [md]="8" style="margin: 40px;">
-        <!-- <h6 cCardTitle>Nombre: {{CUSTOMER().name}}</h6> -->
-        <p cCardText>
-          <strong>Nombre: </strong>  {{CUSTOMER().name}}.
-        </p>
-        <p cCardText>
-          <strong>N° Identificador:</strong>  {{CUSTOMER().num_identificador}}.
-        </p>
-        <p cCardText>
-          <strong>Email:</strong>  {{CUSTOMER().email}}.
-        </p>
-        <p cCardText>
-          <strong>Telefono:</strong>  {{CUSTOMER().phone}}.
-        </p>
-        <p cCardText>
-          <strong>Direccion:</strong>  {{CUSTOMER().address}}.
-        </p>
-        <p cCardText>
-          <small class="text-medium-emphasis">Creado {{tiempo_creacion}} </small>
-        </p>
+        <table>
+          <tr>
+            <td style="padding-top: 20px;">
+              <p cCardText>
+                <strong>Nombre: </strong>  
+              </p>
+            </td>
+            <td style="padding-top: 20px;">{{CUSTOMER().name}}.</td>
+          </tr>
+          <tr>
+            <td style="padding-top: 20px;">
+              <p cCardText>
+                <strong>Tipo identificador: </strong>  
+              </p>
+            </td>
+            <td style="padding-top: 20px;">{{CUSTOMER().tipo_identificador}}.</td>
+          </tr>
+          <tr>
+            <td style="padding-top: 20px;">
+              <p cCardText>
+                <strong>N° Identificador: </strong>  
+              </p>
+            </td>
+            <td style="padding-top: 20px;">{{CUSTOMER().num_identificador}}.</td>
+          </tr>
+          <tr>
+            <td style="padding-top: 20px;">
+              <p cCardText>
+                <strong>Email: </strong>  
+              </p>
+            </td>
+            <td style="padding-top: 20px;">{{CUSTOMER().email}}.</td>
+          </tr>
+          <tr>
+            <td style="padding-top: 20px;">
+              <p cCardText>
+                <strong>Telefono:</strong>  
+              </p>
+            </td>
+            <td style="padding-top: 20px;">{{CUSTOMER().phone}}.</td>
+          </tr>
+          <tr>
+            <td style="padding-top: 20px;">
+              <p cCardText>
+                <strong>Direccion:</strong>  
+              </p>
+            </td>
+            <td style="padding-top: 20px;">{{CUSTOMER().address}}.</td>
+          </tr>
+          <tr>
+            <td style="padding-top: 20px;">
+              <p cCardText>
+                <small class="text-medium-emphasis">Creado {{tiempo_creacion}} </small> 
+              </p>
+            </td>
+          </tr>
+        </table>
 
-        <button cButton color="warning" title="Editar" (click)="goUpdateCustomer()">
-          <svg cIcon name="cil-pen" size="xl" ></svg>
+        <button cButton color="warning" class="px-4" title="Editar" (click)="goUpdateCustomer()">
+          <svg cIcon name="cil-pen" size="xl" ></svg>Editar
+        </button>
+        
+        <button cButton color="secondary" class="px-4" title="Lista de ventas" (click)="goListSales()">
+          <svg [cIcon]="icons.cilList"  size="xl" ></svg>Ventas
         </button>
 
-        <button cButton color="primary" title="Regresar" (click)="goBack()">
-          <svg [cIcon]="icons.cilActionUndo"  size="xl" ></svg>
+        <button cButton color="primary" class="px-4" title="Regresar" (click)="goBack()">
+          <svg [cIcon]="icons.cilActionUndo"  size="xl" ></svg>Regresar
         </button>
+        
         
       </c-card-body>
     </c-row>

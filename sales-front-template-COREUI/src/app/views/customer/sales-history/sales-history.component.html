@@ -1,54 +1,60 @@
 @if(sales().length > 0){
   
   <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 p-3 bg-light rounded shadow-sm">
-    <div class="d-flex align-items-center gap-2 flex-grow-1">
+    <div class="d-flex align-items-center gap-1 flex-grow-2">
+        <svg [cIcon]="icons.cilUser" size="xl" class="text-primary me-4"></svg>
+        <div class="text-secondary small">
+            Cliente
+        </div>
+        <div class="fw-bold fs-5">
+            {{ CUSTOMER.name }}
+        </div>
+    </div>
+    <div class="d-flex align-items-center gap-4 flex-grow-1">
       <div class="position-relative w-100" *ngIf="!seeFilter">
         <input  cFormControl type="text" [(ngModel)]="search" (keyup.enter)="searchTo()" 
-          placeholder="Buscar cliente o comprobante..." class="w-100">
+          placeholder="Buscar comprobante..." class="w-100">
 
         <span class="position-absolute end-0 top-50 translate-middle-y text-secondary me-3 d-flex align-items-center gap-1 small">
           <svg [cIcon]="icons.cilSearch" size="sm"></svg>
           <span>Enter</span>
         </span>
       </div>
-
-      <button *ngIf="!seeFilter" cButton color="info" shape="rounded-pill" title="Mostrar filtros" (click)="mostrarFiltros()">
+      <button *ngIf="!seeFilter" cButton color="info" class="px-4" shape="rounded-pill" title="Mostrar filtros" (click)="mostrarFiltros()">
         <svg [cIcon]="icons.cilFilter" size="xl"></svg>
       </button>
-      
-      <button *ngIf="!seeFilter" cButton color="secondary" shape="rounded-pill" title="Actualizar" (click)="refresh()">
+      <button *ngIf="!seeFilter" cButton color="secondary" class="px-4" shape="rounded-pill" title="Actualizar" (click)="refresh()">
         <svg [cIcon]="icons.cilReload" size="xl"></svg>
       </button>
-      <button *ngIf="!seeFilter" cButton color="primary" shape="rounded-pill" title="Nueva compra" (click)="createSale()">
-        <svg [cIcon]="icons.cilPlus" size="xl"></svg>
-      </button>
-    </div>
-
-    <div *ngIf="seeFilter" class=" align-items-center  bg-white p-3 rounded border w-100 mt-2">
-      <div class="row">
-        <div class="col-md-8">
-          <div class="d-flex align-items-center gap-2">
-            <label class="fw-semibold text-secondary">Inicio:</label>
-            <input cFormControl type="date" [(ngModel)]="filterFrom" class="form-control-sm"/>
-            <label class="fw-semibold text-secondary">Fin:</label>
-            <input cFormControl type="date" [(ngModel)]="filterTo" class="form-control-sm"/>
+      <div *ngIf="seeFilter" class=" align-items-center  bg-white p-3 rounded border w-100 mt-2">
+        <div class="row">
+          <div class="col-md-8">
+            <div class="d-flex align-items-center gap-2">
+              <label class="fw-semibold text-secondary">Inicio:</label>
+              <input cFormControl type="date" [(ngModel)]="filterFrom" class="form-control-sm"/>
+              <label class="fw-semibold text-secondary">Fin:</label>
+              <input cFormControl type="date" [(ngModel)]="filterTo" class="form-control-sm"/>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <button cButton color="info" shape="rounded-pill" title="Buscar" (click)="searchTo()">
+              <svg [cIcon]="icons.cilSearch" size="lg"></svg>
+            </button>
+            <button cButton color="secondary" shape="rounded-pill" title="Excel" (click)="listSalesExcel()">
+              <svg [cIcon]="icons.cilDataTransferDown" size="lg"></svg>
+            </button>
+            <button cButton color="primary" shape="rounded-pill" title="Pdf" (click)="listSalesPdf()">
+              <svg [cIcon]="icons.cilFile" size="lg"></svg>
+            </button>
+            <button cButton color="danger" shape="rounded-pill" title="Quitar filtro" (click)="ocultarFiltros()">
+              <svg [cIcon]="icons.cilX" size="xl"></svg>
+            </button>
           </div>
         </div>
-        <div class="col-md-4">
-          <button cButton color="info" shape="rounded-pill" title="Buscar" (click)="searchTo()">
-            <svg [cIcon]="icons.cilSearch" size="lg"></svg>
-          </button>
-          <button cButton color="secondary" shape="rounded-pill" title="Excel" (click)="listSalesExcel()">
-            <svg [cIcon]="icons.cilDataTransferDown" size="lg"></svg>
-          </button>
-          <button cButton color="primary" shape="rounded-pill" title="Pdf" (click)="listSalesPdf()">
-            <svg [cIcon]="icons.cilFile" size="lg"></svg>
-          </button>
-          <button cButton color="danger" shape="rounded-pill" title="Quitar filtro" (click)="ocultarFiltros()">
-            <svg [cIcon]="icons.cilX" size="xl"></svg>
-          </button>
-        </div>
       </div>
+      <button cButton color="primary" class="px-4" title="Regresar" shape="rounded-pill" (click)="goBack()">
+        <svg [cIcon]="icons.cilActionUndo"  size="xl" ></svg>
+      </button>
     </div>
   </div>
 
@@ -70,7 +76,6 @@
         </div>
       </div>
     </div>
-
     <!-- Autorizadas -->
     <div class="col-xl-3 col-md-6">
       <div class="card stat-card h-100">
@@ -88,7 +93,6 @@
         </div>
       </div>
     </div>
-
     <!-- No autorizadas -->
     <div class="col-xl-3 col-md-6">
       <div class="card stat-card h-100">
@@ -106,7 +110,6 @@
         </div>
       </div>
     </div>
-
     <!-- Total registros -->
     <div class="col-xl-3 col-md-6">
       <div class="card stat-card h-100">
@@ -124,7 +127,6 @@
         </div>
       </div>
     </div>
-
   </div>
 
   <table bordered  cTable>
@@ -132,7 +134,7 @@
       <tr>
         <!-- <th scope="col">#</th> -->
         <th scope="col">Venta #</th>
-        <th scope="col">Cliente</th>
+        <!-- <th scope="col">Cliente</th> -->
         <th scope="col">Fecha</th>
         <th scope="col">Total</th>
         <th scope="col">Est. Sri</th>
@@ -147,7 +149,7 @@
         <tr>
           <!-- <th scope="row" style="width: 40px;">{{item.id}}</th> -->
           <td style="width: 150px;">{{item.infoTributaria.estab+'-'+item.infoTributaria.ptoEmi+'-'+ getSecuencial(item.infoTributaria.secuencial)}}</td>
-          <td style="width: 150px;">{{item.infoFactura.razonSocialComprador}}</td>
+          <!-- <td style="width: 150px;">{{item.infoFactura.razonSocialComprador}}</td> -->
           <td style="width: 150px;">{{item.infoFactura.fechaEmision}}</td>
           <td style="width: 100px;">{{item.infoFactura.importeTotal}}</td>
           
@@ -171,7 +173,7 @@
                 </i>
                 <span>{{ item.estado_sri }}</span>
 
-                <button 
+                <!-- <button 
                   cButton 
                   color="info"
                   variant="outline"
@@ -187,7 +189,7 @@
                   (click)="reconsultarSri(item)"
                 > <i class="bi bi-arrow-repeat"></i>
                   <span class="d-none d-md-inline">Reintentar</span>
-                </button>
+                </button> -->
 
               </div>
               <button 
@@ -206,9 +208,7 @@
                 <svg [cIcon]="icons.cilLowVision" size="xl" ></svg>
               </button>
 
-              <!-- form_pay: {{item.form_pay}}
-              saldo: {{item.saldo}} -->
-              @if((item.form_pay == '15' || item.form_pay == '20' 
+              <!-- @if((item.form_pay == '15' || item.form_pay == '20' 
                || item.form_pay == '21') && item.saldo > 0 && item.plazo > 0){
                 <button cButton color="warning" *ngIf="item.form_pay == '20'|| item.form_pay == '15' || item.form_pay == '21'" title="Abonar a venta" (click)="abrirModal(item.idx)" >
                   <svg [cIcon]="icons.cilMoney" size="xl"></svg>
@@ -222,69 +222,15 @@
                 <button cButton color="ligth"  title="Cancelada" >
                   <svg [cIcon]="icons.cilMoney" size="xl"></svg>
                 </button>
-              }
-
-              
-              <c-modal [visible]="modalId() === item.idx" title="Abonar documento # {{item.numero_factura}}" (close)="cerrarModal()">
-                <c-modal-header>
-                  <h5 cModalTitle>Abono a factura #{{item.numero_factura}}</h5>
-                  <button (click)="cerrarModal()" cButtonClose></button>
-                </c-modal-header>
-                <c-modal-body>
-                  <c-card class="mb-4">
-                    <c-card-body>
-                      <div class="row">
-                          <div class="col-md-12 mb-3 text-center">
-                              <label class="h5"> Saldo: {{item.saldo}}</label>
-                          </div>
-                          <div class="col-md-12 mb-3">
-                              <label>Monto </label>
-                              <input cInput type="number" class="form-control" required placeholder="9,87" [(ngModel)]="valor_abono" >
-                          </div>
-                          <div class="col-md-12 mb-3">
-                              <label>Observacion </label>
-                              <input cInput type="text" class="form-control" required placeholder="Escriba observacion..." [(ngModel)]="observacion" >
-                          </div>
-                          <!-- <div class="col-md-12 mb-3">
-                              <label cLabel for="imagen">Imagen: </label>
-                              <div>
-                                  <input cFormControl type="file" style="display: none;" id="categorieImage" accept=".jpeg, .bmp, .jpg, .png, .gif, .webp" (change)="processFile($event)">
-                              </div>
-                              <div>
-                                  <img [src]="imagen_previsualiza" (click)="clickInputFileHide()" 
-                                      style="cursor:grab; margin-left: 20px; border: black 1px solid; 
-                                        width: 100px; height: 100px;">
-                              </div>
-                          </div> -->
-                      </div>
-                    </c-card-body>
-                  </c-card>
-                </c-modal-body>
-                <c-modal-footer>
-                  <button cButton color="success" [disabled]="disabledReceived(item)" (click)="saveReceived(item.idx, item)">Guardar abono</button>
-                  <button cButton color="secondary" (click)="cerrarModal()">Cancelar</button>
-                </c-modal-footer>
-              </c-modal>
-
+              } -->
             </c-button-group>
           </td>
         </tr>
       } 
-      <!-- <tr>
-        <td></td>
-        <td></td>  
-        <td> 
-          <div class="fw-semibold text-secondary">
-            TOTAL:
-          </div>
-        </td>
-        <td>{{total_ventas | currency:'USD':'symbol-narrow':'1.2-2'}}</td>  
-        <td></td>
-        <td></td>
-      </tr> -->
+
     </tbody>
   </table>
-  
+
   <c-modal [visible]="modalIdErr()" title="Errores Sri" (close)="cerrarModalErrores()">
     <c-modal-header>
       <h5 cModalTitle>Errores</h5>
@@ -369,9 +315,8 @@
               <button cButton color="secondary" shape="rounded-pill" title="Actualizar" (click)="refresh()">
                 <svg [cIcon]="icons.cilReload" size="lg"></svg>
               </button>
-
-              <button cButton color="primary" shape="rounded-pill" title="Nuevo" (click)="createSale()">
-                <svg [cIcon]="icons.cilPlus" size="lg"></svg>
+              <button cButton color="primary" shape="rounded-pill" title="Regresar" (click)="goBack()">
+                <svg [cIcon]="icons.cilActionUndo"  size="xl" ></svg>
               </button>
             </div>
             <table bordered  cTable>

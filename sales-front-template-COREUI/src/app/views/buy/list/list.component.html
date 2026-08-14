@@ -34,8 +34,9 @@
           <label class="fw-semibold text-secondary">FIN:</label>
           <input cFormControl type="date" [(ngModel)]="filterTo" class="form-control-sm"/>
         </div>
-        <!-- <div class="d-flex align-items-center gap-2"></div> -->
-        <div class="d-flex m-3 ">
+      </div>
+      <div class="col-md-8">
+        <div class="d-flex align-items-center mt-3 gap-2">
           <label class="fw-semibold text-secondary">TIPO PAGO:</label>
           <div class="d-flex gap-2 " style="margin-inline-start: 10px;">
             <c-form-check inline>
@@ -50,7 +51,7 @@
           </div>
         </div>
       </div>
-      <div class="col-md-2">
+      <div class="col-md-2 mt-3">
         <button cButton color="info" shape="rounded-pill" title="Buscar" (click)="searchTo()">
           <svg [cIcon]="icons.cilSearch" size="lg"></svg>
         </button>
@@ -61,6 +62,54 @@
     </div>
   </div>
 </div>
+
+
+
+
+<div class="row g-4 mb-4">
+  <!-- Total Ventas -->
+  <div class="col-xl-6 col-md-6">
+    <div class="card stat-card h-100">
+      <div class="card-body d-flex align-items-center">
+        <div class="icon2 bg-primary-subtle text-primary">
+          <svg [cIcon]="icons.cilDollar" size="xxl"></svg>
+          <!-- <i class="icons.cilPuzzle fs-2"></i> -->
+        </div>
+
+        <div class="ms-3">
+          <small class="text-muted">Total Compras</small>
+          <h3 class="mb-0">{{total_compras | currency:'USD':'symbol-narrow':'1.2-2'}}</h3>
+          <!-- <small class="text-muted">Monto total</small> -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Total registros -->
+  <div class="col-xl-6 col-md-6">
+    <div class="card stat-card h-100">
+      <div class="card-body d-flex align-items-center">
+        <div class="icon2 bg-info-subtle text-info">
+          <svg [cIcon]="icons.cilChartLine" size="xxl"></svg>
+          <!-- <i class="cil-chart fs-2"></i> -->
+        </div>
+
+        <div class="ms-3">
+          <small class="text-muted">Total registros</small>
+          <h3 class="mb-0">{{total}}</h3>
+          <!-- <small class="text-muted">Este mes</small> -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+
+
+
 
   <table bordered  cTable>
     <thead cTableColor="light">
@@ -81,12 +130,9 @@
           <td style="width: 150px;">{{item.numero_factura}}</td>
           <td style="width: 150px;">{{item.supplier.name}}</td>
           <td style="width: 100px;">{{item.created_at|date: 'dd/MM/yyyy'}}</td>
-          
           <!-- <td style="width: 80px;">{{item.iva0}}</td>
           <td style="width: 80px;">{{item.iva}}</td> -->
-
           <td style="width: 80px;">{{item.total}}</td>
-
           <td style="width: 60px;"> 
             <c-button-group aria-label="Basic mixed styles example" role="group">
               <button cButton color="info" title="Ver" (click)="verBuy(item.id)">
@@ -102,7 +148,6 @@
                   <svg [cIcon]="icons.cilMoney" size="xl"></svg>
                 </button>
               }
-
               <c-modal [visible]="modalId() === item.id" title="Abonar documento # {{item.numero_factura}}" (close)="cerrarModal()">
                 <c-modal-header>
                   <h5 cModalTitle>ABONO A FACTURA #{{item.numero_factura}}</h5>
@@ -144,13 +189,9 @@
                   <button cButton color="secondary" (click)="cerrarModal()">CANCELAR</button>
                 </c-modal-footer>
               </c-modal>
-
               <button cButton color="danger" title="Eliminar" (click)="abrirModalDelete(item)" >
                 <svg [cIcon]="icons.cilTrash" size="xl" ></svg>
               </button>
-
-
-
             </c-button-group>
           </td>
         </tr>

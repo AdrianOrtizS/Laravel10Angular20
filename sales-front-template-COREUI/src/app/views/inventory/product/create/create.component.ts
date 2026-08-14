@@ -8,7 +8,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { FormCheckComponent, FormCheckInputDirective, FormCheckLabelDirective, FormSelectDirective } from '@coreui/angular';
 
 interface ProductI {
-  cod_pro:string,
+  cod_pro_barras:string,
+  type_cod_pro:number,
   name:   string,
   description: string,
   price:  string,
@@ -29,7 +30,8 @@ interface ProductI {
 export class CreateComponent {
 
     id_categorieTouched   = false;
-    cod_proTouched        = false;
+    cod_pro_barrasTouched = false;
+    type_cod_proTouched   = false;
     nameTouched           = false;
     descriptionTouched    = false;
     priceTouched          = false;
@@ -46,8 +48,9 @@ export class CreateComponent {
     productService = inject(ProductService);
     
     PRODUCT:any = signal<ProductI>({
-      cod_pro:  '',
       name:     '',
+      cod_pro_barras:  '',
+      type_cod_pro: 0,
       description:  '',
       price:    '',
       stock:    '',
@@ -68,7 +71,6 @@ export class CreateComponent {
       this.productService.getTarifasIce()
       .subscribe((resp:any)=>{
         this.TarifasIce = resp.Tarifas_ice;
-        console.log(this.TarifasIce);
       });
       this.productService.getCategories()
       .subscribe((resp:any)=>{
@@ -77,11 +79,6 @@ export class CreateComponent {
     }
 
     // Métodos para update cada campo (evita parser error)
-    updateCod(event: Event) {
-      const valor = (event.target as HTMLInputElement).value;
-      this.PRODUCT.update((c:any) => ({ ...c, cod_pro: valor }));
-    }
-
     updateName(event: Event) {
       const valor = (event.target as HTMLInputElement).value;
       this.PRODUCT.update((c:any) => ({ ...c, name: valor }));
@@ -110,35 +107,38 @@ export class CreateComponent {
       const valor = (event.target as HTMLInputElement).value;
       this.PRODUCT.update((c:any) => ({ ...c, id_categorie: valor }));
     }
-
-    // updateId_tarifa_iva(event: Event) {
-    //   const valor = (event.target as HTMLInputElement).value;
-    //   this.PRODUCT.update((c:any) => ({ ...c, id_tarifa_iva: valor }));
-    // }
+    updateType_Cod_Pro(event: Event) {
+      const valor = (event.target as HTMLInputElement).value;
+      this.PRODUCT.update((c:any) => ({ ...c, type_cod_pro: valor }));
+    }
+    updateCod_Pro_Barras(event: Event) {
+      const valor = (event.target as HTMLInputElement).value;
+      this.PRODUCT.update((c:any) => ({ ...c, cod_pro_barras: valor }));
+    }
     updateTarifa_iva(event: Event) {
       const valor = (event.target as HTMLInputElement).value;
       this.PRODUCT.update((c:any) => ({ ...c, tarifa_iva: valor }));
     }
     updateId_Ice_Tarifa(event: Event) {
       const valor = (event.target as HTMLInputElement).value;
-      // console.log(valor);
       this.PRODUCT.update((c:any) => ({ ...c, id_ice_tarifa: valor }));
     }
 
+    
     // Validar si todos los campos son obligatorios y válidos
     isFormValid = computed(() => {
       const c = this.PRODUCT();
       return (
-        c.cod_pro.trim().length > 0 &&
         c.name.trim().length > 0 &&
         c.description.trim().length > 0 &&
+        
+        ((c.type_cod_pro == '2' && c.cod_pro_barras.trim().length > 0) || c.type_cod_pro == '1' ) &&
+        
         (c.price >= 0 && c.price.trim().length > 0) &&
         c.stock.trim().length > 0 &&
         c.stock_min.trim().length > 0 && 
-        // c.id_tarifa_iva > 0 && 
         c.id_categorie > 0 &&
         c.tarifa_iva != null
-        // c.id_ice_tarifa != null
       );
     });
 
@@ -165,9 +165,10 @@ export class CreateComponent {
       }
 
       let formData = new FormData();
-      formData.append('cod_pro',  this.PRODUCT().cod_pro);
       formData.append('name',     this.PRODUCT().name);
       formData.append('description', this.PRODUCT().description);
+      formData.append('type_cod_pro', this.PRODUCT().type_cod_pro);
+      formData.append('cod_pro_barras',  this.PRODUCT().cod_pro_barras);
       formData.append('price',    this.PRODUCT().price);
       formData.append('stock',    this.PRODUCT().stock);
       formData.append('stock_min',      this.PRODUCT().stock_min);
@@ -185,7 +186,7 @@ export class CreateComponent {
 
       this.productService.createProduct(formData)
       .subscribe((resp:any) =>{
-        console.log(resp);
+        // console.log(resp);
         if(resp.code == 403){
           this.toastr.error('Validacion', 'Error al crear producto');
           return;
@@ -198,9 +199,10 @@ export class CreateComponent {
     // Limpiar formulario
     limpiarFormulario() {
       this.id_categorieTouched  = false;
-      this.cod_proTouched = false;
+      this.cod_pro_barrasTouched = false;
       this.nameTouched    = false;
       this.descriptionTouched = false;
+      this.type_cod_proTouched   = false;
       this.priceTouched   = false;
       this.stockTouched   = false;
       this.stock_minTouched = false;
@@ -209,9 +211,10 @@ export class CreateComponent {
       this.id_ice_tarifaTouched  = false;
 
       this.PRODUCT.set({ 
-        cod_pro:  '',
         name:     '', 
         description: '',
+        type_cod_pro: 0,
+        cod_pro_barras: '',
         id_categorie:  0, 
         price:    '',
         stock:    '',

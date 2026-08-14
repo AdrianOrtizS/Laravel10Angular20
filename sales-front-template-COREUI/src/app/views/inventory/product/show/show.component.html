@@ -19,16 +19,62 @@
           {{ PRODUCT().name || '— Sin nombre —' }}
         </h4>
 
-        <ul class="list-unstyled mb-3 small">
-          <li><h5><strong>Código:</strong> {{ PRODUCT().cod_pro || '—' }}</h5></li>
-          <li><h5><strong>Descripción:</strong> {{ PRODUCT().description || '—' }}</h5></li>
-          <li><h5><strong>Categoría:</strong> {{ PRODUCT().categorie?.name || '—' }}</h5></li>
-          <li><h5><strong>Precio:</strong> ${{ PRODUCT().price | number:'1.2-2' }}</h5></li>
-          <li><h5><strong>Stock:</strong> {{ PRODUCT().stock }}</h5></li>
-          <li><h5><strong>Stock mínimo:</strong> {{ PRODUCT().stock_min }}</h5></li>
-          <li><h5><strong>Tarifa iva:</strong> {{ ivaValor.value }} %</h5></li>
-          <li *ngIf="PRODUCT().tarifa_ice"><h5><strong>Tarifa ice:</strong> Cod: {{ PRODUCT().tarifa_ice.codigo_porcentaje }} -- Tar: {{ PRODUCT().tarifa_ice.tarifa }} % -- Tar: {{ PRODUCT().tarifa_ice.tipo }}</h5></li>
-        </ul>
+        <table>
+          <tr>
+            <td><strong>Código:</strong></td>
+            <td>{{ PRODUCT().cod_pro || '—' }}</td>
+          </tr>
+          <tr>
+            <td><strong>Código de barras:</strong></td>
+            <td>            
+              <div class="mt-2">
+                <img [src]="'data:image/png;base64,' + PRODUCT().cod_pro_barras_img"
+                  alt="Código de barras" class="img-fluid">
+                  <div class=" text-center fw-semibold">
+                    {{ PRODUCT().cod_pro_barras || '—' }}
+                  </div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Descripción:</strong></td>
+            <td>{{ PRODUCT().description || '—' }}</td>
+          </tr>
+          <tr>
+            <td><strong>Categoría:</strong></td>
+            <td>{{ PRODUCT().categorie?.name || '—' }}</td>
+          </tr>
+          <tr>
+            <td><strong>Precio:</strong></td>
+            <td>${{ PRODUCT().price | number:'1.2-2' }}</td>
+          </tr>
+          <tr>
+            <td><strong>Stock:</strong></td>
+            <td>{{ PRODUCT().stock }}</td>
+          </tr>
+          <tr>
+            <td><strong>Stock mínimo:</strong></td>
+            <td>{{ PRODUCT().stock_min }}</td>
+          </tr>
+          <tr>
+            <td><strong>Tarifa iva:</strong></td>
+            <td>{{ ivaValor.value }} %</td>
+          </tr>
+          <tr *ngIf="PRODUCT().tarifa_ice">
+            <td><strong>Tarifa ice:</strong></td>
+            <td>
+              <tr>
+                <td>-Cod: {{ PRODUCT().tarifa_ice.codigo_porcentaje }}</td>
+              </tr>
+              <tr>
+                <td>-Tar: {{ PRODUCT().tarifa_ice.tarifa }} %</td>
+              </tr>
+              <tr>
+                <td>-Tipo: {{ PRODUCT().tarifa_ice.tipo }}</td>
+              </tr>            
+            </td>
+          </tr>
+        </table>
 
         <small class="text-medium-emphasis mb-3">
           Creado {{ tiempo_creacion }}

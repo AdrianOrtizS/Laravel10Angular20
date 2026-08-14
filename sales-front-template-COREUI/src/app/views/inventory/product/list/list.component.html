@@ -16,6 +16,7 @@
       <tr>
         <th scope="col">#</th>
         <th scope="col">Codigo</th>
+        <!-- <th scope="col">Codigo de barras</th> -->
         <th scope="col">Nombre</th>
         <th scope="col">Precio</th>
         <th scope="col">Stock</th>
@@ -30,6 +31,9 @@
         <tr>
           <th scope="row" style="width: 40px;">{{item.id}}</th>
           <td style="width: 50px;">{{item.cod_pro}}</td>
+          <!-- <td>
+            <img [src]="'data:image/png;base64,' + item.cod_pro_barras" alt="Código de barras">
+          </td>  -->
           <td style="width: 200px;">{{item.name}}</td>
           <td style="width: 100px; text-align: center;">{{item.price}}</td>
           <td style="width: 100px; text-align: center;">{{item.stock}}</td>

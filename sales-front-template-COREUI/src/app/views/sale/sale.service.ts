@@ -1,5 +1,5 @@
 import { AuthService } from './../services/auth.service';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { URL_SERVICIOS } from '../../config/config';
 
@@ -24,6 +24,24 @@ export class SaleService {
                                   '&fecha_fin='+fecha_fin;
     return this.http.get(URL, {headers: headers})
             .pipe();
+  }
+
+  listSalesExcel(fecha_ini?:any, fecha_fin?:any) {
+    let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
+    let URL = URL_SERVICIOS+'/sale/excel';
+    const params = new HttpParams()
+        .set('fecha_ini', fecha_ini)
+        .set('fecha_fin', fecha_fin);
+    return this.http.get(URL, {headers, params, responseType:'blob'});
+  }
+
+  listSalesPdf(fecha_ini?:any, fecha_fin?:any) {
+    let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
+    let URL = URL_SERVICIOS+'/sale/exportPdf';
+    const params = new HttpParams()
+        .set('fecha_ini', fecha_ini)
+        .set('fecha_fin', fecha_fin);
+    return this.http.get(URL, {headers, params, responseType:'blob'});
   }
 
   createSale(data:any){
@@ -67,7 +85,6 @@ export class SaleService {
     return this.http.get(URL, {headers: headers})
     .pipe();
   }
-
 
   reconsultarSri(id:any){
     let headers = new HttpHeaders({'Authorization': 'Bearer '+JSON.parse(this.authService.token)});
